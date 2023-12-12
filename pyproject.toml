@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "ndleafy"
+version = "0.0.1"
+description = "A fast network diffusion library"
+authors = ["Eliot W. Robson <eliot.robson24@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+
+[tool.poetry.group.dev.dependencies]
+cython = "^3.0.6"
+
+[build-system]
+requires = ["poetry-core", "setuptools~=50.3.2"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.build]
+script = "build.py"
+generate-setup-file = false
