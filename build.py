@@ -2,10 +2,9 @@
 import shutil
 from pathlib import Path
 
-# import Cython.Compiler.Options  # pyright: ignore [reportMissingImports]
-from Cython.Build import build_ext, cythonize  # pyright: ignore [reportMissingImports]
-from setuptools import Extension  # noqa: I001
-from setuptools.dist import Distribution  # noqa: I001
+from Cython.Build import build_ext, cythonize  # type: ignore
+from setuptools import Extension
+from setuptools.dist import Distribution
 
 # when using setuptools, you should import setuptools before Cython,
 # otherwise, both might disagree about the class to use.
