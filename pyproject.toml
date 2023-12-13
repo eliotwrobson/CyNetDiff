@@ -14,7 +14,7 @@ python = "^3.11"
 cython = "^3.0.6"
 
 [build-system]
-requires = ["poetry-core", "setuptools~=50.3.2"]
+requires = ["poetry-core", "setuptools~=50.3.2", "cython"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.build]
