@@ -11,7 +11,8 @@ python = "^3.11"
 
 
 [tool.poetry.group.dev.dependencies]
-cython = "^3.0.6"
+pytest = "^7.4.3"
+
 
 [build-system]
 requires = ["poetry-core", "setuptools~=50.3.2", "cython"]
