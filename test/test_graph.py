@@ -4,8 +4,8 @@ Purpose:
 """
 import pytest
 
-from leafy.data_structure import PYMAXWEIGHT
-from leafy.graph import Graph
+from ndleafy.data_structure import PYMAXWEIGHT
+from ndleafy.graph import Graph
 
 
 @pytest.fixture()

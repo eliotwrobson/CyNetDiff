@@ -1,8 +1,8 @@
 import time
 
-from leafy.digraph import DFS as diDFS
-from leafy.search import BFS, DFS
-from leafy.shortest_path import Dijkstra
+from ndleafy.digraph import DFS as diDFS
+from ndleafy.search import BFS, DFS
+from ndleafy.shortest_path import Dijkstra
 
 
 def test_diagraph_time(large_dag):

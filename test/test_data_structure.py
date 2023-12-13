@@ -6,8 +6,12 @@ from array import array
 
 import pytest
 
-from leafy.data_structure import (
-    Queue, AdjacencyList, PYMAXWEIGHT, py_heap_queue, py_array_iter,
+from ndleafy.data_structure import (
+    PYMAXWEIGHT,
+    AdjacencyList,
+    Queue,
+    py_array_iter,
+    py_heap_queue,
 )
 
 
@@ -23,15 +27,8 @@ def simple_adj_list():
 
 def test_adjacencylist(simple_adj_list):
     assert simple_adj_list.length(1) == 2
-    assert simple_adj_list.as_py_list() == [
-        [1],
-        [2, 3],
-        [3],
-        []
-    ]
-    assert simple_adj_list.as_py_pairs() == [
-        (0, 1), (1, 2), (1, 3), (2, 3)
-    ]
+    assert simple_adj_list.as_py_list() == [[1], [2, 3], [3], []]
+    assert simple_adj_list.as_py_pairs() == [(0, 1), (1, 2), (1, 3), (2, 3)]
 
 
 def test_linkedlistiter(simple_adj_list):
@@ -39,7 +36,7 @@ def test_linkedlistiter(simple_adj_list):
 
 
 def test_arrayiter():
-    arr = array('d', [PYMAXWEIGHT, PYMAXWEIGHT, 1.2,         1.3])
+    arr = array("d", [PYMAXWEIGHT, PYMAXWEIGHT, 1.2, 1.3])
     mv_iter = py_array_iter(arr, 4)
     assert [(2, 1.2), (3, 1.3)] == [i for i in mv_iter]
 
@@ -90,7 +87,7 @@ class TestQueue:
 
 def test_priority_queue_asc():
     #                             0    1    2    3    4   5
-    weighted_list = array('d', [0.6, 0.2, 0.5, 0.4, 0.3, 0.22])
+    weighted_list = array("d", [0.6, 0.2, 0.5, 0.4, 0.3, 0.22])
     pqueue = py_heap_queue(weighted_list, 6, True)
     assert pqueue.empty() is False
     assert pqueue.get_next() == 1
@@ -103,7 +100,7 @@ def test_priority_queue_asc():
 
 def test_priority_queue_desc():
     #                           0    1    2    3    4   5
-    weighted_list = array('d', [0.6, 0.2, 0.5, 0.4, 0.3, 0.22])
+    weighted_list = array("d", [0.6, 0.2, 0.5, 0.4, 0.3, 0.22])
     pqueue = py_heap_queue(weighted_list, 6, False)
     assert pqueue.empty() is False
     assert pqueue.get_next() == 0
@@ -115,7 +112,7 @@ def test_priority_queue_desc():
 
 
 def test_priority_queue_change():
-    weighted_list = array('d', [1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
+    weighted_list = array("d", [1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
     pqueue = py_heap_queue(weighted_list, 6, True)
     weighted_list[1] = 0.2
     pqueue.change(1)
@@ -126,4 +123,3 @@ def test_priority_queue_change():
     weighted_list[4] = 0.2
     pqueue.change(4)
     assert pqueue.get_next() == 4
-

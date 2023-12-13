@@ -11,22 +11,13 @@ from setuptools.dist import Distribution  # noqa: I001
 # otherwise, both might disagree about the class to use.
 
 
-# EXTENSIONS = [
-#    Extension('leafy.data_structure', ['leafy/data_structure.pyx']),
-#    Extension('leafy.graph', ['leafy/graph.pyx']),
-#    Extension('leafy.search', ['leafy/search.pyx']),
-#    Extension('leafy.digraph', ['leafy/digraph.pyx']),
-#    Extension('leafy.shortest_path', ['leafy/shortest_path.pyx']),
-# ]
-
-
 def build_cython_extensions():
     extensions = [
-        Extension("leafy.data_structure", ["leafy/data_structure.pyx"]),
-        Extension("leafy.graph", ["leafy/graph.pyx"]),
-        Extension("leafy.search", ["leafy/search.pyx"]),
-        Extension("leafy.digraph", ["leafy/digraph.pyx"]),
-        Extension("leafy.shortest_path", ["leafy/shortest_path.pyx"]),
+        Extension("ndleafy.data_structure", ["ndleafy/data_structure.pyx"]),
+        Extension("ndleafy.graph", ["ndleafy/graph.pyx"]),
+        Extension("ndleafy.search", ["ndleafy/search.pyx"]),
+        Extension("ndleafy.digraph", ["ndleafy/digraph.pyx"]),
+        Extension("ndleafy.shortest_path", ["ndleafy/shortest_path.pyx"]),
     ]
 
     # include_dirs = set()

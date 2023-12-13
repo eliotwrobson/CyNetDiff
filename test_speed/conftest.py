@@ -4,11 +4,13 @@ import time
 
 import pytest
 
-from leafy import Graph
+from ndleafy import Graph
 
 sys.setrecursionlimit(1_000_000)
 
 node_counter = 0
+
+
 def get_next_node():
     global node_counter
     node_counter += 1
@@ -35,7 +37,14 @@ def large_dag():
     return graph
 
 
-def add_children(graph: Graph, parent_node: int, width: int, depth: int, max_depth: int, max_nodes: int):
+def add_children(
+    graph: Graph,
+    parent_node: int,
+    width: int,
+    depth: int,
+    max_depth: int,
+    max_nodes: int,
+):
     if depth == max_depth or parent_node == max_nodes:
         return
     for child_i in range(width):
@@ -64,17 +73,23 @@ def large_weighted_graph():
     return graph
 
 
-def add_weighted_cyclic_children(graph: Graph,
-                                 parent_node: int,
-                                 width: int,
-                                 depth: int,
-                                 max_depth: int,
-                                 max_nodes: int):
+def add_weighted_cyclic_children(
+    graph: Graph,
+    parent_node: int,
+    width: int,
+    depth: int,
+    max_depth: int,
+    max_nodes: int,
+):
     if depth == max_depth or parent_node == max_nodes:
         return
     for child_i in range(width):
         child_node = get_next_node()
         graph.add_edge(parent_node, child_node, random.random())
-        if random.choice([True , False]):
-            graph.add_edge(parent_node, random.randint(0, node_counter - 1), random.random())
-        add_weighted_cyclic_children(graph, child_node, width, depth + 1, max_depth, max_nodes)
+        if random.choice([True, False]):
+            graph.add_edge(
+                parent_node, random.randint(0, node_counter - 1), random.random()
+            )
+        add_weighted_cyclic_children(
+            graph, child_node, width, depth + 1, max_depth, max_nodes
+        )

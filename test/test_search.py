@@ -4,8 +4,8 @@ Purpose:
 """
 import pytest
 
-from leafy.graph import Graph
-from leafy.search import BFS, DFS
+from ndleafy.graph import Graph
+from ndleafy.search import BFS, DFS
 
 
 @pytest.fixture

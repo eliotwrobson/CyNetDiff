@@ -1,7 +1,7 @@
 import pytest
 
-from leafy.graph import Graph
-from leafy.shortest_path import Dijkstra
+from ndleafy.graph import Graph
+from ndleafy.shortest_path import Dijkstra
 
 
 @pytest.fixture

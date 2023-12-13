@@ -4,14 +4,15 @@ Purpose:
 """
 import pytest
 
-from leafy.graph import Graph
-from leafy.digraph import DFS
+from ndleafy.digraph import DFS
+from ndleafy.graph import Graph
 
 """
 Test DFS.is_dag
 Test DFS.topological_order
 Test DFS.reverse_topological_order
 """
+
 
 def small_dag():
     dag = Graph(13, True)
@@ -34,6 +35,7 @@ def small_dag():
     dag.add_edge(11, 12)
     return dag
 
+
 @pytest.fixture()
 def dag_dfs():
     dag = small_dag()
@@ -47,11 +49,19 @@ class TestDagDFS:
         assert dag_dfs.is_dag is True
 
     def test_topological_sort(self, dag_dfs):
-        assert list(dag_dfs.topological_order()) == [
-            0, 6, 2, 3, 5, 4, 9, 11, 12, 10, 1
-        ]
+        assert list(dag_dfs.topological_order()) == [0, 6, 2, 3, 5, 4, 9, 11, 12, 10, 1]
 
     def test_reverse_topological_sort(self, dag_dfs):
         assert list(dag_dfs.reverse_topological_order()) == [
-            1, 10, 12, 11, 9, 4, 5, 3, 2, 6, 0
+            1,
+            10,
+            12,
+            11,
+            9,
+            4,
+            5,
+            3,
+            2,
+            6,
+            0,
         ]
