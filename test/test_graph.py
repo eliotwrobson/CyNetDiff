@@ -34,6 +34,8 @@ def small_dag():
 def test_source_sink(small_dag):
     assert list(small_dag.sources) == [0, 8]
     assert list(small_dag.sinks) == [1, 5, 10, 12]
+    small_dag.add_edge(8, 0)
+    assert list(small_dag.sources) == [8]
 
 
 def test_graph_weights(small_dag):
