@@ -6,7 +6,6 @@ import pytest
 
 from leafy.graph import Graph
 from leafy.digraph import DFS
-from .utils import dfs_diagnostics
 
 """
 Test DFS.is_dag
@@ -45,18 +44,14 @@ def dag_dfs():
 
 class TestDagDFS:
     def test_is_dag(self, dag_dfs):
-        assert dag_dfs.is_dag is True, dfs_diagnostics(dag_dfs)
+        assert dag_dfs.is_dag is True
 
     def test_topological_sort(self, dag_dfs):
         assert list(dag_dfs.topological_order()) == [
             0, 6, 2, 3, 5, 4, 9, 11, 12, 10, 1
-        ], dfs_diagnostics(dag_dfs)
+        ]
 
     def test_reverse_topological_sort(self, dag_dfs):
         assert list(dag_dfs.reverse_topological_order()) == [
             1, 10, 12, 11, 9, 4, 5, 3, 2, 6, 0
-        ], dfs_diagnostics(dag_dfs)
-
-
-
-
+        ]

@@ -1,7 +1,7 @@
 import time
 
 from leafy.digraph import DFS as diDFS
-from leafy.search import DFS, BFS
+from leafy.search import BFS, DFS
 from leafy.shortest_path import Dijkstra
 
 
@@ -10,9 +10,11 @@ def test_diagraph_time(large_dag):
     t0 = time.time()
     dfs.run()
     t1 = time.time()
+
     def _run(node: int):
         for w, _ in large_dag.py_nodeiter(node):
             _run(w)
+
     py_t0 = time.time()
     _run(0)
     py_t1 = time.time()

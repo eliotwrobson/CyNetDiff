@@ -40,4 +40,4 @@ jobs:
       #    python -m pip install -r test_requirements.txt
       #    python setup.py build_ext --inplace
       - name: Test with pytest
-        run: poetry run pytest test
+        run: poetry run pytest test test_speed

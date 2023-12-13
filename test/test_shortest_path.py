@@ -2,7 +2,6 @@ import pytest
 
 from leafy.graph import Graph
 from leafy.shortest_path import Dijkstra
-from .utils import disanostics_table
 
 
 @pytest.fixture
@@ -22,6 +21,5 @@ def simple_network():
 def test_shortest_path(simple_network):
     dij = Dijkstra(simple_network, 0)
     dij.run()
-    assert dij.path(3) == [3, 7, 2, 1, 0], f"\n{disanostics_table(dij.diagnostics)}"
-    assert dij.weight(3) == 2.6, f"\n{disanostics_table(dij.diagnostics)}"
-
+    assert dij.path(3) == [3, 7, 2, 1, 0]
+    assert dij.weight(3) == 2.6
