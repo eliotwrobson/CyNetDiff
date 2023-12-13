@@ -13,11 +13,11 @@ from setuptools.dist import Distribution  # noqa: I001
 
 def build_cython_extensions():
     extensions = [
-        Extension("ndleafy.data_structure", ["ndleafy/data_structure.pyx"]),
-        Extension("ndleafy.graph", ["ndleafy/graph.pyx"]),
-        Extension("ndleafy.search", ["ndleafy/search.pyx"]),
-        Extension("ndleafy.digraph", ["ndleafy/digraph.pyx"]),
-        Extension("ndleafy.shortest_path", ["ndleafy/shortest_path.pyx"]),
+        Extension("ndleafy.data_structure", ["src/ndleafy/data_structure.pyx"]),
+        Extension("ndleafy.graph", ["src/ndleafy/graph.pyx"]),
+        Extension("ndleafy.search", ["src/ndleafy/search.pyx"]),
+        Extension("ndleafy.digraph", ["src/ndleafy/digraph.pyx"]),
+        Extension("ndleafy.shortest_path", ["src/ndleafy/shortest_path.pyx"]),
     ]
 
     # include_dirs = set()
@@ -36,12 +36,9 @@ def build_cython_extensions():
 
     for output in cmd.get_outputs():
         output = Path(output)
-        relative_extension = output.relative_to(cmd.build_lib)
+        relative_extension = "src" / output.relative_to(cmd.build_lib)
         shutil.copyfile(output, relative_extension)
 
 
 if __name__ == "__main__":
     build_cython_extensions()
-
-
-# TODO need to edit this file to make the build system work right.

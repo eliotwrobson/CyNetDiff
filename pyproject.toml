@@ -5,6 +5,10 @@ description = "A fast network diffusion library"
 authors = ["Eliot W. Robson <eliot.robson24@gmail.com>"]
 license = "MIT"
 readme = "README.md"
+packages = [
+    {include = "ndleafy", from = "src"}
+]
+
 
 [tool.poetry.dependencies]
 python = "^3.11"
