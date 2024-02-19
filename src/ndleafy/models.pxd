@@ -7,5 +7,5 @@ cdef class DiffusionModel:
 
 
 cdef class IndependentCascadeModel(DiffusionModel):
-    cdef readonly int[:] starts
-    cdef readonly int[:] edges
+    cdef readonly unsigned int[:] starts
+    cdef readonly unsigned int[:] edges

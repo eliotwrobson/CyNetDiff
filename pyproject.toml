@@ -18,6 +18,7 @@ python = "^3.11"
 pytest = "^7.4.3"
 mypy = "^1.7.1"
 types-setuptools = "^69.0.0.0"
+networkx = "^3.2.1"
 
 
 [build-system]
