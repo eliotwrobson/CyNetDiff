@@ -12,11 +12,7 @@ from setuptools.dist import Distribution
 
 def build_cython_extensions():
     extensions = [
-        Extension("ndleafy.data_structure", ["src/ndleafy/data_structure.pyx"]),
-        Extension("ndleafy.graph", ["src/ndleafy/graph.pyx"]),
-        Extension("ndleafy.search", ["src/ndleafy/search.pyx"]),
-        Extension("ndleafy.digraph", ["src/ndleafy/digraph.pyx"]),
-        Extension("ndleafy.shortest_path", ["src/ndleafy/shortest_path.pyx"]),
+        Extension("ndleafy.models", ["src/ndleafy/models.pyx"]),
     ]
 
     # include_dirs = set()
