@@ -12,7 +12,7 @@ from setuptools.dist import Distribution
 
 def build_cython_extensions():
     extensions = [
-        Extension("ndleafy.models", ["src/ndleafy/models.pyx"]),
+        Extension("ndleafy.models", ["src/ndleafy/models.pyx"], language="c++"),
     ]
 
     # include_dirs = set()
@@ -21,7 +21,9 @@ def build_cython_extensions():
     # include_dirs = list(include_dirs)
 
     ext_modules = cythonize(
-        extensions, annotate=True, compiler_directives={"language_level": "3str"}
+        extensions,
+        annotate=True,
+        compiler_directives={"language_level": "3str"},
     )
 
     dist = Distribution({"ext_modules": ext_modules})

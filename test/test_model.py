@@ -33,3 +33,9 @@ def test_basic():
 
     starts, edges = networkx_to_csr(test_graph)
     thing = IndependentCascadeModel(starts, edges)
+    thing.initialize_model({1, 2, 3})
+    thing.advance_model()
+    stuff = list(thing.get_newly_activated_nodes())
+
+    print(stuff)
+    assert False
