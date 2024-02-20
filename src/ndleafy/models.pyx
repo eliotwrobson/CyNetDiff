@@ -51,7 +51,7 @@ cdef class IndependentCascadeModel(DiffusionModel):
         for new_node in self.work_deque:
             yield new_node
 
-    cdef double activation_succeeds(self, unsigned int edge_idx):
+    cdef bool activation_succeeds(self, unsigned int edge_idx):
         # TODO add parameter that allows manually setting this
 
         if self.edge_probabilities is None:
