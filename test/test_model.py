@@ -138,6 +138,7 @@ def _prop_success(G, src, dest, rand_gen):
     return G[src][dest]["success_prob"] <= G[src][dest]["act_prob"]
 
 
+# TODO speed up this CSR function
 def networkx_to_csr(graph: nx.Graph | nx.DiGraph) -> tuple[array.array, array.array]:
     node_mapping = {node: i for i, node in enumerate(graph.nodes())}
 

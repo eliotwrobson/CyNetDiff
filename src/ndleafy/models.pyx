@@ -58,7 +58,7 @@ cdef class IndependentCascadeModel(DiffusionModel):
         if self.edge_probabilities is None:
             return next_rand() <= self.threshhold
 
-        return self.edge_probabilities[edge_idx] <= self.threshhold
+        return self.edge_probabilities.data.as_ints[edge_idx] <= self.threshhold
 
 
 
