@@ -3,6 +3,7 @@ from cpython cimport array
 from libcpp.deque cimport deque as cdeque
 from libcpp.unordered_set cimport unordered_set as cset
 from libcpp cimport bool
+from cython.parallel import parallel, prange
 import array
 import random
 
@@ -28,6 +29,10 @@ cdef class DiffusionModel:
     cpdef void reset_model(self):
         raise NotImplementedError
 
+    cpdef void advance_until_completion(self):
+        raise NotImplementedError
+
+
 cdef class IndependentCascadeModel(DiffusionModel):
     # Functions that interface with the Python side of things
     def __cinit__(
@@ -44,6 +49,8 @@ cdef class IndependentCascadeModel(DiffusionModel):
         self.edge_probabilities = edge_probabilities
 
     def initialize_model(self, seeds):
+        self.work_deque.clear()
+        self.seen_set.clear()
         for seed in seeds:
             self.work_deque.push_back(seed)
             self.seen_set.insert(seed)
@@ -52,19 +59,28 @@ cdef class IndependentCascadeModel(DiffusionModel):
         for new_node in self.work_deque:
             yield new_node
 
-    cdef inline bool activation_succeeds(self, unsigned int edge_idx):
-        # TODO add parameter that allows manually setting this
+    def get_num_activated_nodes(self):
+        return self.seen_set.size()
 
+    cdef inline bool activation_succeeds(self, unsigned int edge_idx):
         if self.edge_probabilities is None:
             return next_rand() <= self.threshhold
 
         return self.edge_probabilities[edge_idx] <= self.threshhold
 
-
-
     # Functions that actually advance the model
+    cpdef void advance_until_completion(self):
+        while self.work_deque.size() > 0:
+            self.__advance_model(self.work_deque, self.seen_set)
+
     cpdef void advance_model(self):
-        cdef unsigned int q = self.work_deque.size()
+        self.__advance_model(self.work_deque, self.seen_set)
+
+    # Internal-only function to advance,
+    # TODO change this to not use internal attributes directly.
+    # This should make coding up a parellel runner easier
+    cdef void __advance_model(self, cdeque[unsigned int]& work_deque, cset[unsigned int]& seen_set):
+        cdef unsigned int q = work_deque.size()
         cdef unsigned int num_starts = len(self.starts)
         cdef unsigned int num_edges = len(self.edges)
 
@@ -74,8 +90,8 @@ cdef class IndependentCascadeModel(DiffusionModel):
         cdef unsigned int child
 
         for _ in range(q):
-            node = self.work_deque.front()
-            self.work_deque.pop_front()
+            node = work_deque.front()
+            work_deque.pop_front()
 
             range_end = num_edges
             if node + 1 < num_starts:
@@ -88,6 +104,6 @@ cdef class IndependentCascadeModel(DiffusionModel):
                 child = self.edges.data.as_ints[i]
 
                 # Child is _not_ in the seen set
-                if self.seen_set.find(child) == self.seen_set.end():
-                    self.work_deque.push_back(child)
-                    self.seen_set.insert(child)
+                if seen_set.find(child) == seen_set.end():
+                    work_deque.push_back(child)
+                    seen_set.insert(child)
