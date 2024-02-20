@@ -34,7 +34,7 @@ cdef class IndependentCascadeModel(DiffusionModel):
             self,
             array.array starts,
             array.array edges,
-            float threshhold = 0.1,
+            double threshhold = 0.1,
             array.array edge_probabilities = None
         ):
 
@@ -52,13 +52,13 @@ cdef class IndependentCascadeModel(DiffusionModel):
         for new_node in self.work_deque:
             yield new_node
 
-    cdef bool activation_succeeds(self, unsigned int edge_idx):
+    cdef inline bool activation_succeeds(self, unsigned int edge_idx):
         # TODO add parameter that allows manually setting this
 
         if self.edge_probabilities is None:
             return next_rand() <= self.threshhold
 
-        return self.edge_probabilities.data.as_ints[edge_idx] <= self.threshhold
+        return self.edge_probabilities[edge_idx] <= self.threshhold
 
 
 
