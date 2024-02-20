@@ -2,6 +2,7 @@
 from cpython cimport array
 from libcpp.deque cimport deque as cdeque
 from libcpp.unordered_set cimport unordered_set as cset
+from libcpp cimport bool
 import array
 import random
 
