@@ -1,7 +1,20 @@
+# Start with imports
 from cpython cimport array
 from libcpp.deque cimport deque as cdeque
 from libcpp.unordered_set cimport unordered_set as cset
 import array
+import random
+
+# Next, utility functions
+# TODO move these to a separate file later
+# From https://narkive.com/Fjs6xpVv:2.890.139
+from libc.stdlib cimport rand, RAND_MAX
+cdef double RAND_SCALE = 1.0 / RAND_MAX
+
+cdef inline double next_rand():
+    return rand() * RAND_SCALE
+
+# Now, the actual classes we care about
 
 cdef class DiffusionModel:
     def get_newly_activated_nodes(self):
@@ -16,9 +29,18 @@ cdef class DiffusionModel:
 
 cdef class IndependentCascadeModel(DiffusionModel):
     # Functions that interface with the Python side of things
-    def __cinit__(self, array.array starts, array.array edges):
+    def __cinit__(
+            self,
+            array.array starts,
+            array.array edges,
+            float threshhold = 0.1,
+            array.array edge_probabilities = None
+        ):
+
         self.starts = starts
         self.edges = edges
+        self.threshhold = threshhold
+        self.edge_probabilities = edge_probabilities
 
     def initialize_model(self, seeds):
         for seed in seeds:
@@ -28,6 +50,16 @@ cdef class IndependentCascadeModel(DiffusionModel):
     def get_newly_activated_nodes(self):
         for new_node in self.work_deque:
             yield new_node
+
+    cdef double activation_succeeds(self, unsigned int edge_idx):
+        # TODO add parameter that allows manually setting this
+
+        if self.edge_probabilities is None:
+            return next_rand() <= self.threshhold
+
+        return self.edge_probabilities[edge_idx] <= self.threshhold
+
+
 
     # Functions that actually advance the model
     cpdef void advance_model(self):
@@ -49,6 +81,9 @@ cdef class IndependentCascadeModel(DiffusionModel):
                 range_end = self.starts.data.as_ints[node + 1]
 
             for i in range(self.starts.data.as_ints[node], range_end):
+                if not self.activation_succeeds(i):
+                    continue
+
                 child = self.edges.data.as_ints[i]
 
                 # Child is _not_ in the seen set
