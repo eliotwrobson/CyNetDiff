@@ -1,6 +1,7 @@
 from cpython cimport array
 from libcpp.deque cimport deque as cdeque
 from libcpp.unordered_set cimport unordered_set as cset
+from libcpp cimport bool
 
 cdef class DiffusionModel:
     cpdef void advance_model(self)
@@ -14,4 +15,4 @@ cdef class IndependentCascadeModel(DiffusionModel):
     cdef double threshhold
     cdef cdeque[unsigned int] work_deque
     cdef cset[unsigned int] seen_set
-    cdef double activation_succeeds(self, unsigned int edge_idx)
+    cdef bool activation_succeeds(self, unsigned int edge_idx)
