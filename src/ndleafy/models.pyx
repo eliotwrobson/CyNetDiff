@@ -47,6 +47,9 @@ cdef class IndependentCascadeModel(DiffusionModel):
         self.edges = edges
         self.threshhold = threshhold
         self.edge_probabilities = edge_probabilities
+        self.num_starts = len(self.starts)
+        self.num_edges = len(self.edges)
+
 
     def initialize_model(self, seeds):
         self.work_deque.clear()
@@ -81,8 +84,6 @@ cdef class IndependentCascadeModel(DiffusionModel):
     # This should make coding up a parellel runner easier
     cdef void __advance_model(self, cdeque[unsigned int]& work_deque, cset[unsigned int]& seen_set):
         cdef unsigned int q = work_deque.size()
-        cdef unsigned int num_starts = len(self.starts)
-        cdef unsigned int num_edges = len(self.edges)
 
         # Working variables
         cdef unsigned int node
@@ -93,8 +94,8 @@ cdef class IndependentCascadeModel(DiffusionModel):
             node = work_deque.front()
             work_deque.pop_front()
 
-            range_end = num_edges
-            if node + 1 < num_starts:
+            range_end = self.num_edges
+            if node + 1 < self.num_starts:
                 range_end = self.starts.data.as_ints[node + 1]
 
             for i in range(self.starts.data.as_ints[node], range_end):

@@ -13,6 +13,8 @@ cdef class IndependentCascadeModel(DiffusionModel):
     cdef array.array edges
     cdef array.array edge_probabilities
     cdef double threshhold
+    cdef unsigned int num_starts
+    cdef unsigned int num_edges
     cdef cdeque[unsigned int] work_deque
     cdef cset[unsigned int] seen_set
     cdef bool activation_succeeds(self, unsigned int edge_idx)
