@@ -212,3 +212,25 @@ def test_basic_2():
     thing.advance_until_completion()
 
     assert num_seen == thing.get_num_activated_nodes()
+
+
+def test_parallel():
+    n = 1000
+    p = 0.1
+    k = 2
+    test_graph = nx.fast_gnp_random_graph(n, p, seed=12345)
+
+    random.seed(12345)
+    for u, v, data in test_graph.edges(data=True):
+        data["success_prob"] = random.random()
+
+    nodes = list(test_graph.nodes)
+    seeds = random.sample(nodes, k)
+
+    # Set up the model
+    starts, edges, success_probs = networkx_to_csr(test_graph)
+    thing = IndependentCascadeModel(starts, edges, threshhold=0.1)
+    thing.initialize_model(seeds)
+    res = thing.run_in_parallel(1)
+    # print(res)
+    # exit()

@@ -13,7 +13,7 @@ import random
 from libc.stdlib cimport rand, RAND_MAX
 cdef double RAND_SCALE = 1.0 / RAND_MAX
 
-cdef inline double next_rand():
+cdef inline double next_rand() nogil:
     return rand() * RAND_SCALE
 
 # Now, the actual classes we care about
@@ -30,6 +30,9 @@ cdef class DiffusionModel:
         raise NotImplementedError
 
     cpdef void advance_until_completion(self):
+        raise NotImplementedError
+
+    cpdef float run_in_parallel(self, unsigned int k):
         raise NotImplementedError
 
 
@@ -65,11 +68,11 @@ cdef class IndependentCascadeModel(DiffusionModel):
     def get_num_activated_nodes(self):
         return self.seen_set.size()
 
-    cdef inline bool activation_succeeds(self, unsigned int edge_idx):
+    cdef inline bool __activation_succeeds(self, unsigned int edge_idx) nogil:
         if self.edge_probabilities is None:
             return next_rand() <= self.threshhold
 
-        return self.edge_probabilities[edge_idx] <= self.threshhold
+        return self.edge_probabilities.data.as_floats[edge_idx] <= self.threshhold
 
     # Functions that actually advance the model
     cpdef void advance_until_completion(self):
@@ -82,7 +85,7 @@ cdef class IndependentCascadeModel(DiffusionModel):
     # Internal-only function to advance,
     # TODO change this to not use internal attributes directly.
     # This should make coding up a parellel runner easier
-    cdef void __advance_model(self, cdeque[unsigned int]& work_deque, cset[unsigned int]& seen_set):
+    cdef void __advance_model(self, cdeque[unsigned int]& work_deque, cset[unsigned int]& seen_set) nogil:
         cdef unsigned int q = work_deque.size()
 
         # Working variables
@@ -99,7 +102,7 @@ cdef class IndependentCascadeModel(DiffusionModel):
                 range_end = self.starts.data.as_ints[node + 1]
 
             for i in range(self.starts.data.as_ints[node], range_end):
-                if not self.activation_succeeds(i):
+                if not self.__activation_succeeds(i):
                     continue
 
                 child = self.edges.data.as_ints[i]
@@ -108,3 +111,28 @@ cdef class IndependentCascadeModel(DiffusionModel):
                 if seen_set.find(child) == seen_set.end():
                     work_deque.push_back(child)
                     seen_set.insert(child)
+
+
+    # TODO fix this, there's a weird bug in here somewhere
+    # Might have to do with the memory
+    cpdef float run_in_parallel(self, unsigned int k):
+        cdef float res = 0.0
+        cdef cdeque[unsigned int] local_work_deque
+        cdef cset[unsigned int] local_seen_set
+        cdef unsigned int j
+        cdef unsigned int seed
+
+        with nogil, parallel():
+            local_work_deque.clear()
+            local_seen_set.clear()
+            # TODO replace this with a more efficient copying data structure
+            for seed in self.work_deque:
+                local_work_deque.push_back(seed)
+                local_seen_set.insert(seed)
+
+            for j in prange(k, schedule="guided"):
+                while local_work_deque.size() > 0:
+                    self.__advance_model(local_work_deque, local_seen_set)
+                res += local_seen_set.size()
+        #print(res, k)
+        return res / k
