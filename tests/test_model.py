@@ -232,5 +232,6 @@ def test_parallel():
     thing = IndependentCascadeModel(starts, edges, threshhold=0.1)
     thing.initialize_model(seeds)
     res = thing.run_in_parallel(1)
+    assert False
     # print(res)
     # exit()

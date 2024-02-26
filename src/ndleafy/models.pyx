@@ -83,9 +83,8 @@ cdef class IndependentCascadeModel(DiffusionModel):
         self.__advance_model(self.work_deque, self.seen_set)
 
     # Internal-only function to advance,
-    # TODO change this to not use internal attributes directly.
-    # This should make coding up a parellel runner easier
-    cdef void __advance_model(self, cdeque[unsigned int]& work_deque, cset[unsigned int]& seen_set) nogil:
+    # returns an int to allow for exceptions
+    cdef int __advance_model(self, cdeque[unsigned int]& work_deque, cset[unsigned int]& seen_set) except -1 nogil:
         cdef unsigned int q = work_deque.size()
 
         # Working variables

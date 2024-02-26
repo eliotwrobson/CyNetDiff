@@ -19,4 +19,4 @@ cdef class IndependentCascadeModel(DiffusionModel):
     cdef cdeque[unsigned int] work_deque
     cdef cset[unsigned int] seen_set
     cdef bool __activation_succeeds(self, unsigned int edge_idx) nogil
-    cdef void __advance_model(self, cdeque[unsigned int]& work_deque, cset[unsigned int]& seen_set) nogil
+    cdef int __advance_model(self, cdeque[unsigned int]& work_deque, cset[unsigned int]& seen_set) except -1 nogil
