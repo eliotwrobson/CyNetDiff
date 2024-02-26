@@ -225,7 +225,7 @@ def test_specific_model() -> None:
     thing = IndependentCascadeModel(
         starts, edges, threshold=0.1, edge_probabilities=success_probs
     )
-    thing.initialize_model(seeds)
+    thing.set_seeds(seeds)
 
     for node_level in activated_nodes_levels:
         assert set(node_level) == set(thing.get_newly_activated_nodes())
@@ -249,7 +249,7 @@ def test_basic_2() -> None:
     thing = IndependentCascadeModel(
         starts, edges, threshold=0.1, edge_probabilities=success_probs
     )
-    thing.initialize_model(seeds)
+    thing.set_seeds(seeds)
     thing.advance_until_completion()
 
     assert num_seen == thing.get_num_activated_nodes()
@@ -273,7 +273,7 @@ def test_parallel() -> None:
     thing = IndependentCascadeModel(
         starts, edges, threshold=0.1, edge_probabilities=success_probs
     )
-    thing.initialize_model(seeds)
+    thing.set_seeds(seeds)
     res = thing.run_in_parallel(100)
 
     assert math.isclose(res, float(total_seen))
