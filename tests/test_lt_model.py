@@ -3,7 +3,6 @@ import copy
 import random
 
 import networkx as nx
-import numpy as np
 
 #    Code below adapted from code by
 #    Hung-Hsuan Chen <hhchen@psu.edu>
@@ -69,7 +68,7 @@ def linear_threshold(G, seeds, steps=0):
     # init thresholds
     for n in DG.nodes():
         if "threshold" not in DG._node[n]:
-            DG._node[n]["threshold"] = np.random.rand(1)[0]
+            DG._node[n]["threshold"] = random.random()
         elif DG._node[n]["threshold"] > 1:
             raise Exception(
                 "node threshold:", DG._node[n]["threshold"], "cannot be larger than 1"
@@ -148,32 +147,65 @@ def _influence_sum(G, froms, to):
 # TODO speed up this CSR function
 def networkx_to_csr(
     graph: nx.Graph | nx.DiGraph,
-) -> tuple[array.array, array.array, array.array]:
+) -> tuple[
+    array.array, array.array, array.array, array.array, array.array, array.array
+]:
     node_mapping = {node: i for i, node in enumerate(graph.nodes())}
 
-    out_neighbors = array.array("I")
-    in_neighbors = array.array("I")
+    successors = array.array("I")
+    successor_starts = array.array("I")
+
+    predecessor = array.array("I")
+    predecessor_starts = array.array("I")
+
+    # TODO make setting these optional
     threshold = array.array("f")
     influence = array.array("f")
 
-    curr_out_neighbor = 0
-    curr_in_neighbor = 0
+    curr_successor = 0
+    curr_predecessor = 0
     for node in graph.nodes():
-        starts.append(curr_start)
-        for neighbor in graph.neighbors(node):
-            other = node_mapping[neighbor]
-            curr_start += 1
-            edges.append(other)
-            success_prob.append(graph.get_edge_data(node, other)["success_prob"])
+        # First, add to out neighbors
+        successor_starts.append(curr_successor)
+        for successor in graph.successors(node):
+            other = node_mapping[successor]
+            curr_successor += 1
+            successors.append(other)
 
-    return starts, edges, success_prob
+        # Next, do the same but for in-neighbors,
+        # logic is largely the same
+        predecessor_starts.append(curr_predecessor)
+        for predecessor in graph.predecessors(node):
+            other = node_mapping[predecessor]
+            curr_predecessor += 1
+            predecessor.append(other)
+
+        threshold.append()
+        influence.append()
+
+    return (successors, successor_starts, predecessor, predecessor_starts)
 
 
 def generate_random_graph_from_seed(n: int, p: float, seed: int = 12345) -> nx.Graph:
     graph = nx.fast_gnp_random_graph(n, p, seed=seed)
 
     random.seed(12345)
-    for _, _, data in graph.edges(data=True):
-        data["success_prob"] = random.random()
+    for _, data in graph.nodes(data=True):
+        data["influence"] = random.random()
+        data["threshold"] = random.random()
 
     return graph
+
+
+def test_specific_model() -> None:
+    n = 1000
+    p = 0.01
+    k = 10
+    test_graph = generate_random_graph_from_seed(n, p)
+
+    nodes = list(test_graph.nodes)
+    seeds = random.sample(nodes, k)
+
+    res = linear_threshold(test_graph, seeds)
+    print(res)
+    assert False
