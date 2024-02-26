@@ -16,23 +16,27 @@ cdef class IndependentCascadeModel(DiffusionModel):
     cdef float[:] edge_probabilities
     cdef double threshold
 
-    cdef unsigned int num_starts
-    cdef unsigned int num_edges
     cdef cdeque[unsigned int] work_deque
     cdef cset[unsigned int] seen_set
     cdef cset[unsigned int] original_seeds
     cdef bool __activation_succeeds(self, unsigned int edge_idx) nogil
     cdef int __advance_model(self, cdeque[unsigned int]& work_deque, cset[unsigned int]& seen_set) except -1 nogil
 
-# cdef class LinearThresholdModel(DiffusionModel):
-#     # Core model parameters
-#     cdef unsigned int[:] successors
-#     cdef unsigned int[:] successor_starts
-#     cdef unsigned int[:] predecessor
-#     cdef unsigned int[:] predecessor_starts
-#     cdef float[:] threshold
-#     cdef float[:] influence
+cdef class LinearThresholdModel(DiffusionModel):
+    # Core model parameters
+    cdef unsigned int[:] successors
+    cdef unsigned int[:] successor_starts
+    cdef unsigned int[:] predecessors
+    cdef unsigned int[:] predecessor_starts
+    cdef float[:] threshold
+    cdef float[:] influence
 
+    cdef cdeque[unsigned int] work_deque
+    cdef cset[unsigned int] seen_set
+    cdef cset[unsigned int] original_seeds
+
+    cdef bool __activation_succeeds(self, unsigned int vtx_idx, const cset[unsigned int]& seen_set) nogil
+    cdef int __advance_model(self, cdeque[unsigned int]& work_deque, cset[unsigned int]& seen_set) except -1 nogil
 
 #     cdef cdeque[unsigned int] work_deque
 #     cdef cset[unsigned int] seen_set

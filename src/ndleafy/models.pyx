@@ -52,10 +52,10 @@ cdef class IndependentCascadeModel(DiffusionModel):
         self.starts = starts
         self.edges = edges
         self.threshold = threshold
-        self.num_starts = len(self.starts)
-        self.num_edges = len(self.edges)
-
         self.edge_probabilities = edge_probabilities
+
+        if self.edge_probabilities is not None:
+            assert len(self.edges) == len(self.edge_probabilities)
 
     def set_seeds(self, seeds):
         self.original_seeds.clear()
@@ -107,8 +107,8 @@ cdef class IndependentCascadeModel(DiffusionModel):
             node = work_deque.front()
             work_deque.pop_front()
 
-            range_end = self.num_edges
-            if node + 1 < self.num_starts:
+            range_end = len(self.edges)
+            if node + 1 < len(self.starts):
                 range_end = self.starts[node + 1]
 
             for i in range(self.starts[node], range_end):
@@ -158,16 +158,70 @@ cdef class LinearThresholdModel(DiffusionModel):
     # Functions that interface with the Python side of things
     def __cinit__(
             self,
-            array.array starts,
-            array.array edges,
-            double threshold = 0.1,
-            array.array edge_probabilities = None
+            array.array successors,
+            array.array successor_starts,
+            array.array predecessors,
+            array.array predecessor_starts,
+            array.array threshold,
+            array.array influence,
         ):
 
-        self.starts = starts
-        self.edges = edges
+        self.successors = successors
+        self.successor_starts = successor_starts
+        self.predecessors = predecessors
+        self.predecessor_starts = predecessor_starts
         self.threshold = threshold
-        self.num_starts = len(self.starts)
-        self.num_edges = len(self.edges)
+        self.influence = influence
 
-        self.edge_probabilities = edge_probabilities
+        assert len(self.successor_starts) == len(self.predecessor_starts)
+        assert len(self.successor_starts) == len(self.threshold)
+        assert len(self.predecessors) == len(self.successors)
+        assert len(self.predecessors) == len(self.influence)
+
+    cdef inline bool __activation_succeeds(self, unsigned int vtx_idx, const cset[unsigned int]& seen_set) nogil:
+        cdef unsigned int i
+        cdef unsigned int range_end
+
+        range_end = len(self.predecessors)
+        if vtx_idx + 1 < len(self.predecessor_starts):
+            range_end = self.predecessor_starts[vtx_idx + 1]
+
+        cdef float influence_sum = 0.0
+
+        for i in range(self.predecessor_starts[vtx_idx], range_end):
+            parent = self.predecessors[i]
+            # Parent is in the seen set
+            if seen_set.find(parent) != seen_set.end():
+                influence_sum += self.influence[parent]
+
+        return influence_sum >= self.threshold[vtx_idx]
+
+    # Internal-only function to advance,
+    # returns an int to allow for exceptions
+    cdef int __advance_model(self, cdeque[unsigned int]& work_deque, cset[unsigned int]& seen_set) except -1 nogil:
+        cdef unsigned int q = work_deque.size()
+
+        # Working variables
+        cdef unsigned int node
+        cdef unsigned int range_end
+        cdef unsigned int child
+        cdef unsigned int i
+
+        for _ in range(q):
+            node = work_deque.front()
+            work_deque.pop_front()
+
+            range_end = len(self.successors)
+            if node + 1 < len(self.successor_starts):
+                range_end = self.successor_starts[node + 1]
+
+            for i in range(self.successor_starts[node], range_end):
+                if not self.__activation_succeeds(i, seen_set):
+                    continue
+
+                child = self.successors[i]
+
+                # Child is _not_ in the seen set
+                if seen_set.find(child) == seen_set.end():
+                    work_deque.push_back(child)
+                    seen_set.insert(child)

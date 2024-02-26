@@ -4,6 +4,8 @@ import random
 
 import networkx as nx
 
+from ndleafy.models import LinearThresholdModel
+
 #    Code below adapted from code by
 #    Hung-Hsuan Chen <hhchen@psu.edu>
 #    All rights reserved.
@@ -155,7 +157,7 @@ def networkx_to_csr(
     successors = array.array("I")
     successor_starts = array.array("I")
 
-    predecessor = array.array("I")
+    predecessors = array.array("I")
     predecessor_starts = array.array("I")
 
     # TODO make setting these optional
@@ -178,23 +180,23 @@ def networkx_to_csr(
         for predecessor in graph.predecessors(node):
             other = node_mapping[predecessor]
             curr_predecessor += 1
-            predecessor.append(other)
+            predecessors.append(other)
+            influence.append(random.random())
 
-        threshold.append()
-        influence.append()
+        threshold.append(random.random())
 
     return (
         successors,
         successor_starts,
-        predecessor,
+        predecessors,
         predecessor_starts,
         threshold,
         influence,
     )
 
 
-def generate_random_graph_from_seed(n: int, p: float, seed: int = 12345) -> nx.Graph:
-    graph = nx.fast_gnp_random_graph(n, p, seed=seed)
+def generate_random_graph_from_seed(n: int, p: float, seed: int = 12345) -> nx.DiGraph:
+    graph = nx.fast_gnp_random_graph(n, p, seed=seed).to_directed()
 
     random.seed(12345)
     for _, data in graph.nodes(data=True):
@@ -213,6 +215,22 @@ def test_specific_model() -> None:
     nodes = list(test_graph.nodes)
     seeds = random.sample(nodes, k)
 
-    res = linear_threshold(test_graph, seeds)
-    print(res)
+    (
+        successors,
+        successor_starts,
+        predecessor,
+        predecessor_starts,
+        threshold,
+        influence,
+    ) = networkx_to_csr(test_graph)
+
+    res = LinearThresholdModel(
+        successors,
+        successor_starts,
+        predecessor,
+        predecessor_starts,
+        threshold,
+        influence,
+    )
+    # print(res)
     assert False
