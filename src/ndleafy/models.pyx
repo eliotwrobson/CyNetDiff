@@ -20,6 +20,7 @@ cdef inline double next_rand() nogil:
 
 # Now, the actual classes we care about
 
+# First, the DiffusionModel base class
 cdef class DiffusionModel:
     def get_newly_activated_nodes(self):
         raise NotImplementedError
@@ -37,7 +38,7 @@ cdef class DiffusionModel:
     cpdef float run_in_parallel(self, unsigned int k):
         raise NotImplementedError
 
-
+# IC Model
 cdef class IndependentCascadeModel(DiffusionModel):
     # Functions that interface with the Python side of things
     def __cinit__(
@@ -151,3 +152,22 @@ cdef class IndependentCascadeModel(DiffusionModel):
             del local_seen_set
 
         return res / k
+
+# LT Model
+cdef class LinearThresholdModel(DiffusionModel):
+    # Functions that interface with the Python side of things
+    def __cinit__(
+            self,
+            array.array starts,
+            array.array edges,
+            double threshold = 0.1,
+            array.array edge_probabilities = None
+        ):
+
+        self.starts = starts
+        self.edges = edges
+        self.threshold = threshold
+        self.num_starts = len(self.starts)
+        self.num_edges = len(self.edges)
+
+        self.edge_probabilities = edge_probabilities

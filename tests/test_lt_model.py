@@ -183,7 +183,14 @@ def networkx_to_csr(
         threshold.append()
         influence.append()
 
-    return (successors, successor_starts, predecessor, predecessor_starts)
+    return (
+        successors,
+        successor_starts,
+        predecessor,
+        predecessor_starts,
+        threshold,
+        influence,
+    )
 
 
 def generate_random_graph_from_seed(n: int, p: float, seed: int = 12345) -> nx.Graph:

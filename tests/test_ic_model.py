@@ -202,11 +202,14 @@ def test_model_basic() -> None:
     model.advance_until_completion()
     assert model.get_num_activated_nodes() == 0
 
-    model.set_seeds(random.sample(list(graph.nodes), k))
-    assert len(set(model.get_newly_activated_nodes())) == k
+    seeds = set(random.sample(list(graph.nodes), k))
+    model.set_seeds(seeds)
+    assert set(model.get_newly_activated_nodes()) == seeds
 
     model.advance_until_completion()
     assert k <= model.get_num_activated_nodes() <= n
+    model.reset_model()
+    assert set(model.get_newly_activated_nodes()) == seeds
 
 
 def test_specific_model() -> None:
