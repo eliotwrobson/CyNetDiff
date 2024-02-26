@@ -5,10 +5,10 @@ Purpose:
 
 import array
 import copy
+import math
 import random
 
 import networkx as nx
-import pytest
 
 from ndleafy.models import IndependentCascadeModel
 
@@ -160,6 +160,34 @@ def networkx_to_csr(graph: nx.Graph | nx.DiGraph) -> tuple[array.array, array.ar
 # The start of the actual test cases
 
 
+def test_parallel():
+    n = 1000
+    p = 0.01
+    k = 10
+    test_graph = nx.fast_gnp_random_graph(n, p, seed=12345)
+
+    random.seed(12345)
+    for u, v, data in test_graph.edges(data=True):
+        data["success_prob"] = random.random()
+
+    nodes = list(test_graph.nodes)
+    seeds = random.sample(nodes, k)
+
+    activated_nodes_levels = independent_cascade(test_graph, seeds)
+    total_seen = sum(len(level) for level in activated_nodes_levels)
+    print(total_seen)
+
+    # Set up the model
+    starts, edges, success_probs = networkx_to_csr(test_graph)
+    thing = IndependentCascadeModel(
+        starts, edges, threshhold=0.1, edge_probabilities=success_probs
+    )
+    thing.initialize_model(seeds)
+    res = thing.run_in_parallel(10)
+
+    assert math.isclose(res, float(total_seen))
+
+
 def test_basic():
     n = 1000
     p = 0.1
@@ -212,26 +240,3 @@ def test_basic_2():
     thing.advance_until_completion()
 
     assert num_seen == thing.get_num_activated_nodes()
-
-
-def test_parallel():
-    n = 1000
-    p = 0.1
-    k = 2
-    test_graph = nx.fast_gnp_random_graph(n, p, seed=12345)
-
-    random.seed(12345)
-    for u, v, data in test_graph.edges(data=True):
-        data["success_prob"] = random.random()
-
-    nodes = list(test_graph.nodes)
-    seeds = random.sample(nodes, k)
-
-    # Set up the model
-    starts, edges, success_probs = networkx_to_csr(test_graph)
-    thing = IndependentCascadeModel(starts, edges, threshhold=0.1)
-    thing.initialize_model(seeds)
-    res = thing.run_in_parallel(1)
-    assert False
-    # print(res)
-    # exit()

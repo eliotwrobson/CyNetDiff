@@ -4,6 +4,8 @@ from libcpp.deque cimport deque as cdeque
 from libcpp.unordered_set cimport unordered_set as cset
 from libcpp cimport bool
 from cython.parallel import parallel, prange
+from cython.operator import dereference
+from libc.stdio cimport printf
 import array
 import random
 
@@ -55,9 +57,17 @@ cdef class IndependentCascadeModel(DiffusionModel):
 
 
     def initialize_model(self, seeds):
+        self.original_seeds.clear()
+        for seed in seeds:
+            self.original_seeds.insert(seed)
+
+        self.reset_model()
+
+    cpdef void reset_model(self):
         self.work_deque.clear()
         self.seen_set.clear()
-        for seed in seeds:
+
+        for seed in self.original_seeds:
             self.work_deque.push_back(seed)
             self.seen_set.insert(seed)
 
@@ -116,22 +126,30 @@ cdef class IndependentCascadeModel(DiffusionModel):
     # Might have to do with the memory
     cpdef float run_in_parallel(self, unsigned int k):
         cdef float res = 0.0
-        cdef cdeque[unsigned int] local_work_deque
-        cdef cset[unsigned int] local_seen_set
+        cdef cdeque[unsigned int]* local_work_deque
+        cdef cset[unsigned int]* local_seen_set
         cdef unsigned int j
         cdef unsigned int seed
 
         with nogil, parallel():
-            local_work_deque.clear()
-            local_seen_set.clear()
-            # TODO replace this with a more efficient copying data structure
-            for seed in self.work_deque:
-                local_work_deque.push_back(seed)
-                local_seen_set.insert(seed)
+            local_work_deque = new cdeque[unsigned int]()
+            local_seen_set = new cset[unsigned int]()
 
             for j in prange(k, schedule="guided"):
+                local_work_deque.clear()
+                local_seen_set.clear()
+
+                # TODO replace this with a more efficient copying data structure
+                for seed in self.original_seeds:
+                    local_work_deque.push_back(seed)
+                    local_seen_set.insert(seed)
+
                 while local_work_deque.size() > 0:
-                    self.__advance_model(local_work_deque, local_seen_set)
+                    self.__advance_model(dereference(local_work_deque), dereference(local_seen_set))
+
                 res += local_seen_set.size()
-        print(res, k)
+
+            del local_work_deque
+            del local_seen_set
+
         return res / k

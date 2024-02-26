@@ -11,8 +11,15 @@ from setuptools.dist import Distribution
 
 
 def build_cython_extensions():
+    # http://docs.cython.org/en/latest/src/userguide/parallelism.html#compiling
     extensions = [
-        Extension("ndleafy.models", ["src/ndleafy/models.pyx"], language="c++"),
+        Extension(
+            "ndleafy.models",
+            ["src/ndleafy/models.pyx"],
+            language="c++",
+            extra_compile_args=["-fopenmp"],
+            extra_link_args=["-fopenmp"],
+        ),
     ]
 
     # include_dirs = set()
