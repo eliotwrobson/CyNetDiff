@@ -10,9 +10,9 @@ cdef class DiffusionModel:
     cpdef float run_in_parallel(self, unsigned int k)
 
 cdef class IndependentCascadeModel(DiffusionModel):
-    cdef array.array starts
-    cdef array.array edges
-    cdef array.array edge_probabilities
+    cdef unsigned int[:] starts
+    cdef unsigned int[:] edges
+    cdef float[:] edge_probabilities # Mostly for testing
     cdef double threshhold
     cdef unsigned int num_starts
     cdef unsigned int num_edges

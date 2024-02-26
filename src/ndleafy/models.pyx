@@ -51,10 +51,10 @@ cdef class IndependentCascadeModel(DiffusionModel):
         self.starts = starts
         self.edges = edges
         self.threshhold = threshhold
-        self.edge_probabilities = edge_probabilities
         self.num_starts = len(self.starts)
         self.num_edges = len(self.edges)
 
+        self.edge_probabilities = edge_probabilities
 
     def initialize_model(self, seeds):
         self.original_seeds.clear()
@@ -82,7 +82,7 @@ cdef class IndependentCascadeModel(DiffusionModel):
         if self.edge_probabilities is None:
             return next_rand() <= self.threshhold
 
-        return self.edge_probabilities.data.as_floats[edge_idx] <= self.threshhold
+        return self.edge_probabilities[edge_idx] <= self.threshhold
 
     # Functions that actually advance the model
     cpdef void advance_until_completion(self):
@@ -108,13 +108,13 @@ cdef class IndependentCascadeModel(DiffusionModel):
 
             range_end = self.num_edges
             if node + 1 < self.num_starts:
-                range_end = self.starts.data.as_ints[node + 1]
+                range_end = self.starts[node + 1]
 
-            for i in range(self.starts.data.as_ints[node], range_end):
+            for i in range(self.starts[node], range_end):
                 if not self.__activation_succeeds(i):
                     continue
 
-                child = self.edges.data.as_ints[i]
+                child = self.edges[i]
 
                 # Child is _not_ in the seen set
                 if seen_set.find(child) == seen_set.end():
