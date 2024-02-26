@@ -13,7 +13,7 @@ cdef class IndependentCascadeModel(DiffusionModel):
     cdef unsigned int[:] starts
     cdef unsigned int[:] edges
     cdef float[:] edge_probabilities # Mostly for testing
-    cdef double threshhold
+    cdef double threshold
     cdef unsigned int num_starts
     cdef unsigned int num_edges
     cdef cdeque[unsigned int] work_deque

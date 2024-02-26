@@ -5,7 +5,7 @@ from libcpp.unordered_set cimport unordered_set as cset
 from libcpp cimport bool
 from cython.parallel import parallel, prange
 from cython.operator import dereference
-from libc.stdio cimport printf
+
 import array
 import random
 
@@ -44,19 +44,19 @@ cdef class IndependentCascadeModel(DiffusionModel):
             self,
             array.array starts,
             array.array edges,
-            double threshhold = 0.1,
+            double threshold = 0.1,
             array.array edge_probabilities = None
         ):
 
         self.starts = starts
         self.edges = edges
-        self.threshhold = threshhold
+        self.threshold = threshold
         self.num_starts = len(self.starts)
         self.num_edges = len(self.edges)
 
         self.edge_probabilities = edge_probabilities
 
-    def initialize_model(self, seeds):
+    def set_seeds(self, seeds):
         self.original_seeds.clear()
         for seed in seeds:
             self.original_seeds.insert(seed)
@@ -80,9 +80,9 @@ cdef class IndependentCascadeModel(DiffusionModel):
 
     cdef inline bool __activation_succeeds(self, unsigned int edge_idx) nogil:
         if self.edge_probabilities is None:
-            return next_rand() <= self.threshhold
+            return next_rand() <= self.threshold
 
-        return self.edge_probabilities[edge_idx] <= self.threshhold
+        return self.edge_probabilities[edge_idx] <= self.threshold
 
     # Functions that actually advance the model
     cpdef void advance_until_completion(self):
@@ -122,8 +122,6 @@ cdef class IndependentCascadeModel(DiffusionModel):
                     seen_set.insert(child)
 
 
-    # TODO fix this, there's a weird bug in here somewhere
-    # Might have to do with the memory
     cpdef float run_in_parallel(self, unsigned int k):
         cdef float res = 0.0
         cdef cdeque[unsigned int]* local_work_deque

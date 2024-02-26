@@ -34,3 +34,12 @@ count = true
 statistics = true
 # Black compatibility
 max-line-length = 88
+
+[tool.mypy]
+python_version = "3.10"
+
+[[tool.mypy.overrides]]
+module = [
+  "networkx.*",
+]
+ignore_missing_imports = true

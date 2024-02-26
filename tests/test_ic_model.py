@@ -7,10 +7,17 @@ import array
 import copy
 import math
 import random
+import typing as t
 
 import networkx as nx
 
 from ndleafy.models import IndependentCascadeModel
+
+#    Code below adapted from code by
+#    Hung-Hsuan Chen <hhchen@psu.edu>
+#    All rights reserved.
+#    BSD license.
+#    NetworkX:http://networkx.lanl.gov/.
 
 
 def independent_cascade(G, seeds, *, steps=0, random_seed=None) -> list[list[int]]:
@@ -52,7 +59,7 @@ def independent_cascade(G, seeds, *, steps=0, random_seed=None) -> list[list[int
       Influential nodes in a diffusion model for social networks.
       In Automata, Languages and Programming, 2005.
   """
-    if type(G) == nx.MultiGraph or type(G) == nx.MultiDiGraph:
+    if isinstance(G, (nx.MultiGraph, nx.MultiDiGraph)):
         raise Exception(
             "independent_cascade() is not defined for graphs with multiedges."
         )
@@ -138,13 +145,23 @@ def _prop_success(G, src, dest, rand_gen):
     return G[src][dest]["success_prob"] <= G[src][dest]["act_prob"]
 
 
+# Start of actual test code
+
+
 # TODO speed up this CSR function
-def networkx_to_csr(graph: nx.Graph | nx.DiGraph) -> tuple[array.array, array.array]:
+def networkx_to_csr(
+    graph: nx.Graph | nx.DiGraph, include_succcess_prob: bool = True
+) -> tuple[array.array, array.array, t.Optional[array.array]]:
     node_mapping = {node: i for i, node in enumerate(graph.nodes())}
 
-    starts = array.array("I")  # []
-    edges = array.array("I")  # []
-    success_prob = array.array("f")
+    starts = array.array("I")
+    edges = array.array("I")
+    # TODO switch to optional return type
+    success_prob = None
+
+    if include_succcess_prob:
+        success_prob = array.array("f")
+
     curr_start = 0
     for node in graph.nodes():
         starts.append(curr_start)
@@ -152,23 +169,51 @@ def networkx_to_csr(graph: nx.Graph | nx.DiGraph) -> tuple[array.array, array.ar
             other = node_mapping[neighbor]
             curr_start += 1
             edges.append(other)
-            success_prob.append(graph.get_edge_data(node, other)["success_prob"])
+
+            if success_prob is not None:
+                success_prob.append(graph.get_edge_data(node, other)["success_prob"])
 
     return starts, edges, success_prob
+
+
+def generate_random_graph_from_seed(n: int, p: float, seed: int = 12345) -> nx.Graph:
+    graph = nx.fast_gnp_random_graph(n, p, seed=seed)
+
+    random.seed(12345)
+    for _, _, data in graph.edges(data=True):
+        data["success_prob"] = random.random()
+
+    return graph
 
 
 # The start of the actual test cases
 
 
-def test_basic():
+def test_model_basic() -> None:
+    n = 10000
+    k = 10
+    p = 0.01
+    # Just trying the main functions with no set thresholds
+    graph = generate_random_graph_from_seed(n, p)
+    starts, edges, _ = networkx_to_csr(graph, include_succcess_prob=False)
+    model = IndependentCascadeModel(starts, edges, threshold=0.1)
+
+    # Didn't set the seeds
+    model.advance_until_completion()
+    assert model.get_num_activated_nodes() == 0
+
+    model.set_seeds(random.sample(list(graph.nodes), k))
+    assert len(set(model.get_newly_activated_nodes())) == k
+
+    model.advance_until_completion()
+    assert k <= model.get_num_activated_nodes() <= n
+
+
+def test_specific_model() -> None:
     n = 1000
     p = 0.01
     k = 10
-    test_graph = nx.fast_gnp_random_graph(n, p, seed=12345)
-
-    random.seed(12345)
-    for u, v, data in test_graph.edges(data=True):
-        data["success_prob"] = random.random()
+    test_graph = generate_random_graph_from_seed(n, p)
 
     nodes = list(test_graph.nodes)
     seeds = random.sample(nodes, k)
@@ -178,7 +223,7 @@ def test_basic():
     # Set up the model
     starts, edges, success_probs = networkx_to_csr(test_graph)
     thing = IndependentCascadeModel(
-        starts, edges, threshhold=0.1, edge_probabilities=success_probs
+        starts, edges, threshold=0.1, edge_probabilities=success_probs
     )
     thing.initialize_model(seeds)
 
@@ -187,15 +232,11 @@ def test_basic():
         thing.advance_model()
 
 
-def test_basic_2():
+def test_basic_2() -> None:
     n = 1000
     p = 0.01
     k = 10
-    test_graph = nx.fast_gnp_random_graph(n, p, seed=12345)
-
-    random.seed(12345)
-    for u, v, data in test_graph.edges(data=True):
-        data["success_prob"] = random.random()
+    test_graph = generate_random_graph_from_seed(n, p)
 
     nodes = list(test_graph.nodes)
     seeds = random.sample(nodes, k)
@@ -206,7 +247,7 @@ def test_basic_2():
     # Set up the model
     starts, edges, success_probs = networkx_to_csr(test_graph)
     thing = IndependentCascadeModel(
-        starts, edges, threshhold=0.1, edge_probabilities=success_probs
+        starts, edges, threshold=0.1, edge_probabilities=success_probs
     )
     thing.initialize_model(seeds)
     thing.advance_until_completion()
@@ -214,15 +255,11 @@ def test_basic_2():
     assert num_seen == thing.get_num_activated_nodes()
 
 
-def test_parallel():
+def test_parallel() -> None:
     n = 1000
     p = 0.01
     k = 10
-    test_graph = nx.fast_gnp_random_graph(n, p, seed=12345)
-
-    random.seed(12345)
-    for u, v, data in test_graph.edges(data=True):
-        data["success_prob"] = random.random()
+    test_graph = generate_random_graph_from_seed(n, p)
 
     nodes = list(test_graph.nodes)
     seeds = random.sample(nodes, k)
@@ -234,7 +271,7 @@ def test_parallel():
     # Set up the model
     starts, edges, success_probs = networkx_to_csr(test_graph)
     thing = IndependentCascadeModel(
-        starts, edges, threshhold=0.1, edge_probabilities=success_probs
+        starts, edges, threshold=0.1, edge_probabilities=success_probs
     )
     thing.initialize_model(seeds)
     res = thing.run_in_parallel(100)
