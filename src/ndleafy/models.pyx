@@ -134,5 +134,5 @@ cdef class IndependentCascadeModel(DiffusionModel):
                 while local_work_deque.size() > 0:
                     self.__advance_model(local_work_deque, local_seen_set)
                 res += local_seen_set.size()
-        #print(res, k)
+        print(res, k)
         return res / k
