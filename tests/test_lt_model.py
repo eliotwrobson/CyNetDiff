@@ -200,20 +200,24 @@ def generate_random_graph_from_seed(n: int, p: float, seed: int = 12345) -> nx.D
 
     random.seed(12345)
     for _, data in graph.nodes(data=True):
-        data["influence"] = random.random()
         data["threshold"] = random.random()
+
+    for _, _, data in graph.edges(data=True):
+        data["influence"] = random.random()
 
     return graph
 
 
 def test_specific_model() -> None:
-    n = 1000
+    n = 100
     p = 0.01
     k = 10
     test_graph = generate_random_graph_from_seed(n, p)
 
     nodes = list(test_graph.nodes)
     seeds = random.sample(nodes, k)
+
+    activated_nodes_levels = linear_threshold(test_graph, seeds)
 
     (
         successors,
@@ -224,7 +228,7 @@ def test_specific_model() -> None:
         influence,
     ) = networkx_to_csr(test_graph)
 
-    res = LinearThresholdModel(
+    model = LinearThresholdModel(
         successors,
         successor_starts,
         predecessor,
@@ -232,5 +236,12 @@ def test_specific_model() -> None:
         threshold,
         influence,
     )
+
+    model.set_seeds(seeds)
+
+    for node_level in activated_nodes_levels:
+        assert set(node_level) == set(model.get_newly_activated_nodes())
+        model.advance_model()
+
     # print(res)
     assert False

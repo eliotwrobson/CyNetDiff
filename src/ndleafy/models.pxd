@@ -19,7 +19,7 @@ cdef class IndependentCascadeModel(DiffusionModel):
     cdef cdeque[unsigned int] work_deque
     cdef cset[unsigned int] seen_set
     cdef cset[unsigned int] original_seeds
-    cdef bool __activation_succeeds(self, unsigned int edge_idx) nogil
+    cdef int __activation_succeeds(self, unsigned int edge_idx) except -1 nogil
     cdef int __advance_model(self, cdeque[unsigned int]& work_deque, cset[unsigned int]& seen_set) except -1 nogil
 
 cdef class LinearThresholdModel(DiffusionModel):
@@ -35,7 +35,7 @@ cdef class LinearThresholdModel(DiffusionModel):
     cdef cset[unsigned int] seen_set
     cdef cset[unsigned int] original_seeds
 
-    cdef bool __activation_succeeds(self, unsigned int vtx_idx, const cset[unsigned int]& seen_set) nogil
+    cdef int __activation_succeeds(self, unsigned int vtx_idx, const cset[unsigned int]& seen_set) except -1 nogil
     cdef int __advance_model(self, cdeque[unsigned int]& work_deque, cset[unsigned int]& seen_set) except -1 nogil
 
 #     cdef cdeque[unsigned int] work_deque

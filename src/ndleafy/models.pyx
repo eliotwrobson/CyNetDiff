@@ -79,11 +79,15 @@ cdef class IndependentCascadeModel(DiffusionModel):
     def get_num_activated_nodes(self):
         return self.seen_set.size()
 
-    cdef inline bool __activation_succeeds(self, unsigned int edge_idx) nogil:
+    cdef inline int __activation_succeeds(self, unsigned int edge_idx) except -1 nogil:
         if self.edge_probabilities is None:
-            return next_rand() <= self.threshold
+            if next_rand() <= self.threshold:
+                return 1
+            return 0
 
-        return self.edge_probabilities[edge_idx] <= self.threshold
+        if self.edge_probabilities[edge_idx] <= self.threshold:
+            return 1
+        return 0
 
     # Functions that actually advance the model
     cpdef void advance_until_completion(self):
@@ -112,7 +116,7 @@ cdef class IndependentCascadeModel(DiffusionModel):
                 range_end = self.starts[node + 1]
 
             for i in range(self.starts[node], range_end):
-                if not self.__activation_succeeds(i):
+                if self.__activation_succeeds(i) == 0:
                     continue
 
                 child = self.edges[i]
@@ -178,7 +182,29 @@ cdef class LinearThresholdModel(DiffusionModel):
         assert len(self.predecessors) == len(self.successors)
         assert len(self.predecessors) == len(self.influence)
 
-    cdef inline bool __activation_succeeds(self, unsigned int vtx_idx, const cset[unsigned int]& seen_set) nogil:
+    def set_seeds(self, seeds):
+        self.original_seeds.clear()
+        for seed in seeds:
+            self.original_seeds.insert(seed)
+
+        self.reset_model()
+
+    cpdef void reset_model(self):
+        self.work_deque.clear()
+        self.seen_set.clear()
+
+        for seed in self.original_seeds:
+            self.work_deque.push_back(seed)
+            self.seen_set.insert(seed)
+
+    def get_newly_activated_nodes(self):
+        for new_node in self.work_deque:
+            yield new_node
+
+    def get_num_activated_nodes(self):
+        return self.seen_set.size()
+
+    cdef inline int __activation_succeeds(self, unsigned int vtx_idx, const cset[unsigned int]& seen_set) except -1 nogil:
         cdef unsigned int i
         cdef unsigned int range_end
 
@@ -207,6 +233,10 @@ cdef class LinearThresholdModel(DiffusionModel):
         cdef unsigned int child
         cdef unsigned int i
 
+        # Use temporary seen set because we don't want this feeding into
+        cdef cset[unsigned int] seen_this_iter
+
+        # TODO add temp seen set for each iteration
         for _ in range(q):
             node = work_deque.front()
             work_deque.pop_front()
@@ -216,12 +246,19 @@ cdef class LinearThresholdModel(DiffusionModel):
                 range_end = self.successor_starts[node + 1]
 
             for i in range(self.successor_starts[node], range_end):
-                if not self.__activation_succeeds(i, seen_set):
+                if self.__activation_succeeds(i, seen_set) == 0:
                     continue
 
                 child = self.successors[i]
 
-                # Child is _not_ in the seen set
-                if seen_set.find(child) == seen_set.end():
+                # Child has _not_ been seen yet
+                if (
+                    seen_this_iter.find(child) == seen_this_iter.end()
+                    and seen_set.find(child) == seen_set.end()
+                ):
                     work_deque.push_back(child)
-                    seen_set.insert(child)
+                    seen_this_iter.insert(child)
+
+        for num in seen_this_iter:
+            assert seen_set.find(num) == seen_set.end()
+            seen_set.insert(num)
