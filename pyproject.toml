@@ -5,9 +5,7 @@ description = "A fast network diffusion library"
 authors = ["Eliot W. Robson <eliot.robson24@gmail.com>"]
 license = "MIT"
 readme = "README.md"
-packages = [
-    {include = "ndleafy", from = "src"}
-]
+packages = [{ include = "ndleafy", from = "src" }]
 
 
 [tool.poetry.dependencies]
@@ -39,7 +37,8 @@ max-line-length = 88
 python_version = "3.10"
 
 [[tool.mypy.overrides]]
-module = [
-  "networkx.*",
-]
+module = ["networkx.*"]
 ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = "tests"

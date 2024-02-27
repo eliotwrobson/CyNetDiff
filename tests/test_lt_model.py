@@ -254,5 +254,3 @@ def test_specific_model() -> None:
 
         assert model_set == node_set
         model.advance_model()
-
-    assert False
