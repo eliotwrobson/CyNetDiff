@@ -126,10 +126,14 @@ def _diffuse_one_round(G, A):
     activated_nodes_of_this_round = set()
     for s in A:
         nbs = G.successors(s)
+
         for nb in nbs:
             if nb in A:
                 continue
             active_nb = list(set(G.predecessors(nb)).intersection(set(A)))
+            if nb == 18:
+                print("this round:", activated_nodes_of_this_round)
+                print("all active:", A)
             if _influence_sum(G, active_nb, nb) >= G._node[nb]["threshold"]:
                 activated_nodes_of_this_round.add(nb)
     A.extend(list(activated_nodes_of_this_round))
@@ -140,6 +144,10 @@ def _influence_sum(G, froms, to):
     influence_sum = 0.0
     for f in froms:
         influence_sum += G[f][to]["influence"]
+
+    if to == 18:
+        print(froms, to, influence_sum, G[59][18]["influence"])
+
     return influence_sum
 
 
@@ -152,7 +160,8 @@ def networkx_to_csr(
 ) -> tuple[
     array.array, array.array, array.array, array.array, array.array, array.array
 ]:
-    node_mapping = {node: i for i, node in enumerate(graph.nodes())}
+    node_list = list(enumerate(graph.nodes(data=True)))
+    node_mapping = {node: i for i, (node, _) in node_list}
 
     successors = array.array("I")
     successor_starts = array.array("I")
@@ -166,7 +175,7 @@ def networkx_to_csr(
 
     curr_successor = 0
     curr_predecessor = 0
-    for node in graph.nodes():
+    for _, (node, data) in node_list:
         # First, add to out neighbors
         successor_starts.append(curr_successor)
         for successor in graph.successors(node):
@@ -181,9 +190,9 @@ def networkx_to_csr(
             other = node_mapping[predecessor]
             curr_predecessor += 1
             predecessors.append(other)
-            influence.append(random.random())
+            influence.append(graph[other][node]["influence"])
 
-        threshold.append(random.random())
+        threshold.append(data["threshold"])
 
     return (
         successors,
@@ -198,7 +207,7 @@ def networkx_to_csr(
 def generate_random_graph_from_seed(n: int, p: float, seed: int = 12345) -> nx.DiGraph:
     graph = nx.fast_gnp_random_graph(n, p, seed=seed).to_directed()
 
-    random.seed(12345)
+    random.seed(seed)
     for _, data in graph.nodes(data=True):
         data["threshold"] = random.random()
 
@@ -210,7 +219,7 @@ def generate_random_graph_from_seed(n: int, p: float, seed: int = 12345) -> nx.D
 
 def test_specific_model() -> None:
     n = 100
-    p = 0.01
+    p = 0.05
     k = 10
     test_graph = generate_random_graph_from_seed(n, p)
 
@@ -240,8 +249,10 @@ def test_specific_model() -> None:
     model.set_seeds(seeds)
 
     for node_level in activated_nodes_levels:
-        assert set(node_level) == set(model.get_newly_activated_nodes())
+        model_set = set(model.get_newly_activated_nodes())
+        node_set = set(node_level)
+
+        assert model_set == node_set
         model.advance_model()
 
-    # print(res)
     assert False

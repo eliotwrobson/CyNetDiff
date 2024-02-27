@@ -204,9 +204,18 @@ cdef class LinearThresholdModel(DiffusionModel):
     def get_num_activated_nodes(self):
         return self.seen_set.size()
 
+    # Functions that actually advance the model
+    cpdef void advance_until_completion(self):
+        while self.work_deque.size() > 0:
+            self.__advance_model(self.work_deque, self.seen_set)
+
+    cpdef void advance_model(self):
+        self.__advance_model(self.work_deque, self.seen_set)
+
     cdef inline int __activation_succeeds(self, unsigned int vtx_idx, const cset[unsigned int]& seen_set) except -1 nogil:
         cdef unsigned int i
         cdef unsigned int range_end
+        cdef unsigned int parent
 
         range_end = len(self.predecessors)
         if vtx_idx + 1 < len(self.predecessor_starts):
@@ -218,9 +227,11 @@ cdef class LinearThresholdModel(DiffusionModel):
             parent = self.predecessors[i]
             # Parent is in the seen set
             if seen_set.find(parent) != seen_set.end():
-                influence_sum += self.influence[parent]
+                influence_sum += self.influence[i]
 
-        return influence_sum >= self.threshold[vtx_idx]
+        if influence_sum >= self.threshold[vtx_idx]:
+            return 1
+        return 0
 
     # Internal-only function to advance,
     # returns an int to allow for exceptions
@@ -246,10 +257,10 @@ cdef class LinearThresholdModel(DiffusionModel):
                 range_end = self.successor_starts[node + 1]
 
             for i in range(self.successor_starts[node], range_end):
-                if self.__activation_succeeds(i, seen_set) == 0:
-                    continue
-
                 child = self.successors[i]
+
+                if self.__activation_succeeds(child, seen_set) == 0:
+                    continue
 
                 # Child has _not_ been seen yet
                 if (
@@ -260,5 +271,8 @@ cdef class LinearThresholdModel(DiffusionModel):
                     seen_this_iter.insert(child)
 
         for num in seen_this_iter:
+            # Assert the numbers are not in the seen set
             assert seen_set.find(num) == seen_set.end()
             seen_set.insert(num)
+
+    #TODO before doing parallel running, make sure to set random thresholds
