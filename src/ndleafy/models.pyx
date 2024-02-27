@@ -247,7 +247,6 @@ cdef class LinearThresholdModel(DiffusionModel):
         # Use temporary seen set because we don't want this feeding into
         cdef cset[unsigned int] seen_this_iter
 
-        # TODO add temp seen set for each iteration
         for _ in range(q):
             node = work_deque.front()
             work_deque.pop_front()
