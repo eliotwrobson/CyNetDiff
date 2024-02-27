@@ -14,5 +14,5 @@ poetry install
 
 Then to run tests on the newly compiled code, run:
 ```
-poetry run pytest tests
+poetry run pytest
 ```
