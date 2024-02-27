@@ -26,6 +26,7 @@ class LinearThresholdModel(DiffusionModel):
         successor_starts: array.array,
         predecessors: array.array,
         predecessor_starts: array.array,
+        # TODO one or both of these should be able to be set to None
         threshold: array.array,
         influence: array.array,
     ) -> None: ...
