@@ -1,10 +1,13 @@
-import array
 import copy
 import random
+import typing as t
 
 import networkx as nx
 
-from ndleafy.models import LinearThresholdModel
+from ndleafy.utils import networkx_to_lt_model
+
+# from ndleafy.models import LinearThresholdModel
+
 
 #    Code below adapted from code by
 #    Hung-Hsuan Chen <hhchen@psu.edu>
@@ -13,7 +16,9 @@ from ndleafy.models import LinearThresholdModel
 #    NetworkX:http://networkx.lanl.gov/.
 
 
-def linear_threshold(G, seeds, steps=0):
+def linear_threshold(
+    G: nx.Graph | nx.DiGraph, seeds: t.Iterable[int], steps: int = 0
+) -> t.List[t.List[int]]:
     """Return the active nodes of each diffusion step by linear threshold model
 
   Parameters
@@ -151,59 +156,6 @@ def _influence_sum(G, froms, to):
     return influence_sum
 
 
-# Start of actual test code
-
-
-# TODO speed up this CSR function
-def networkx_to_csr(
-    graph: nx.Graph | nx.DiGraph,
-) -> tuple[
-    array.array, array.array, array.array, array.array, array.array, array.array
-]:
-    node_list = list(enumerate(graph.nodes(data=True)))
-    node_mapping = {node: i for i, (node, _) in node_list}
-
-    successors = array.array("I")
-    successor_starts = array.array("I")
-
-    predecessors = array.array("I")
-    predecessor_starts = array.array("I")
-
-    # TODO make setting these optional
-    threshold = array.array("f")
-    influence = array.array("f")
-
-    curr_successor = 0
-    curr_predecessor = 0
-    for _, (node, data) in node_list:
-        # First, add to out neighbors
-        successor_starts.append(curr_successor)
-        for successor in graph.successors(node):
-            other = node_mapping[successor]
-            curr_successor += 1
-            successors.append(other)
-
-        # Next, do the same but for in-neighbors,
-        # logic is largely the same
-        predecessor_starts.append(curr_predecessor)
-        for predecessor in graph.predecessors(node):
-            other = node_mapping[predecessor]
-            curr_predecessor += 1
-            predecessors.append(other)
-            influence.append(graph[other][node]["influence"])
-
-        threshold.append(data["threshold"])
-
-    return (
-        successors,
-        successor_starts,
-        predecessors,
-        predecessor_starts,
-        threshold,
-        influence,
-    )
-
-
 def generate_random_graph_from_seed(n: int, p: float, seed: int = 12345) -> nx.DiGraph:
     graph = nx.fast_gnp_random_graph(n, p, seed=seed).to_directed()
 
@@ -217,6 +169,9 @@ def generate_random_graph_from_seed(n: int, p: float, seed: int = 12345) -> nx.D
     return graph
 
 
+# Start of actual test code
+
+
 def test_specific_model() -> None:
     n = 100
     p = 0.05
@@ -228,23 +183,7 @@ def test_specific_model() -> None:
 
     activated_nodes_levels = linear_threshold(test_graph, seeds)
 
-    (
-        successors,
-        successor_starts,
-        predecessor,
-        predecessor_starts,
-        threshold,
-        influence,
-    ) = networkx_to_csr(test_graph)
-
-    model = LinearThresholdModel(
-        successors,
-        successor_starts,
-        predecessor,
-        predecessor_starts,
-        threshold,
-        influence,
-    )
+    model = networkx_to_lt_model(test_graph)
 
     model.set_seeds(seeds)
 

@@ -1,6 +1,8 @@
 import array
 import typing as t
 
+import typing_extensions as te
+
 class DiffusionModel:
     def advance_model(self) -> None: ...
     def reset_model(self) -> None: ...
