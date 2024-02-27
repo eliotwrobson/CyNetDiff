@@ -3,11 +3,9 @@ import random
 import typing as t
 
 import networkx as nx
+import pytest
 
 from ndleafy.utils import networkx_to_lt_model
-
-# from ndleafy.models import LinearThresholdModel
-
 
 #    Code below adapted from code by
 #    Hung-Hsuan Chen <hhchen@psu.edu>
@@ -136,9 +134,7 @@ def _diffuse_one_round(G, A):
             if nb in A:
                 continue
             active_nb = list(set(G.predecessors(nb)).intersection(set(A)))
-            if nb == 18:
-                print("this round:", activated_nodes_of_this_round)
-                print("all active:", A)
+
             if _influence_sum(G, active_nb, nb) >= G._node[nb]["threshold"]:
                 activated_nodes_of_this_round.add(nb)
     A.extend(list(activated_nodes_of_this_round))
@@ -150,21 +146,21 @@ def _influence_sum(G, froms, to):
     for f in froms:
         influence_sum += G[f][to]["influence"]
 
-    if to == 18:
-        print(froms, to, influence_sum, G[59][18]["influence"])
-
     return influence_sum
 
 
-def generate_random_graph_from_seed(n: int, p: float, seed: int = 12345) -> nx.DiGraph:
+def generate_random_graph_from_seed(
+    n: int, p: float, include_influence: bool, seed: int = 12345
+) -> nx.DiGraph:
     graph = nx.fast_gnp_random_graph(n, p, seed=seed).to_directed()
 
     random.seed(seed)
     for _, data in graph.nodes(data=True):
         data["threshold"] = random.random()
 
-    for _, _, data in graph.edges(data=True):
-        data["influence"] = random.random()
+    if include_influence:
+        for _, _, data in graph.edges(data=True):
+            data["influence"] = random.random()
 
     return graph
 
@@ -172,18 +168,21 @@ def generate_random_graph_from_seed(n: int, p: float, seed: int = 12345) -> nx.D
 # Start of actual test code
 
 
-def test_specific_model() -> None:
+@pytest.mark.parametrize("nondefault_influence", [True, False])
+def test_specific_model(nondefault_influence: bool) -> None:
     n = 100
     p = 0.05
     k = 10
-    test_graph = generate_random_graph_from_seed(n, p)
+    test_graph = generate_random_graph_from_seed(
+        n, p, include_influence=nondefault_influence
+    )
 
     nodes = list(test_graph.nodes)
     seeds = random.sample(nodes, k)
 
     activated_nodes_levels = linear_threshold(test_graph, seeds)
 
-    model = networkx_to_lt_model(test_graph)
+    model = networkx_to_lt_model(test_graph, include_influence=nondefault_influence)
 
     model.set_seeds(seeds)
 

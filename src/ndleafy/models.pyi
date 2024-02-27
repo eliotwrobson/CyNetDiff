@@ -15,6 +15,7 @@ class IndependentCascadeModel(DiffusionModel):
         self,
         starts: array.array,
         edges: array.array,
+        *,
         threshold: float = 0.1,
         edge_probabilities: t.Optional[array.array] = None,
     ) -> None: ...
@@ -28,9 +29,9 @@ class LinearThresholdModel(DiffusionModel):
         successor_starts: array.array,
         predecessors: array.array,
         predecessor_starts: array.array,
-        # TODO one or both of these should be able to be set to None
         threshold: array.array,
-        influence: array.array,
+        *,
+        influence: t.Optional[array.array] = None,
     ) -> None: ...
     def set_seeds(self, seeds: t.Iterable[int]) -> None: ...
     def get_num_activated_nodes(self) -> int: ...

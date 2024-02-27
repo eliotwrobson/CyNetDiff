@@ -45,6 +45,7 @@ cdef class IndependentCascadeModel(DiffusionModel):
             self,
             array.array starts,
             array.array edges,
+            *,
             double threshold = 0.1,
             array.array edge_probabilities = None
         ):
@@ -166,8 +167,9 @@ cdef class LinearThresholdModel(DiffusionModel):
             array.array successor_starts,
             array.array predecessors,
             array.array predecessor_starts,
-            array.array threshold,
-            array.array influence,
+            array.array threshold
+            *,
+            array.array influence = None,
         ):
 
         self.successors = successors
@@ -178,9 +180,11 @@ cdef class LinearThresholdModel(DiffusionModel):
         self.influence = influence
 
         assert len(self.successor_starts) == len(self.predecessor_starts)
-        assert len(self.successor_starts) == len(self.threshold)
         assert len(self.predecessors) == len(self.successors)
-        assert len(self.predecessors) == len(self.influence)
+        assert len(self.successor_starts) == len(self.threshold)
+
+        if influence is not None:
+            assert len(self.predecessors) == len(self.influence)
 
     def set_seeds(self, seeds):
         self.original_seeds.clear()
@@ -227,7 +231,12 @@ cdef class LinearThresholdModel(DiffusionModel):
             parent = self.predecessors[i]
             # Parent is in the seen set
             if seen_set.find(parent) != seen_set.end():
-                influence_sum += self.influence[i]
+                if self.influence is None:
+                    #NOTE shouldn't need a nonzero check here, because if the in-degree is
+                    #0 this should never be hit.
+                    influence_sum += 1.0 / (range_end - self.predecessor_starts[vtx_idx])
+                else:
+                    influence_sum += self.influence[i]
 
         if influence_sum >= self.threshold[vtx_idx]:
             return 1

@@ -9,6 +9,7 @@ from ndleafy.models import IndependentCascadeModel, LinearThresholdModel
 
 def networkx_to_ic_model(
     graph: nx.Graph | nx.DiGraph,
+    *,
     threshold=0.1,
     include_succcess_prob: bool = False,
 ) -> IndependentCascadeModel:
@@ -33,14 +34,13 @@ def networkx_to_ic_model(
             if success_prob is not None:
                 success_prob.append(graph.get_edge_data(node, other)["success_prob"])
 
-    if success_prob is not None:
-        return IndependentCascadeModel(starts, edges, threshold, success_prob)
-
-    return IndependentCascadeModel(starts, edges, threshold)
+    return IndependentCascadeModel(
+        starts, edges, threshold=threshold, edge_probabilities=success_prob
+    )
 
 
 def networkx_to_lt_model(
-    graph: nx.Graph | nx.DiGraph,
+    graph: nx.Graph | nx.DiGraph, *, include_influence: bool = False
 ) -> LinearThresholdModel:
     node_list = list(enumerate(graph.nodes(data=True)))
     node_mapping = {node: i for i, (node, _) in node_list}
@@ -54,7 +54,10 @@ def networkx_to_lt_model(
     # TODO make setting these optional
     # At the very least the influence can be defaulted
     threshold = array.array("f")
-    influence = array.array("f")
+    influence = None
+
+    if include_influence:
+        influence = array.array("f")
 
     curr_successor = 0
     curr_predecessor = 0
@@ -73,7 +76,9 @@ def networkx_to_lt_model(
             other = node_mapping[predecessor]
             curr_predecessor += 1
             predecessors.append(other)
-            influence.append(graph[other][node]["influence"])
+
+            if influence is not None:
+                influence.append(graph[other][node]["influence"])
 
         threshold.append(data["threshold"])
 
@@ -82,6 +87,6 @@ def networkx_to_lt_model(
         successor_starts,
         predecessors,
         predecessor_starts,
-        threshold,
-        influence,
+        threshold=threshold,
+        influence=influence,
     )
