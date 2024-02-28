@@ -1,10 +1,10 @@
-# import os
 import shutil
 from pathlib import Path
 
-from Cython.Build import build_ext, cythonize  # type: ignore
 from setuptools import Extension
 from setuptools.dist import Distribution
+
+from Cython.Build import build_ext, cythonize  # type: ignore isort: skip
 
 # when using setuptools, you should import setuptools before Cython,
 # otherwise, both might disagree about the class to use.
@@ -14,11 +14,10 @@ def build_cython_extensions():
     # http://docs.cython.org/en/latest/src/userguide/parallelism.html#compiling
     extensions = [
         Extension(
-            "ndleafy.models",
-            ["src/ndleafy/models.pyx"],
+            "cynetdiff.models",
+            ["src/cynetdiff/models.pyx"],
             language="c++",
-            extra_compile_args=["-fopenmp"],
-            extra_link_args=["-fopenmp"],
+            extra_compile_args=["-O3"],
         ),
     ]
 

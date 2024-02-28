@@ -7,7 +7,6 @@ cdef class DiffusionModel:
     cpdef void advance_model(self)
     cpdef void reset_model(self)
     cpdef void advance_until_completion(self)
-    cpdef float run_in_parallel(self, unsigned int k)
 
 cdef class IndependentCascadeModel(DiffusionModel):
     cdef readonly unsigned int[:] starts
@@ -19,6 +18,7 @@ cdef class IndependentCascadeModel(DiffusionModel):
     cdef cdeque[unsigned int] work_deque
     cdef cset[unsigned int] seen_set
     cdef cset[unsigned int] original_seeds
+
     cdef int __activation_succeeds(self, unsigned int edge_idx) except -1 nogil
     cdef int __advance_model(self, cdeque[unsigned int]& work_deque, cset[unsigned int]& seen_set) except -1 nogil
 

@@ -1,12 +1,23 @@
 [tool.poetry]
-name = "ndleafy"
-version = "0.0.1"
+name = "cynetdiff"
+version = "0.1.0"
 description = "A fast network diffusion library"
 authors = ["Eliot W. Robson <eliot.robson24@gmail.com>"]
 license = "MIT"
 readme = "README.md"
-packages = [{ include = "ndleafy", from = "src" }]
+packages = [{ include = "cynetdiff", from = "src" }]
 
+#TODO version classifiers may not be needed.
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Intended Audience :: Science/Research",
+]
 
 [tool.poetry.dependencies]
 python = ">=3.10"

@@ -3,7 +3,6 @@ from cpython cimport array
 from libcpp.deque cimport deque as cdeque
 from libcpp.unordered_set cimport unordered_set as cset
 from libcpp cimport bool
-from cython.parallel import parallel, prange
 from cython.operator import dereference
 
 import array
@@ -35,8 +34,6 @@ cdef class DiffusionModel:
     cpdef void advance_until_completion(self):
         raise NotImplementedError
 
-    cpdef float run_in_parallel(self, unsigned int k):
-        raise NotImplementedError
 
 # IC Model
 cdef class IndependentCascadeModel(DiffusionModel):
@@ -127,36 +124,6 @@ cdef class IndependentCascadeModel(DiffusionModel):
                     work_deque.push_back(child)
                     seen_set.insert(child)
 
-
-    cpdef float run_in_parallel(self, unsigned int k):
-        cdef float res = 0.0
-        cdef cdeque[unsigned int]* local_work_deque
-        cdef cset[unsigned int]* local_seen_set
-        cdef unsigned int j
-        cdef unsigned int seed
-
-        with nogil, parallel():
-            local_work_deque = new cdeque[unsigned int]()
-            local_seen_set = new cset[unsigned int]()
-
-            for j in prange(k, schedule="guided"):
-                local_work_deque.clear()
-                local_seen_set.clear()
-
-                # TODO replace this with a more efficient copying data structure
-                for seed in self.original_seeds:
-                    local_work_deque.push_back(seed)
-                    local_seen_set.insert(seed)
-
-                while local_work_deque.size() > 0:
-                    self.__advance_model(dereference(local_work_deque), dereference(local_seen_set))
-
-                res += local_seen_set.size()
-
-            del local_work_deque
-            del local_seen_set
-
-        return res / k
 
 # LT Model
 cdef class LinearThresholdModel(DiffusionModel):
@@ -282,5 +249,3 @@ cdef class LinearThresholdModel(DiffusionModel):
             # Assert the numbers are not in the seen set
             assert seen_set.find(num) == seen_set.end()
             seen_set.insert(num)
-
-    #TODO before doing parallel running, make sure to set random thresholds

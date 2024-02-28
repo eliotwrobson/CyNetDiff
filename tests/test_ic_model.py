@@ -1,11 +1,10 @@
 import copy
-import math
 import random
 import typing as t
 
 import networkx as nx
 
-from ndleafy.utils import networkx_to_ic_model
+from cynetdiff.utils import networkx_to_ic_model
 
 #    Code below adapted from code by
 #    Hung-Hsuan Chen <hhchen@psu.edu>
@@ -222,22 +221,3 @@ def test_basic_2() -> None:
     model.advance_until_completion()
 
     assert num_seen == model.get_num_activated_nodes()
-
-
-def test_parallel() -> None:
-    n = 1000
-    p = 0.01
-    k = 10
-    test_graph = generate_random_graph_from_seed(n, p)
-
-    nodes = list(test_graph.nodes)
-    seeds = random.sample(nodes, k)
-
-    activated_nodes_levels = independent_cascade(test_graph, seeds)
-    total_seen = sum(len(level) for level in activated_nodes_levels)
-
-    model = networkx_to_ic_model(test_graph, include_succcess_prob=True)
-    model.set_seeds(seeds)
-    res = model.run_in_parallel(100)
-
-    assert math.isclose(res, float(total_seen))
