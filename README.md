@@ -1,8 +1,8 @@
-# NDLib2 Library (name can be changed)
+# CyNetDiff Library
 
 This is a library meant to be a performance-focused version of
 ndlib. The focus here is on low memory usage and efficient evaluation
-of the Monte-Carlo diffusion (also allowing parallelism).
+of the Monte-Carlo diffusion.
 
 ## Development
 
