@@ -4,7 +4,7 @@ from pathlib import Path
 from setuptools import Extension
 from setuptools.dist import Distribution
 
-from Cython.Build import build_ext, cythonize  # type: ignore isort: skip
+from Cython.Build import build_ext, cythonize  # isort: skip
 
 # when using setuptools, you should import setuptools before Cython,
 # otherwise, both might disagree about the class to use.

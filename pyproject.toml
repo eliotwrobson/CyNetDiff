@@ -53,7 +53,7 @@ max-line-length = 88
 python_version = "3.10"
 
 [[tool.mypy.overrides]]
-module = ["networkx.*"]
+module = ["networkx.*", "Cython.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
