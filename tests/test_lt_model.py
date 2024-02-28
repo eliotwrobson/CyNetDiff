@@ -5,7 +5,7 @@ import typing as t
 import networkx as nx
 import pytest
 
-from ndleafy.utils import networkx_to_lt_model
+from cynetdiff.utils import networkx_to_lt_model
 
 #    Code below adapted from code by
 #    Hung-Hsuan Chen <hhchen@psu.edu>

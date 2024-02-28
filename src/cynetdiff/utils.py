@@ -2,7 +2,7 @@ import array
 
 import networkx as nx
 
-from ndleafy.models import IndependentCascadeModel, LinearThresholdModel
+from cynetdiff.models import IndependentCascadeModel, LinearThresholdModel
 
 # TODO speed up these model creation functions if needed
 
