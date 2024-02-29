@@ -198,9 +198,16 @@ def test_specific_model() -> None:
 
     model.set_seeds(seeds)
 
-    for node_level in activated_nodes_levels:
-        assert set(node_level) == set(model.get_newly_activated_nodes())
-        model.advance_model()
+    # Run twice to check that the reset works
+    for _ in range(2):
+        assert model.get_num_activated_nodes() == len(seeds)
+        assert len(set(model.get_newly_activated_nodes())) == len(seeds)
+
+        for node_level in activated_nodes_levels:
+            assert set(node_level) == set(model.get_newly_activated_nodes())
+            model.advance_model()
+
+        model.reset_model()
 
 
 def test_basic_2() -> None:

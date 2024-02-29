@@ -186,9 +186,16 @@ def test_specific_model(nondefault_influence: bool) -> None:
 
     model.set_seeds(seeds)
 
-    for node_level in activated_nodes_levels:
-        model_set = set(model.get_newly_activated_nodes())
-        node_set = set(node_level)
+    # Run twice to check that the reset works
+    for _ in range(2):
+        assert model.get_num_activated_nodes() == len(seeds)
+        assert len(set(model.get_newly_activated_nodes())) == len(seeds)
 
-        assert model_set == node_set
-        model.advance_model()
+        for node_level in activated_nodes_levels:
+            model_set = set(model.get_newly_activated_nodes())
+            node_set = set(node_level)
+
+            assert model_set == node_set
+            model.advance_model()
+
+        model.reset_model()

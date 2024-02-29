@@ -63,12 +63,9 @@ cdef class IndependentCascadeModel(DiffusionModel):
         self.reset_model()
 
     cpdef void reset_model(self):
-        self.work_deque.clear()
+        self.work_deque.assign(self.original_seeds.begin(), self.original_seeds.end())
         self.seen_set.clear()
-
-        for seed in self.original_seeds:
-            self.work_deque.push_back(seed)
-            self.seen_set.insert(seed)
+        self.seen_set.insert(self.original_seeds.begin(), self.original_seeds.end())
 
     def get_newly_activated_nodes(self):
         for new_node in self.work_deque:
@@ -161,12 +158,9 @@ cdef class LinearThresholdModel(DiffusionModel):
         self.reset_model()
 
     cpdef void reset_model(self):
-        self.work_deque.clear()
+        self.work_deque.assign(self.original_seeds.begin(), self.original_seeds.end())
         self.seen_set.clear()
-
-        for seed in self.original_seeds:
-            self.work_deque.push_back(seed)
-            self.seen_set.insert(seed)
+        self.seen_set.insert(self.original_seeds.begin(), self.original_seeds.end())
 
     def get_newly_activated_nodes(self):
         for new_node in self.work_deque:
