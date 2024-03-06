@@ -13,6 +13,27 @@ def networkx_to_ic_model(
     threshold=0.1,
     include_succcess_prob: bool = False,
 ) -> IndependentCascadeModel:
+
+    """
+    Converts a NetworkX graph into an Independent Cascade model.
+
+    Parameters
+    ----------
+    graph : nx.Graph or nx.DiGraph
+        A NetworkX graph or directed graph.
+    threshold : float, optional
+        Threshold for the Independent Cascade model, by default 0.1.
+    include_succcess_prob : bool, optional
+        If True, includes success probabilities for each edge. These probabilities
+        are then stored in the edge data dictionary with the key "success_prob",
+        by default False.
+
+    Returns
+    -------
+    IndependentCascadeModel
+        An instance of IndependentCascadeModel representing the given graph.
+    """
+
     node_list = list(enumerate(graph.nodes()))
     node_mapping = {node: i for i, node in node_list}
 
@@ -42,6 +63,25 @@ def networkx_to_ic_model(
 def networkx_to_lt_model(
     graph: nx.Graph | nx.DiGraph, *, include_influence: bool = False
 ) -> LinearThresholdModel:
+
+    """
+    Converts a NetworkX graph into a Linear Threshold model.
+
+    Parameters
+    ----------
+    graph : nx.Graph or nx.DiGraph
+        A NetworkX graph or directed graph.
+    include_influence : bool, optional
+        If True, includes influence values for each edge. These influence values
+        are then stored in the edge data dictionary with the key "influence",
+        by default False.
+
+    Returns
+    -------
+    LinearThresholdModel
+        An instance of LinearThresholdModel representing the given graph.
+    """
+
     node_list = list(enumerate(graph.nodes(data=True)))
     node_mapping = {node: i for i, (node, _) in node_list}
 
