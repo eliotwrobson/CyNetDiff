@@ -21,6 +21,8 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = ">=3.10"
+ndlib = "^5.1.1"
+networkx = "^3.2.1"
 
 
 [tool.poetry.group.dev.dependencies]
