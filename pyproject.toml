@@ -19,10 +19,15 @@ classifiers = [
     "Intended Audience :: Science/Research",
 ]
 
-[tool.poetry.dependencies]
+[tool.poetry.group.test.dependencies]
 python = ">=3.10"
 ndlib = "^5.1.1"
 networkx = "^3.2.1"
+pandas = ">=2.0.0"
+
+[tool.poetry.dependencies]
+python = ">=3.10"
+pandas = ">=2.0.0"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -34,6 +39,7 @@ flake8 = "^7.0.0"
 flake8-black = "^0.3.6"
 flake8-isort = "^6.1.1"
 flake8-pyproject = "^1.2.3"
+pandas = ">=2.0.0"
 
 # TODO maybe something broke before here?
 # Just get CI woring with multiple python versions
