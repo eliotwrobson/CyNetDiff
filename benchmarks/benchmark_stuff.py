@@ -1,10 +1,12 @@
 import random
+import time
 
 import ndlib.models.epidemics as ep
 import ndlib.models.ModelConfig as mc
 import networkx as nx
 import pandas as pd
 from cynetdiff.utils import networkx_to_ic_model
+from tqdm import trange
 
 
 def independent_cascade(G: nx.Graph | nx.DiGraph, seeds: list[int]) -> list[list[int]]:
@@ -38,65 +40,13 @@ def independent_cascade(G: nx.Graph | nx.DiGraph, seeds: list[int]) -> list[list
     return res
 
 
-def _diffuse_all(G, A, rand_gen):
-    tried_edges = set()
-    layer_i_nodes = []
-    layer_i_nodes.append([i for i in A])  # prevent side effect
-    while True:
-        len_old = len(A)
-        (A, activated_nodes_of_this_round, cur_tried_edges) = _diffuse_one_round(
-            G, A, tried_edges, rand_gen
-        )
-        layer_i_nodes.append(activated_nodes_of_this_round)
-        tried_edges = tried_edges.union(cur_tried_edges)
-        if len(A) == len_old:
-            break
-    return layer_i_nodes
-
-
-def _diffuse_k_rounds(G, A, steps, rand_gen):
-    tried_edges = set()
-    layer_i_nodes = []
-    layer_i_nodes.append([i for i in A])
-    while steps > 0 and len(A) < len(G):
-        len_old = len(A)
-        (A, activated_nodes_of_this_round, cur_tried_edges) = _diffuse_one_round(
-            G, A, tried_edges, rand_gen
-        )
-        layer_i_nodes.append(activated_nodes_of_this_round)
-        tried_edges = tried_edges.union(cur_tried_edges)
-        if len(A) == len_old:
-            break
-        steps -= 1
-    return layer_i_nodes
-
-
-def _diffuse_one_round(G, A, tried_edges, rand_gen):
-    activated_nodes_of_this_round = set()
-    cur_tried_edges = set()
-    for s in A:
-        for nb in G.successors(s):
-            if nb in A or (s, nb) in tried_edges or (s, nb) in cur_tried_edges:
-                continue
-            if _prop_success(G, s, nb, rand_gen):
-                activated_nodes_of_this_round.add(nb)
-            cur_tried_edges.add((s, nb))
-    activated_nodes_of_this_round = list(activated_nodes_of_this_round)
-    A.extend(activated_nodes_of_this_round)
-    return A, activated_nodes_of_this_round, cur_tried_edges
-
-
-def _prop_success(G, src, dest, rand_gen):
-    return G[src][dest]["success_prob"] <= G[src][dest]["act_prob"]
-
-
 ### TODO ignore the crap above
 def diffuse_python(
     graph: nx.Graph | nx.DiGraph, seeds: set[int], num_samples: int
 ) -> float:
     res = 0.0
     seeds_list = list(seeds)
-    for _ in range(num_samples):
+    for _ in trange(num_samples):
         res += sum(len(level) for level in independent_cascade(graph, seeds_list))
 
     return res / num_samples
@@ -110,7 +60,7 @@ def diffuse_CyNetDiff(
 
     total_activated = 0.0
 
-    for _ in range(num_samples):
+    for _ in trange(num_samples):
         model.reset_model()
         model.advance_until_completion()
         total_activated += model.get_num_activated_nodes()
@@ -134,7 +84,7 @@ def diffuse_ndlib(
     model.set_initial_status(config)
     total_infected = 0.0
 
-    for _ in range(num_samples):
+    for _ in trange(num_samples):
         model.reset(seeds)
         prev_iter_count = model.iteration()["node_count"]
         curr_iter_count = model.iteration()["node_count"]
@@ -146,9 +96,6 @@ def diffuse_ndlib(
         total_infected += curr_iter_count[2]
 
     return total_infected / num_samples
-
-
-import time
 
 
 def time_diffusion(func, graph, seeds, num_samples):
@@ -164,8 +111,9 @@ def main() -> None:
 
     n_values = [10_000]
     k_values = [1, 2, 5, 10, 20]
-    frac_values = [0.007]
+    frac_values = [0.002, 0.007]
     num_samples_values = [1000]
+    diffusion_functions = [diffuse_CyNetDiff, diffuse_ndlib, diffuse_python]
 
     results = []
 
@@ -176,7 +124,7 @@ def main() -> None:
         nx.set_edge_attributes(g, 0.1, "threshold")
         seeds = set(random.sample(list(g.nodes()), k))
 
-        for func in [diffuse_CyNetDiff, diffuse_ndlib, diffuse_python]:
+        for func in diffusion_functions:
             # Print the parameters before running
             print(
                 f"Running {func.__name__} with n={n}, k={k}, frac={frac}, num_samples={num_samples}"

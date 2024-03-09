@@ -24,6 +24,7 @@ python = ">=3.10"
 ndlib = "^5.1.1"
 networkx = "^3.2.1"
 pandas = ">=2.0.0"
+tqdm = "^4.66.2"
 
 [tool.poetry.dependencies]
 python = ">=3.10"
