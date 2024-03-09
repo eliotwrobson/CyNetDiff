@@ -118,7 +118,7 @@ def time_diffusion(
 
 def get_graphs() -> list[tuple[str, DiffusionGraphT]]:
     """Get graphs with accompanying names for diffusion benchmarks."""
-    n_values = [20, 10_000]  # 10_000]
+    n_values = [20, 5_000]  # 10_000]
     frac_values = [0.002, 0.007]
     threshold_values = [0.1]
 
@@ -151,7 +151,7 @@ def main() -> None:
     # https://networkx.org/documentation/stable/reference/generators.html#module-networkx.generators.random_graphs
 
     seed_values = [1, 2, 5, 10, 20]
-    num_samples_values = [10, 1000]
+    num_samples_values = [10, 200]
     diffusion_functions = [diffuse_CyNetDiff, diffuse_python, diffuse_ndlib]
 
     underlying_graphs = get_graphs()
