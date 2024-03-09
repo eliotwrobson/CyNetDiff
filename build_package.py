@@ -21,11 +21,6 @@ def build_cython_extensions():
         ),
     ]
 
-    # include_dirs = set()
-    # for extension in extensions:
-    #    include_dirs.update(extension.include_dirs)
-    # include_dirs = list(include_dirs)
-
     ext_modules = cythonize(
         extensions,
         annotate=True,
