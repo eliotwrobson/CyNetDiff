@@ -16,5 +16,4 @@ jobs:
           pypi_token: ${{ secrets.PYPI_TOKEN }}
           # TODO remove
           repository_name: "testpypi"
-          build_format: "sdist"
           repository_url: "https://test.pypi.org/legacy/"
