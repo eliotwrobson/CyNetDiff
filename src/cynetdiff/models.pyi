@@ -3,6 +3,7 @@ import typing as t
 
 import typing_extensions as te
 
+
 class DiffusionModel:
 
     """
@@ -28,6 +29,7 @@ class DiffusionModel:
     def reset_model(self) -> None: ...
     def advance_until_completion(self) -> None: ...
     def get_newly_activated_nodes(self) -> t.Generator[int, None, None]: ...
+
 
 class IndependentCascadeModel(DiffusionModel):
 
@@ -66,6 +68,7 @@ class IndependentCascadeModel(DiffusionModel):
     ) -> None: ...
     def set_seeds(self, seeds: t.Iterable[int]) -> None: ...
     def get_num_activated_nodes(self) -> int: ...
+
 
 class LinearThresholdModel(DiffusionModel):
 
