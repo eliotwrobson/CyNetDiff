@@ -31,8 +31,8 @@ jobs:
       - name: Install dependencies
         run: poetry install --with dev
 
-      - name: Run flake8
-        run: poetry run flake8 .
+      - name: Run ruff
+        run: poetry run ruff check .
 
       - name: Run mypy
         run: poetry run mypy .
