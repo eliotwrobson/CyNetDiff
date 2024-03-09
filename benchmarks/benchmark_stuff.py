@@ -118,7 +118,7 @@ def time_diffusion(
 
 def get_graphs() -> list[tuple[str, DiffusionGraphT]]:
     """Get graphs with accompanying names for diffusion benchmarks."""
-    n_values = [20, 10_000]
+    n_values = [20, 10_000]  # 10_000]
     frac_values = [0.002, 0.007]
     threshold_values = [0.1]
 
@@ -131,6 +131,16 @@ def get_graphs() -> list[tuple[str, DiffusionGraphT]]:
 
         name = f"Gnp, n = {n}, p = {frac}"
 
+        res.append((name, graph))
+
+    k_vals = [4, 10]
+
+    for n, k, frac, threshold in it.product(
+        n_values, k_vals, frac_values, threshold_values
+    ):
+        graph = nx.watts_strogatz_graph(n, k, frac)
+        nx.set_edge_attributes(graph, threshold, "threshold")
+        name = f"Watts–Strogatz small-world graph, n = {n}, k = {k}, p = {frac}"
         res.append((name, graph))
 
     return res

@@ -19,16 +19,15 @@ classifiers = [
     "Intended Audience :: Science/Research",
 ]
 
+[tool.poetry.dependencies]
+python = ">=3.10"
+
 [tool.poetry.group.benchmark.dependencies]
 python = ">=3.10"
 ndlib = "^5.1.1"
 networkx = "^3.2.1"
 pandas = ">=2.0.0"
 tqdm = "^4.66.2"
-
-[tool.poetry.dependencies]
-python = ">=3.10"
-
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.2"
@@ -57,7 +56,7 @@ max-line-length = 88
 python_version = "3.10"
 
 [[tool.mypy.overrides]]
-module = ["networkx.*", "Cython.*"]
+module = ["networkx.*", "Cython.*", "ndlib.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
