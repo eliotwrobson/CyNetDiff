@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "cynetdiff"
-version = "0.1.1"
+version = "0.1.2"
 description = "A fast network diffusion library"
 authors = ["Eliot W. Robson <eliot.robson24@gmail.com>"]
 license = "MIT"
