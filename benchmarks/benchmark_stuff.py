@@ -1,13 +1,11 @@
-import copy
 import random
-import typing as t
-import pandas as pd
 
 import ndlib.models.epidemics as ep
 import ndlib.models.ModelConfig as mc
 import networkx as nx
-
+import pandas as pd
 from cynetdiff.utils import networkx_to_ic_model
+
 
 def independent_cascade(G: nx.Graph | nx.DiGraph, seeds: list[int]) -> list[list[int]]:
     if not G.is_directed():
@@ -123,7 +121,6 @@ def diffuse_CyNetDiff(
 def diffuse_ndlib(
     graph: nx.Graph | nx.DiGraph, seeds: set[int], num_samples: int
 ) -> float:
-
     model = ep.IndependentCascadesModel(graph)
 
     config = mc.Configuration()
@@ -172,28 +169,42 @@ def main() -> None:
 
     results = []
 
-    for n, k, frac, num_samples in zip(n_values, k_values, frac_values, num_samples_values):
+    for n, k, frac, num_samples in zip(
+        n_values, k_values, frac_values, num_samples_values
+    ):
         g = nx.fast_gnp_random_graph(n, frac)
         nx.set_edge_attributes(g, 0.1, "threshold")
         seeds = set(random.sample(list(g.nodes()), k))
 
         for func in [diffuse_CyNetDiff, diffuse_ndlib, diffuse_python]:
             # Print the parameters before running
-            print(f"Running {func.__name__} with n={n}, k={k}, frac={frac}, num_samples={num_samples}")
+            print(
+                f"Running {func.__name__} with n={n}, k={k}, frac={frac}, num_samples={num_samples}"
+            )
 
-            model_name, diffused, time_taken = time_diffusion(func, g, seeds, num_samples)
+            model_name, diffused, time_taken = time_diffusion(
+                func, g, seeds, num_samples
+            )
 
             # Print the results after running
-            print(f"Completed {model_name}: Diffused = {diffused}, Time = {time_taken:.4f} seconds")
-            
-            results.append({
-                "n": n, "k": k, "frac": frac, "num_samples": num_samples,
-                "model": model_name, "diffused": diffused, "time": time_taken
-            })
+            print(
+                f"Completed {model_name}: Diffused = {diffused}, Time = {time_taken:.4f} seconds"
+            )
+
+            results.append(
+                {
+                    "n": n,
+                    "k": k,
+                    "frac": frac,
+                    "num_samples": num_samples,
+                    "model": model_name,
+                    "diffused": diffused,
+                    "time": time_taken,
+                }
+            )
 
     df = pd.DataFrame(results)
     print(df)
-
 
 
 if __name__ == "__main__":
