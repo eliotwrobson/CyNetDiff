@@ -10,7 +10,7 @@ import pandas as pd
 from cynetdiff.utils import networkx_to_ic_model
 from tqdm import trange
 
-DiffusionGraphT = nx.Graph | nx.DiGraph
+DiffusionGraphT = t.Union[nx.Graph, nx.DiGraph]
 SeedSetT = set[int]
 DiffusionFuncT = t.Callable[[DiffusionGraphT, SeedSetT, int], float]
 
@@ -55,9 +55,9 @@ def diffuse_python(graph: DiffusionGraphT, seeds: SeedSetT, num_samples: int) ->
         graph = graph.to_directed()
 
     res = 0.0
-    seeds_list = list(seeds)
+    seeds = seeds
     for _ in trange(num_samples):
-        res += sum(len(level) for level in independent_cascade(graph, seeds_list))
+        res += float(sum(len(level) for level in independent_cascade(graph, seeds)))
 
     return res / num_samples
 
