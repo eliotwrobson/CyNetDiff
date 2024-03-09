@@ -162,8 +162,8 @@ def main() -> None:
     # TODO parameterize these benchmarks with
     # https://networkx.org/documentation/stable/reference/generators.html#module-networkx.generators.random_graphs
 
-    n_values = [10000]
-    k_values = [1]
+    n_values = [10_000]
+    k_values = [1, 2, 5, 10, 20]
     frac_values = [0.007]
     num_samples_values = [1000]
 

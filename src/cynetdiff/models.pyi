@@ -1,11 +1,7 @@
 import array
 import typing as t
 
-import typing_extensions as te
-
-
 class DiffusionModel:
-
     """
     Base class for Diffusion Models. This class provides an interface for advancing,
     resetting, and retrieving newly activated nodes.
@@ -30,12 +26,10 @@ class DiffusionModel:
     def advance_until_completion(self) -> None: ...
     def get_newly_activated_nodes(self) -> t.Generator[int, None, None]: ...
 
-
 class IndependentCascadeModel(DiffusionModel):
-
     """
-    A Diffusion Model representing the Independent Cascade process. This class is a 
-    subtype of the DiffusionModel and provides specific implementations for the 
+    A Diffusion Model representing the Independent Cascade process. This class is a
+    subtype of the DiffusionModel and provides specific implementations for the
     Independent Cascade diffusion process.
 
     Parameters
@@ -69,12 +63,10 @@ class IndependentCascadeModel(DiffusionModel):
     def set_seeds(self, seeds: t.Iterable[int]) -> None: ...
     def get_num_activated_nodes(self) -> int: ...
 
-
 class LinearThresholdModel(DiffusionModel):
-
     """
-    A Diffusion Model representing the Linear Threshold process. This class is a 
-    subtype of the DiffusionModel and provides specific implementations for the 
+    A Diffusion Model representing the Linear Threshold process. This class is a
+    subtype of the DiffusionModel and provides specific implementations for the
     Linear Threshold diffusion process.
 
     Parameters
