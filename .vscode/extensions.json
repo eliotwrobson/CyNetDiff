@@ -1,10 +1,9 @@
 {
   "recommendations": [
-    "ms-python.black-formatter",
-    "ms-python.flake8",
     "matangover.mypy",
     "ms-python.python",
     "ms-python.vscode-pylance",
+    "charliermarsh.ruff",
     "tamasfe.even-better-toml"
   ]
 }

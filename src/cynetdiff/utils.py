@@ -13,7 +13,6 @@ def networkx_to_ic_model(
     threshold=0.1,
     include_succcess_prob: bool = False,
 ) -> IndependentCascadeModel:
-
     """
     Converts a NetworkX graph into an Independent Cascade model.
 
@@ -63,7 +62,6 @@ def networkx_to_ic_model(
 def networkx_to_lt_model(
     graph: nx.Graph | nx.DiGraph, *, include_influence: bool = False
 ) -> LinearThresholdModel:
-
     """
     Converts a NetworkX graph into a Linear Threshold model.
 
