@@ -5,7 +5,15 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 This is a performance-focused library implementing algorithms for simulating network
-diffusion processes, written in Cython. 
+diffusion processes, written in Cython.
+
+## Project Status
+
+This project is still considered in an alpha stage of development. As such,
+the API is still relatively undocumented, not yet fully featured, and
+could still change.
+
+Use at your own risk, however all feedback is greatly appreciated!
 
 ## Development
 
