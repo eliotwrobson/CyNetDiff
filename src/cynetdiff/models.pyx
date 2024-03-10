@@ -3,7 +3,6 @@ from cpython cimport array
 from libcpp.deque cimport deque as cdeque
 from libcpp.unordered_set cimport unordered_set as cset
 from libcpp cimport bool
-from cython.operator import dereference
 
 import array
 import random
@@ -44,16 +43,21 @@ cdef class IndependentCascadeModel(DiffusionModel):
             array.array edges,
             *,
             double threshold = 0.1,
+            array.array edge_thresholds = None,
             array.array edge_probabilities = None
         ):
 
         self.starts = starts
         self.edges = edges
-        self.threshold = threshold
         self.edge_probabilities = edge_probabilities
+        self.threshold = threshold
+        self.edge_thresholds = edge_thresholds
 
         if self.edge_probabilities is not None:
             assert len(self.edges) == len(self.edge_probabilities)
+
+        if self.edge_thresholds is not None:
+            assert len(self.edges) == len(self.edge_thresholds)
 
     def set_seeds(self, seeds):
         self.original_seeds.clear()
@@ -68,19 +72,27 @@ cdef class IndependentCascadeModel(DiffusionModel):
         self.seen_set.insert(self.original_seeds.begin(), self.original_seeds.end())
 
     def get_newly_activated_nodes(self):
-        for new_node in self.work_deque:
-            yield new_node
+        for node in self.work_deque:
+            yield node
 
     def get_num_activated_nodes(self):
         return self.seen_set.size()
 
     cdef inline int __activation_succeeds(self, unsigned int edge_idx) except -1 nogil:
+        cdef float edge_threshold
+
+        if self.edge_thresholds is not None:
+            edge_threshold = self.edge_thresholds[edge_idx]
+        else:
+            edge_threshold = self.threshold
+
+        # TODO get rid of edge probabilities
         if self.edge_probabilities is None:
-            if next_rand() <= self.threshold:
+            if next_rand() <= edge_threshold:
                 return 1
             return 0
 
-        if self.edge_probabilities[edge_idx] <= self.threshold:
+        if self.edge_probabilities[edge_idx] <= edge_threshold:
             return 1
         return 0
 
@@ -163,8 +175,8 @@ cdef class LinearThresholdModel(DiffusionModel):
         self.seen_set.insert(self.original_seeds.begin(), self.original_seeds.end())
 
     def get_newly_activated_nodes(self):
-        for new_node in self.work_deque:
-            yield new_node
+        for node in self.work_deque:
+            yield node
 
     def get_num_activated_nodes(self):
         return self.seen_set.size()
