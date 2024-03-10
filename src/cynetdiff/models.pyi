@@ -72,9 +72,10 @@ class IndependentCascadeModel(DiffusionModel):
         of array elements must be unsigned int.
     threshold : float, optional
         Uniform threshold for the Independent Cascade model. Defaults to 0.1.
+        Should not be set if edge_thresholds is set.
     edge_thresholds : array.array, optional
-        Set individual thresholds for the Independent Cascade model. Should not be set
-        if threshold is set, overrides threshold.
+        Set individual thresholds for the Independent Cascade model.
+        Overrides threshold.
     edge_probabilities : array.array, optional
         An array of success probabilities for each edge, default is None.
     """
@@ -112,7 +113,7 @@ class LinearThresholdModel(DiffusionModel):
     threshold : array.array
         An array of thresholds for each node. Type
         of array elements must be float.
-    influence : Optional[array.array], optional
+    influence : array.array, optional
         An array of influence values for each edge. Array elements must be
         floats in [0,1]. If not set, the inverse of the in-degree of a node
         is used for the influence.
