@@ -9,6 +9,9 @@ from Cython.Build import build_ext, cythonize  # isort: skip
 # when using setuptools, you should import setuptools before Cython,
 # otherwise, both might disagree about the class to use.
 
+# TODO follow this example to make building easier:
+# https://github.com/FedericoStra/cython-package-example/blob/master/setup.py
+
 
 def build_cython_extensions():
     # http://docs.cython.org/en/latest/src/userguide/parallelism.html#compiling
