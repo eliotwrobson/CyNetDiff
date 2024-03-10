@@ -6,6 +6,7 @@ authors = ["Eliot W. Robson <eliot.robson24@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 packages = [{ include = "cynetdiff", from = "src" }]
+# TODO try removing the line below and see what happens, may not be needed.
 include = [{ path = "src/cynetdiff/*.so", format = "wheel" }]
 
 #TODO version classifiers may not be needed.
