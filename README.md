@@ -8,7 +8,7 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10801504.svg)](https://doi.org/10.5281/zenodo.10801504)
 
 
-This is a performance-focused library implementing algorithms for simulating network
+A performance-focused library implementing algorithms for simulating network
 diffusion processes, written in Cython.
 
 ## Project Status
