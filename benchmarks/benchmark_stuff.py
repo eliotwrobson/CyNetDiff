@@ -1,3 +1,4 @@
+import gzip
 import itertools as it
 import random
 import time
@@ -7,12 +8,35 @@ import ndlib.models.epidemics as ep
 import ndlib.models.ModelConfig as mc
 import networkx as nx
 import pandas as pd
+import pooch
 from cynetdiff.utils import networkx_to_ic_model
 from tqdm import trange
 
 DiffusionGraphT = t.Union[nx.Graph, nx.DiGraph]
 SeedSetT = set[int]
 DiffusionFuncT = t.Callable[[DiffusionGraphT, SeedSetT, int], float]
+
+
+def networkx_from_edgelist() -> nx.Graph:
+    # Data from: https://snap.stanford.edu/data/index.html#socnets
+
+    graph_data_file = pooch.retrieve(
+        progressbar=True,
+        url="https://snap.stanford.edu/data/facebook_combined.txt.gz",
+        known_hash="125e84db872eeba443d270c70315c256b0af43a502fcfe51f50621166ad035d7",
+    )
+
+    with gzip.open(graph_data_file, "r") as file:
+        fb_network = nx.read_edgelist(
+            file,
+            create_using=nx.DiGraph(),
+            nodetype=int,
+        )
+
+        print("Nodes: ", fb_network.number_of_nodes())
+        print("Edges: ", fb_network.number_of_edges())
+
+    assert False
 
 
 def independent_cascade(G: DiffusionGraphT, seeds: SeedSetT) -> list[list[int]]:
@@ -118,6 +142,10 @@ def time_diffusion(
 
 def get_graphs() -> list[tuple[str, DiffusionGraphT]]:
     """Get graphs with accompanying names for diffusion benchmarks."""
+
+    # TODO parameterize these benchmarks with
+    # https://networkx.org/documentation/stable/reference/generators.html#module-networkx.generators.random_graphs
+
     n_values = [20, 5_000]  # 10_000]
     frac_values = [0.002, 0.007]
     threshold_values = [0.1]
@@ -147,8 +175,7 @@ def get_graphs() -> list[tuple[str, DiffusionGraphT]]:
 
 
 def main() -> None:
-    # TODO parameterize these benchmarks with
-    # https://networkx.org/documentation/stable/reference/generators.html#module-networkx.generators.random_graphs
+    networkx_from_edgelist()
 
     seed_values = [1, 2, 5, 10, 20]
     num_samples_values = [10, 200]
