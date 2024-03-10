@@ -41,8 +41,8 @@ types-tqdm = "^4.66.0.20240106"
 cython = "^3.0.9"
 
 
-# TODO maybe something broke before here?
-# Just get CI woring with multiple python versions
+# NOTE to enable Cython generation during development, add "cython" to the
+# build dependencies before doing "poetry install".
 [build-system]
 requires = ["poetry-core", "setuptools"]
 build-backend = "poetry.core.masonry.api"

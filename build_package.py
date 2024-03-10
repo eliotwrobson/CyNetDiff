@@ -8,8 +8,12 @@ from setuptools.dist import Distribution
 # Flag to enable Cython code generation during install / build. This is
 # enabled during development to generated the C++ files that will be
 # compiled
-USE_CYTHON = False
-
+try:
+    from Cython.Build import cythonize
+except ImportError:
+    USE_CYTHON = False
+else:
+    USE_CYTHON = True
 
 # TODO follow this example to make building easier:
 # https://github.com/FedericoStra/cython-package-example/blob/master/setup.py
