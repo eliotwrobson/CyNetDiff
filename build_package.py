@@ -2,35 +2,46 @@ import shutil
 from pathlib import Path
 
 from setuptools import Extension
+from setuptools.command.build_ext import build_ext
 from setuptools.dist import Distribution
 
-from Cython.Build import build_ext, cythonize  # isort: skip
+# Flag to enable Cython code generation during install / build. This is
+# enabled during development to generated the C++ files that will be
+# compiled
+USE_CYTHON = False
 
-# when using setuptools, you should import setuptools before Cython,
-# otherwise, both might disagree about the class to use.
 
 # TODO follow this example to make building easier:
 # https://github.com/FedericoStra/cython-package-example/blob/master/setup.py
 
 
-def build_cython_extensions():
-    # http://docs.cython.org/en/latest/src/userguide/parallelism.html#compiling
+def build_cython_extensions() -> None:
+    ext = ".pyx" if USE_CYTHON else ".cpp"
+
     extensions = [
         Extension(
             "cynetdiff.models",
-            ["src/cynetdiff/models.pyx"],
+            ["src/cynetdiff/models" + ext],
             language="c++",
             extra_compile_args=["-O3"],
         ),
     ]
 
-    ext_modules = cythonize(
-        extensions,
-        annotate=True,
-        compiler_directives={"language_level": "3str"},
-    )
+    if USE_CYTHON:
+        from Cython.Build import cythonize  # isort: skip
 
-    dist = Distribution({"ext_modules": ext_modules})
+        # when using setuptools, you should import setuptools before Cython,
+        # otherwise, both might disagree about the class to use.
+
+        # http://docs.cython.org/en/latest/src/userguide/parallelism.html#compiling
+
+        extensions = cythonize(
+            extensions,
+            annotate=True,
+            compiler_directives={"language_level": "3str"},
+        )
+
+    dist = Distribution({"ext_modules": extensions})
     cmd = build_ext(dist)
     cmd.ensure_finalized()
     cmd.run()
