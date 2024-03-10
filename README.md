@@ -17,7 +17,7 @@ This project is still considered in an alpha stage of development. As such,
 the API is still relatively undocumented, not yet fully featured, and
 could still change.
 
-Use at your own risk, however all feedback is greatly appreciated!
+All feedback is greatly appreciated!
 
 ## Development
 
