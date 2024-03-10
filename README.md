@@ -10,12 +10,16 @@ diffusion processes, written in Cython.
 ## Development
 
 Package development is being done with Poetry. After cloning the repo,
-run the following command to build the project:
+you will first need to add `"cython"` to the build dependencies.
+Make sure not to commit this change, as it just enables regeneration
+of the C++ files from Cython code.
+
+Then, the following command to build the project:
 ```
 poetry install
 ```
 
-Then to run tests on the newly compiled code, run:
+To run tests on the newly compiled code:
 ```
 poetry run pytest
 ```
