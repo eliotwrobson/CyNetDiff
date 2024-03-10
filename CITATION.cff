@@ -1,0 +1,9 @@
+cff-version: 1.1.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: Eliot
+  given-names: Robson
+orcid: https://orcid.org/0000-0002-1476-6715
+title:eliotwrobson/CyNetDiff: v0.1.5
+version: v0.1.5
+date-released: 2024-03-10
