@@ -21,7 +21,7 @@ classifiers = [
     "Intended Audience :: Science/Research",
 ]
 
-[project.urls]
+[tool.poetry.urls]
 homepage = "https://github.com/eliotwrobson/CyNetDiff"
 tracker = "https://github.com/eliotwrobson/CyNetDiff/issues"
 # TODO add these later
