@@ -3,14 +3,7 @@ import random
 import typing as t
 
 import networkx as nx
-
 from cynetdiff.utils import networkx_to_ic_model
-
-#    Code below adapted from code by
-#    Hung-Hsuan Chen <hhchen@psu.edu>
-#    All rights reserved.
-#    BSD license.
-#    NetworkX:http://networkx.lanl.gov/.
 
 
 def independent_cascade(
