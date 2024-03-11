@@ -49,6 +49,17 @@ pandas-stubs = "^2.2.0.240218"
 types-tqdm = "^4.66.0.20240106"
 cython = "^3.0.9"
 
+[tool.poetry.group.docs]
+optional = true
+
+[tool.poetry.group.docs.dependencies]
+mkdocs = "^1.4.2"
+mkdocs-material = "^9.1.9"
+mkdocs-macros-plugin = "^0.7.0"
+mkdocstrings = "^0.23.0"
+mkdocstrings-python = "^1.7.3"
+setuptools = "^69.0.3"
+
 
 # NOTE to enable Cython generation during development, add "cython" to the
 # build dependencies before doing "poetry install".
@@ -70,7 +81,7 @@ max-line-length = 88
 python_version = "3.10"
 
 [[tool.mypy.overrides]]
-module = ["networkx.*", "Cython.*", "ndlib.*"]
+module = ["networkx.*", "Cython.*", "ndlib.*", "pooch.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
