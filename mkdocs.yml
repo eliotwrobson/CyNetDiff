@@ -1,0 +1,119 @@
+site_name: CyNetDiff
+site_description: A performance-focused library implementing algorithms for simulating network diffusion processes, written in Cython.
+site_url: https://cynetdiff.site.to.be.created.org
+repo_url: https://github.com/eliotwrobson/CyNetDiff
+repo_name: cynetdiff
+edit_uri: blob/main/docs/
+authors:
+  - eliotwrobson: https://github.com/eliotwrobson
+# TODO change these colors + theme
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: deep purple
+      toggle:
+        icon: material/lightbulb
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: deep purple
+      toggle:
+        icon: material/lightbulb-outline
+        name: Switch to light mode
+  features:
+    - search.suggest
+    - search.highlight
+    - toc.integrate
+    - navigation.top
+    - navigation.indexes
+    - navigation.tabs
+    - content.code.copy
+  # - navigation.tabs.sticky
+  # - navigation.tracking
+  # - navigation.expand
+  # - navigation.sections
+  # - header.autohide
+  icon:
+    repo: fontawesome/brands/github
+  logo: assets/img/logo.svg
+  favicon: assets/img/favicon.png
+  language: en
+plugins:
+  - search:
+      separator: '[\s\-\.]'
+      min_length: 2
+      indexing:
+        "full"
+        # media_type: print
+        # enabled_if_env: ENABLE_PDF_EXPORT
+  - macros:
+      enabled_if_env: ENABLE_PDF_EXPORT
+  - mkdocstrings:
+      enabled: !ENV [ENABLE_MKDOCSTRINGS, true]
+      custom_templates: templates
+      default_handler: python
+      handlers:
+        python:
+          options:
+            show_source: false
+            docstring_style: "numpy"
+            filters:
+            - "!^_"
+            - "!^__"
+markdown_extensions:
+  - toc:
+      permalink: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+      # auto_title: true
+      # anchor_linenums: true
+      # linenums: true
+      # linenums_style: pymdownx-inline
+  - pymdownx.tasklist:
+      clickable_checkbox: true
+      custom_checkbox: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.critic
+  - pymdownx.caret
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.tilde
+  - pymdownx.betterem
+  - admonition
+  - pymdownx.details
+  - footnotes
+  - attr_list
+  - md_in_html
+  - tables
+extra:
+  social:
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/cynetdiff/
+      name: Package on PyPI
+# extra_css:
+#   - stylesheets/extra.css
+# extra_javascript:
+#   - javascripts/extra.js
+copyright: Copyright &copy; 2024 Eliot Robson
+nav:
+  - Introduction:
+      - index.md
+      - migration.md
+      - characteristics.md
+  - Examples:
+      - examples/fa-examples.md
+  - API:
+      - api/index.md
+      - Class Automaton: api/class-automaton.md
+  - Community:
+      - people.md
