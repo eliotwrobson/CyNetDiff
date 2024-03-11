@@ -55,8 +55,8 @@ def set_activation_random_sample(
 def networkx_to_ic_model(
     graph: nx.Graph | nx.DiGraph,
     *,
-    threshold: float = 0.1,
-    include_succcess_prob: bool = False,
+    threshold: t.Optional[float] = None,
+    _include_succcess_prob: bool = False,
 ) -> IndependentCascadeModel:
     """
     Converts a NetworkX graph into an Independent Cascade model.
@@ -67,7 +67,7 @@ def networkx_to_ic_model(
         A NetworkX graph or directed graph.
     threshold : float, optional
         Threshold for the Independent Cascade model, by default 0.1.
-    include_succcess_prob : bool, optional
+    _include_succcess_prob : bool, optional
         If True, includes success probabilities for each edge. These probabilities
         are then stored in the edge data dictionary with the key "success_prob",
         by default False.
@@ -84,9 +84,14 @@ def networkx_to_ic_model(
     starts = array.array("I")
     edges = array.array("I")
     success_prob = None
+    activation_prob = None
 
-    if include_succcess_prob:
+    if _include_succcess_prob:
         success_prob = array.array("f")
+
+    if next(iter(graph.edges.data("activation_prob", None)))[2] is not None:
+        assert threshold is None  # Don't have both things set.
+        activation_prob = array.array("f")
 
     curr_start = 0
     for _, node in node_list:
@@ -99,8 +104,19 @@ def networkx_to_ic_model(
             if success_prob is not None:
                 success_prob.append(graph.get_edge_data(node, other)["success_prob"])
 
+            if activation_prob is not None:
+                graph[node][neighbor]["activation_prob"]
+
+    # Can always set threshold, as it gets ignored if edge probabilities are set.
+    if threshold is None:
+        threshold = 0.1
+
     return IndependentCascadeModel(
-        starts, edges, threshold=threshold, edge_probabilities=success_prob
+        starts,
+        edges,
+        threshold=threshold,
+        edge_probabilities=success_prob,
+        edge_thresholds=activation_prob,
     )
 
 

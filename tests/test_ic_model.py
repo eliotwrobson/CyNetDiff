@@ -187,7 +187,7 @@ def test_specific_model() -> None:
     activated_nodes_levels = independent_cascade(test_graph, seeds)
 
     # Set up the model
-    model = networkx_to_ic_model(test_graph, include_succcess_prob=True)
+    model = networkx_to_ic_model(test_graph, _include_succcess_prob=True)
 
     model.set_seeds(seeds)
 
@@ -216,7 +216,7 @@ def test_basic_2() -> None:
     num_seen = sum(len(level) for level in activated_nodes_levels)
 
     # Set up the model
-    model = networkx_to_ic_model(test_graph, include_succcess_prob=True)
+    model = networkx_to_ic_model(test_graph, _include_succcess_prob=True)
     model.set_seeds(seeds)
     model.advance_until_completion()
 
