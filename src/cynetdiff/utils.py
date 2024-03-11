@@ -3,6 +3,8 @@ Functions used to convert NetworkX graphs to usable models.
 """
 
 import array
+import random
+import typing as t
 
 import networkx as nx
 
@@ -10,11 +12,50 @@ from cynetdiff.models import IndependentCascadeModel, LinearThresholdModel
 
 # TODO speed up these model creation functions if needed
 
+Graph = t.Union[nx.Graph, nx.DiGraph]
+
+
+def set_activation_uniformly_random(
+    graph: Graph, *, range_start: float = 0.0, range_end: float = 1.0
+) -> None:
+    """
+    Set activation probability on each edge uniformly at random in the range
+    [range_start, range_end]. Must have that
+    0.0 <= range_start < range_end <= 1.0
+    """
+
+    assert 0.0 <= range_start < range_end <= 1.0
+
+    for _, _, edge_data in graph.edges(data=True):
+        edge_data["activation_prob"] = random.uniform(range_start, range_end)
+
+
+def set_activation_weighted_cascade(graph: Graph) -> None:
+    """
+    Set activation probability on each edge to 1/in_degree[u].
+    """
+
+    for _, to_node, edge_data in graph.edges(data=True):
+        edge_data["activation_prob"] = 1 / (graph.in_degree(to_node))
+
+
+def set_activation_random_sample(
+    graph: Graph, weight_set: t.AbstractSet[float]
+) -> None:
+    """
+    Set activation probability on each edge uniformly at random from the
+    given input set.
+    """
+    weights = tuple(weight_set)
+
+    for _, _, edge_data in graph.edges(data=True):
+        edge_data["activation_prob"] = random.choice(weights)
+
 
 def networkx_to_ic_model(
     graph: nx.Graph | nx.DiGraph,
     *,
-    threshold=0.1,
+    threshold: float = 0.1,
     include_succcess_prob: bool = False,
 ) -> IndependentCascadeModel:
     """
