@@ -67,7 +67,7 @@ def independent_cascade(G: DiffusionGraphT, seeds: SeedSetT) -> list[list[int]]:
                     if succ_prob is None:
                         succ_prob = random.random()
 
-                    if succ_prob <= data.get("act_prob", 0.1):
+                    if succ_prob <= data.get("activation_prob", 0.1):
                         visited.add(child)
                         current_layer.append(child)
 
@@ -109,7 +109,7 @@ def diffuse_ndlib(graph: DiffusionGraphT, seeds: SeedSetT, num_samples: int) -> 
 
     # Assume that thresholds were already set.
     for u, v, data in graph.edges(data=True):
-        config.add_edge_configuration("threshold", (u, v), data["threshold"])
+        config.add_edge_configuration("threshold", (u, v), data["activation_prob"])
 
     # Don't randomly infect anyone to start, just use given seeds.
     config.add_model_parameter("fraction_infected", 0.0)
@@ -146,16 +146,16 @@ def get_graphs() -> list[tuple[str, DiffusionGraphT]]:
     # TODO parameterize these benchmarks with
     # https://networkx.org/documentation/stable/reference/generators.html#module-networkx.generators.random_graphs
 
-    n_values = [20, 5_000]  # 10_000]
+    n_values = [100, 15_000]
     frac_values = [0.002, 0.007]
-    threshold_values = [0.1]
+    threshold_values = [0.1, 0.2]
 
     res = []
 
     for n, frac, threshold in it.product(n_values, frac_values, threshold_values):
         graph = nx.fast_gnp_random_graph(n, frac)
 
-        nx.set_edge_attributes(graph, threshold, "threshold")
+        nx.set_edge_attributes(graph, threshold, "activation_prob")
 
         name = f"Gnp, n = {n}, p = {frac}"
 
@@ -167,7 +167,7 @@ def get_graphs() -> list[tuple[str, DiffusionGraphT]]:
         n_values, k_vals, frac_values, threshold_values
     ):
         graph = nx.watts_strogatz_graph(n, k, frac)
-        nx.set_edge_attributes(graph, threshold, "threshold")
+        nx.set_edge_attributes(graph, threshold, "activation_prob")
         name = f"Watts–Strogatz small-world graph, n = {n}, k = {k}, p = {frac}"
         res.append((name, graph))
 
