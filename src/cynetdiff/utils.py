@@ -169,13 +169,20 @@ def networkx_to_lt_model(graph: nx.Graph | nx.DiGraph) -> LinearThresholdModel:
         # Next, do the same but for in-neighbors,
         # logic is largely the same
         predecessor_starts.append(curr_predecessor)
+        pred_sum = 0.0
+
         for predecessor in graph.predecessors(node):
             other = node_mapping[predecessor]
             curr_predecessor += 1
             predecessors.append(other)
 
             if influence is not None:
-                influence.append(graph[other][node]["influence"])
+                edge_influence = graph[other][node]["influence"]
+                pred_sum += edge_influence
+                influence.append(edge_influence)
+
+        if pred_sum >= 1.0:
+            raise ValueError(f"Node {node} has inward influence greater than 1.0.")
 
         threshold.append(data["threshold"])
 
