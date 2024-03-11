@@ -3,7 +3,13 @@ import random
 import typing as t
 
 import networkx as nx
-from cynetdiff.utils import networkx_to_ic_model
+import pytest
+from cynetdiff.utils import (
+    networkx_to_ic_model,
+    set_activation_random_sample,
+    set_activation_uniformly_random,
+    set_activation_weighted_cascade,
+)
 
 
 def independent_cascade(
@@ -12,6 +18,7 @@ def independent_cascade(
     *,
     steps: int = 0,
     random_seed: t.Any = None,
+    activation_prob: t.Optional[float] = None,
 ) -> t.List[t.List[int]]:
     """Return the active nodes of each diffusion step by the independent cascade
   model
@@ -42,7 +49,7 @@ def independent_cascade(
   --------
   >>> DG = nx.DiGraph()
   >>> DG.add_edges_from([(1,2), (1,3), (1,5), (2,1), (3,2), (4,2), (4,3), \
-  >>>   (4,6), (5,3), (5,4), (5,6), (6,4), (6,5)], act_prob=0.2)
+  >>>   (4,6), (5,3), (5,4), (5,6), (6,4), (6,5)], activation_prob=0.2)
   >>> layers = networkx_addon.information_propagation.independent_cascade(DG, [6])
 
   References
@@ -64,14 +71,19 @@ def independent_cascade(
     else:
         DG = copy.deepcopy(G)
 
+    act_prob_default = 0.1 if activation_prob is None else activation_prob
+
     # init activation probabilities
     for u, v, data in DG.edges(data=True):
-        act_prob = data.setdefault("act_prob", 0.1)
+        if "activation_prob" not in data:
+            data["activation_prob"] = act_prob_default
+        elif activation_prob is not None:
+            raise Exception("Activation prob set even though graph has probabilities")
         # if "act_prob" not in data:
         #    data["act_prob"] = 0.1
-        if act_prob > 1.0:
+        if act_prob_default > 1.0:
             raise Exception(
-                f"edge activation probability: {act_prob} cannot be larger than 1."
+                f"edge activation probability: {act_prob_default} cannot be larger than 1."
             )
 
         data.setdefault("success_prob", rand_gen.random())
@@ -134,14 +146,16 @@ def _diffuse_one_round(G, A, tried_edges, rand_gen):
 
 
 def _prop_success(G, src, dest, rand_gen):
-    return G[src][dest]["success_prob"] <= G[src][dest]["act_prob"]
+    return G[src][dest]["success_prob"] <= G[src][dest]["activation_prob"]
 
 
 # Start of actual test code
 
 
-def generate_random_graph_from_seed(n: int, p: float, seed: int = 12345) -> nx.Graph:
-    graph = nx.fast_gnp_random_graph(n, p, seed=seed)
+def generate_random_graph_from_seed(
+    n: int, p: float, directed: bool, seed: int = 12345
+) -> t.Union[nx.Graph, nx.DiGraph]:
+    graph = nx.fast_gnp_random_graph(n, p, directed=directed, seed=seed)
 
     random.seed(12345)
     for _, _, data in graph.edges(data=True):
@@ -153,12 +167,13 @@ def generate_random_graph_from_seed(n: int, p: float, seed: int = 12345) -> nx.G
 # The start of the actual test cases
 
 
-def test_model_basic() -> None:
+@pytest.mark.parametrize("directed", [True, False])
+def test_model_basic(directed: bool) -> None:
     n = 10000
     k = 10
     p = 0.01
     # Just trying the main functions with no set thresholds
-    graph = generate_random_graph_from_seed(n, p)
+    graph = generate_random_graph_from_seed(n, p, directed)
     model = networkx_to_ic_model(graph)
 
     # Didn't set the seeds
@@ -175,19 +190,48 @@ def test_model_basic() -> None:
     assert set(model.get_newly_activated_nodes()) == seeds
 
 
-def test_specific_model() -> None:
+@pytest.mark.parametrize(
+    "set_act_prob_fn",
+    [
+        None,
+        set_activation_uniformly_random,
+        set_activation_weighted_cascade,
+        lambda graph: set_activation_random_sample(graph, {0.1, 0.01, 0.001}),
+    ],
+)
+@pytest.mark.parametrize("directed", [True, False])
+def test_specific_model(
+    directed: bool,
+    set_act_prob_fn: t.Optional[t.Callable[[nx.Graph | nx.DiGraph], None]],
+) -> None:
     n = 1000
     p = 0.01
     k = 10
-    test_graph = generate_random_graph_from_seed(n, p)
+
+    test_graph = generate_random_graph_from_seed(n, p, directed)
+    indep_cascade_prob = 0.2
+
+    if set_act_prob_fn is not None:
+        set_act_prob_fn(test_graph)
 
     nodes = list(test_graph.nodes)
     seeds = random.sample(nodes, k)
 
-    activated_nodes_levels = independent_cascade(test_graph, seeds)
+    # If this function is None, we use the uniform activation threshold.
+    if set_act_prob_fn is None:
+        activated_nodes_levels = independent_cascade(
+            test_graph, seeds, activation_prob=indep_cascade_prob
+        )
+    else:
+        activated_nodes_levels = independent_cascade(test_graph, seeds)
 
     # Set up the model
-    model = networkx_to_ic_model(test_graph, _include_succcess_prob=True)
+    if set_act_prob_fn is None:
+        model = networkx_to_ic_model(
+            test_graph, threshold=indep_cascade_prob, _include_succcess_prob=True
+        )
+    else:
+        model = networkx_to_ic_model(test_graph, _include_succcess_prob=True)
 
     model.set_seeds(seeds)
 
@@ -203,11 +247,12 @@ def test_specific_model() -> None:
         model.reset_model()
 
 
-def test_basic_2() -> None:
+@pytest.mark.parametrize("directed", [True, False])
+def test_basic_2(directed: bool) -> None:
     n = 1000
     p = 0.01
     k = 10
-    test_graph = generate_random_graph_from_seed(n, p)
+    test_graph = generate_random_graph_from_seed(n, p, directed)
 
     nodes = list(test_graph.nodes)
     seeds = random.sample(nodes, k)

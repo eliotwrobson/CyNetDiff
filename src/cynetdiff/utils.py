@@ -34,9 +34,10 @@ def set_activation_weighted_cascade(graph: Graph) -> None:
     """
     Set activation probability on each edge to 1/in_degree[u].
     """
+    deg_fun = graph.in_degree if graph.is_directed() else graph.degree
 
     for _, to_node, edge_data in graph.edges(data=True):
-        edge_data["activation_prob"] = 1 / (graph.in_degree(to_node))
+        edge_data["activation_prob"] = 1 / (deg_fun(to_node))
 
 
 def set_activation_random_sample(
@@ -66,7 +67,8 @@ def networkx_to_ic_model(
     graph : nx.Graph or nx.DiGraph
         A NetworkX graph or directed graph.
     threshold : float, optional
-        Threshold for the Independent Cascade model, by default 0.1.
+        Threshold for the Independent Cascade model, by default None.
+        If not set, and "activation_prob" key not found on edges, set to 0.1.
     _include_succcess_prob : bool, optional
         If True, includes success probabilities for each edge. These probabilities
         are then stored in the edge data dictionary with the key "success_prob",
@@ -105,7 +107,9 @@ def networkx_to_ic_model(
                 success_prob.append(graph.get_edge_data(node, other)["success_prob"])
 
             if activation_prob is not None:
-                graph[node][neighbor]["activation_prob"]
+                act_prob = graph[node][neighbor]["activation_prob"]
+                assert 0.0 <= act_prob <= 1.0
+                activation_prob.append(act_prob)
 
     # Can always set threshold, as it gets ignored if edge probabilities are set.
     if threshold is None:
