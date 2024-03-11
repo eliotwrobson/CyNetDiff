@@ -126,16 +126,14 @@ def networkx_to_ic_model(
 
 def networkx_to_lt_model(graph: nx.Graph | nx.DiGraph) -> LinearThresholdModel:
     """
-    Converts a NetworkX graph into a Linear Threshold model.
+    Converts a NetworkX graph into a Linear Threshold model. Includes influence
+    values if they are defined on each edge under the key "influence". Threshold
+    values must be set on each node under the key "threshold".
 
     Parameters
     ----------
     graph : nx.Graph or nx.DiGraph
         A NetworkX graph or directed graph.
-    include_influence : bool, optional
-        If True, includes influence values for each edge. These influence values
-        are then stored in the edge data dictionary with the key "influence",
-        by default False.
 
     Returns
     -------
@@ -152,8 +150,6 @@ def networkx_to_lt_model(graph: nx.Graph | nx.DiGraph) -> LinearThresholdModel:
     predecessors = array.array("I")
     predecessor_starts = array.array("I")
 
-    # TODO make setting these optional
-    # At the very least the influence can be defaulted
     threshold = array.array("f")
     influence = None
 
