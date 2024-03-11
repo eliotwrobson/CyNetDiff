@@ -181,8 +181,13 @@ def networkx_to_lt_model(graph: nx.Graph | nx.DiGraph) -> LinearThresholdModel:
                 pred_sum += edge_influence
                 influence.append(edge_influence)
 
-        if pred_sum >= 1.0:
-            raise ValueError(f"Node {node} has inward influence greater than 1.0.")
+        # 1.0001 instead of 1.0 to avoid floating point issues.
+        # TODO will this annoy people?
+        if pred_sum > 1.0001:
+            raise ValueError(
+                f"Node {node} has inward influence {pred_sum}, "
+                "must be less than 1.0."
+            )
 
         threshold.append(data["threshold"])
 
