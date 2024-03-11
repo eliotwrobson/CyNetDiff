@@ -4,7 +4,6 @@ import typing as t
 
 import networkx as nx
 import pytest
-
 from cynetdiff.utils import networkx_to_lt_model
 
 #    Code below adapted from code by
@@ -150,9 +149,9 @@ def _influence_sum(G, froms, to):
 
 
 def generate_random_graph_from_seed(
-    n: int, p: float, include_influence: bool, seed: int = 12345
+    n: int, p: float, directed: bool, include_influence: bool, seed: int = 12345
 ) -> nx.DiGraph:
-    graph = nx.fast_gnp_random_graph(n, p, seed=seed).to_directed()
+    graph = nx.fast_gnp_random_graph(n, p, seed=seed, directed=directed).to_directed()
 
     random.seed(seed)
     for _, data in graph.nodes(data=True):
@@ -168,13 +167,14 @@ def generate_random_graph_from_seed(
 # Start of actual test code
 
 
+@pytest.mark.parametrize("directed", [True, False])
 @pytest.mark.parametrize("nondefault_influence", [True, False])
-def test_specific_model(nondefault_influence: bool) -> None:
+def test_specific_model(directed: bool, nondefault_influence: bool) -> None:
     n = 100
     p = 0.05
     k = 10
     test_graph = generate_random_graph_from_seed(
-        n, p, include_influence=nondefault_influence
+        n, p, directed=directed, include_influence=nondefault_influence
     )
 
     nodes = list(test_graph.nodes)
