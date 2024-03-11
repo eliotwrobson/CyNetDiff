@@ -33,10 +33,10 @@ def networkx_from_edgelist() -> nx.Graph:
             nodetype=int,
         )
 
-        print("Nodes: ", fb_network.number_of_nodes())
-        print("Edges: ", fb_network.number_of_edges())
-
-    assert False
+    assert fb_network is not None
+    # print("Nodes: ", fb_network.number_of_nodes())
+    # print("Edges: ", fb_network.number_of_edges())
+    # TODO get other graph data using pooch instead of downloading all that crap.
 
 
 def independent_cascade(G: DiffusionGraphT, seeds: SeedSetT) -> list[list[int]]:
