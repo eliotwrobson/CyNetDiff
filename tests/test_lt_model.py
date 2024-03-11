@@ -157,6 +157,8 @@ def generate_random_graph_from_seed(
     for _, data in graph.nodes(data=True):
         data["threshold"] = random.random()
 
+    # TODO make this make the in-edge weights sum to 1 and then have the
+    # utility function check for this.
     if include_influence:
         for _, _, data in graph.edges(data=True):
             data["influence"] = random.random()
@@ -182,7 +184,7 @@ def test_specific_model(directed: bool, nondefault_influence: bool) -> None:
 
     activated_nodes_levels = linear_threshold(test_graph, seeds)
 
-    model = networkx_to_lt_model(test_graph, include_influence=nondefault_influence)
+    model = networkx_to_lt_model(test_graph)
 
     model.set_seeds(seeds)
 

@@ -124,9 +124,7 @@ def networkx_to_ic_model(
     )
 
 
-def networkx_to_lt_model(
-    graph: nx.Graph | nx.DiGraph, *, include_influence: bool = False
-) -> LinearThresholdModel:
+def networkx_to_lt_model(graph: nx.Graph | nx.DiGraph) -> LinearThresholdModel:
     """
     Converts a NetworkX graph into a Linear Threshold model.
 
@@ -159,7 +157,7 @@ def networkx_to_lt_model(
     threshold = array.array("f")
     influence = None
 
-    if include_influence:
+    if next(iter(graph.edges.data("influence", None)))[2] is not None:
         influence = array.array("f")
 
     curr_successor = 0
