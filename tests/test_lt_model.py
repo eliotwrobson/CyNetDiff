@@ -164,14 +164,16 @@ def generate_random_graph_from_seed(
             data["influence"] = random.random()
 
         for node in graph.nodes():
-            preds = tuple(graph.predecessors(node))
+            pred_dicts = tuple(
+                graph[predecessor][node] for predecessor in graph.predecessors(node)
+            )
 
             # Get sum of influences and then normalize.
             inf_sum = 0.0
-            for predecessor in preds:
-                inf_sum += graph[predecessor][node]["influence"]
-            for predecessor in preds:
-                graph[predecessor][node]["influence"] /= inf_sum
+            for pred_dict in pred_dicts:
+                inf_sum += pred_dict["influence"]
+            for pred_dict in pred_dicts:
+                pred_dict["influence"] /= inf_sum
 
     return graph
 
