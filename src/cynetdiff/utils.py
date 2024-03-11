@@ -1,3 +1,7 @@
+"""
+Functions used to convert NetworkX graphs to usable models.
+"""
+
 import array
 
 import networkx as nx

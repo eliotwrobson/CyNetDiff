@@ -59,6 +59,7 @@ plugins:
           options:
             show_source: false
             docstring_style: "numpy"
+            show_root_heading: true
             filters:
             - "!^_"
             - "!^__"
@@ -114,6 +115,7 @@ nav:
       - examples/fa-examples.md
   - API:
       - api/index.md
-      - Class Automaton: api/class-automaton.md
+      - Utils: api/utils.md
+      - Models: api/models.md
   - Community:
       - people.md
