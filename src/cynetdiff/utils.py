@@ -10,8 +10,6 @@ import networkx as nx
 
 from cynetdiff.models import IndependentCascadeModel, LinearThresholdModel
 
-# TODO speed up these model creation functions if needed
-
 Graph = t.Union[nx.Graph, nx.DiGraph]
 
 
@@ -34,6 +32,8 @@ def set_activation_weighted_cascade(graph: Graph) -> None:
     """
     Set activation probability on each edge to 1/in_degree[u].
     """
+    # TODO make this only work for directed graphs (will give an incorrect
+    # answer for undirected graphs, unless they're regular).
     deg_fun = graph.in_degree if graph.is_directed() else graph.degree
 
     for _, to_node, edge_data in graph.edges(data=True):
