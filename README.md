@@ -19,19 +19,6 @@ could still change.
 
 All feedback is greatly appreciated!
 
-## Development
+## Contributing
 
-Package development is being done with Poetry. After cloning the repo,
-you will first need to add `"cython"` to the build dependencies.
-Make sure not to commit this change, as it just enables regeneration
-of the C++ files from Cython code.
-
-Then, the following command to build the project:
-```
-poetry install
-```
-
-To run tests on the newly compiled code:
-```
-poetry run pytest
-```
+Take a look at the [Contributing Guide](./CONTRIBUTING.md).
