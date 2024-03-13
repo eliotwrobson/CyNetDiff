@@ -28,16 +28,15 @@ def set_activation_uniformly_random(
         edge_data["activation_prob"] = random.uniform(range_start, range_end)
 
 
-def set_activation_weighted_cascade(graph: Graph) -> None:
+def set_activation_weighted_cascade(graph: nx.DiGraph) -> None:
     """
     Set activation probability on each edge to 1/in_degree[u].
     """
-    # TODO make this only work for directed graphs (will give an incorrect
-    # answer for undirected graphs, unless they're regular).
-    deg_fun = graph.in_degree if graph.is_directed() else graph.degree
+    if not graph.is_directed():
+        raise ValueError("Graph must be directed or weighting will not be correct.")
 
     for _, to_node, edge_data in graph.edges(data=True):
-        edge_data["activation_prob"] = 1 / (deg_fun(to_node))
+        edge_data["activation_prob"] = 1 / (graph.in_degree(to_node))
 
 
 def set_activation_random_sample(

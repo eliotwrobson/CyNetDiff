@@ -191,18 +191,20 @@ def test_model_basic(directed: bool) -> None:
 
 
 @pytest.mark.parametrize(
-    "set_act_prob_fn",
+    "set_act_prob_fn, directed",
     [
-        None,
-        set_activation_uniformly_random,
-        set_activation_weighted_cascade,
-        lambda graph: set_activation_random_sample(graph, {0.1, 0.01, 0.001}),
+        (None, True),
+        (None, False),
+        (set_activation_uniformly_random, True),
+        (set_activation_uniformly_random, False),
+        (set_activation_weighted_cascade, True),
+        (lambda graph: set_activation_random_sample(graph, {0.1, 0.01, 0.001}), True),
+        (lambda graph: set_activation_random_sample(graph, {0.1, 0.01, 0.001}), False),
     ],
 )
-@pytest.mark.parametrize("directed", [True, False])
 def test_specific_model(
-    directed: bool,
     set_act_prob_fn: t.Optional[t.Callable[[nx.Graph | nx.DiGraph], None]],
+    directed: bool,
 ) -> None:
     n = 1000
     p = 0.01
