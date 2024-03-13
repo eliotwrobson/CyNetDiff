@@ -111,7 +111,7 @@ class LinearThresholdModel(DiffusionModel):
     predecessor_starts : array.array
         An array of start indices for each node's predecessors in the predecessor array.
         Type of array elements must be unsigned int.
-    threshold : array.array
+    thresholds : array.array, optional
         An array of thresholds for each node. Type
         of array elements must be float.
     influence : array.array, optional

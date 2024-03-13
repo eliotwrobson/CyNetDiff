@@ -192,7 +192,9 @@ def networkx_to_lt_model(graph: nx.Graph | nx.DiGraph) -> LinearThresholdModel:
             )
 
         if thresholds is not None:
-            thresholds.append(data["threshold"])
+            threshold = data["threshold"]
+            assert 0.0 <= threshold <= 1.0
+            thresholds.append(threshold)
 
     return LinearThresholdModel(
         successors,
