@@ -41,22 +41,22 @@ cdef class IndependentCascadeModel(DiffusionModel):
             array.array starts,
             array.array edges,
             *,
-            double threshold = 0.1,
-            array.array edge_thresholds = None,
-            array.array edge_probabilities = None
+            double activation_prob = 0.1,
+            array.array activation_probs = None,
+            array.array _edge_probabilities = None
         ):
 
         self.starts = starts
         self.edges = edges
-        self.edge_probabilities = edge_probabilities
-        self.threshold = threshold
-        self.edge_thresholds = edge_thresholds
+        self._edge_probabilities = _edge_probabilities
+        self.activation_prob = activation_prob
+        self.activation_probs = activation_probs
 
-        if self.edge_probabilities is not None:
-            assert len(self.edges) == len(self.edge_probabilities)
+        if self._edge_probabilities is not None:
+            assert len(self.edges) == len(self._edge_probabilities)
 
-        if self.edge_thresholds is not None:
-            assert len(self.edges) == len(self.edge_thresholds)
+        if self.activation_probs is not None:
+            assert len(self.edges) == len(self.activation_probs)
 
     def set_seeds(self, seeds):
         self.original_seeds.clear()
@@ -78,20 +78,20 @@ cdef class IndependentCascadeModel(DiffusionModel):
         return self.seen_set.size()
 
     cdef inline int __activation_succeeds(self, unsigned int edge_idx) except -1 nogil:
-        cdef float edge_threshold
+        cdef float activation_prob
 
-        if self.edge_thresholds is not None:
-            edge_threshold = self.edge_thresholds[edge_idx]
+        if self.activation_probs is not None:
+            activation_prob = self.activation_probs[edge_idx]
         else:
-            edge_threshold = self.threshold
+            activation_prob = self.activation_prob
 
         # TODO get rid of edge probabilities
-        if self.edge_probabilities is None:
-            if next_rand() <= edge_threshold:
+        if self._edge_probabilities is None:
+            if next_rand() <= activation_prob:
                 return 1
             return 0
 
-        if self.edge_probabilities[edge_idx] <= edge_threshold:
+        if self._edge_probabilities[edge_idx] <= activation_prob:
             return 1
         return 0
 
@@ -154,7 +154,8 @@ cdef class LinearThresholdModel(DiffusionModel):
         self.influence = influence
 
         assert len(self.successor_starts) == len(self.predecessor_starts)
-        # TODO I think the assertion below is not true for directed graphs.
+        # NOTE Assertion below is true because all out-edges must appear as in-edges
+        # somewhere else.
         assert len(self.predecessors) == len(self.successors)
 
         if influence is not None:

@@ -1737,9 +1737,9 @@ struct __pyx_obj_9cynetdiff_6models_IndependentCascadeModel {
   struct __pyx_obj_9cynetdiff_6models_DiffusionModel __pyx_base;
   __Pyx_memviewslice starts;
   __Pyx_memviewslice edges;
-  float threshold;
-  __Pyx_memviewslice edge_thresholds;
-  __Pyx_memviewslice edge_probabilities;
+  float activation_prob;
+  __Pyx_memviewslice activation_probs;
+  __Pyx_memviewslice _edge_probabilities;
   std::deque<unsigned int>  work_deque;
   std::unordered_set<unsigned int>  seen_set;
   std::unordered_set<unsigned int>  original_seeds;
@@ -1782,7 +1782,7 @@ struct __pyx_obj_9cynetdiff_6models___pyx_scope_struct__get_newly_activated_node
 };
 
 
-/* "cynetdiff/models.pyx":188
+/* "cynetdiff/models.pyx":189
  *         self.seen_set.insert(self.original_seeds.begin(), self.original_seeds.end())
  * 
  *     def get_newly_activated_nodes(self):             # <<<<<<<<<<<<<<
@@ -3488,7 +3488,6 @@ static const char __pyx_k_isenabled[] = "isenabled";
 static const char __pyx_k_pyx_state[] = "__pyx_state";
 static const char __pyx_k_reduce_ex[] = "__reduce_ex__";
 static const char __pyx_k_set_seeds[] = "set_seeds";
-static const char __pyx_k_threshold[] = "threshold";
 static const char __pyx_k_IndexError[] = "IndexError";
 static const char __pyx_k_ValueError[] = "ValueError";
 static const char __pyx_k_pyx_result[] = "__pyx_result";
@@ -3512,18 +3511,19 @@ static const char __pyx_k_reduce_cython[] = "__reduce_cython__";
 static const char __pyx_k_AssertionError[] = "AssertionError";
 static const char __pyx_k_DiffusionModel[] = "DiffusionModel";
 static const char __pyx_k_View_MemoryView[] = "View.MemoryView";
+static const char __pyx_k_activation_prob[] = "activation_prob";
 static const char __pyx_k_allocate_buffer[] = "allocate_buffer";
 static const char __pyx_k_collections_abc[] = "collections.abc";
 static const char __pyx_k_dtype_is_object[] = "dtype_is_object";
-static const char __pyx_k_edge_thresholds[] = "edge_thresholds";
 static const char __pyx_k_pyx_PickleError[] = "__pyx_PickleError";
 static const char __pyx_k_setstate_cython[] = "__setstate_cython__";
+static const char __pyx_k_activation_probs[] = "activation_probs";
 static const char __pyx_k_cynetdiff_models[] = "cynetdiff.models";
 static const char __pyx_k_successor_starts[] = "successor_starts";
 static const char __pyx_k_pyx_unpickle_Enum[] = "__pyx_unpickle_Enum";
 static const char __pyx_k_asyncio_coroutines[] = "asyncio.coroutines";
 static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
-static const char __pyx_k_edge_probabilities[] = "edge_probabilities";
+static const char __pyx_k_edge_probabilities[] = "_edge_probabilities";
 static const char __pyx_k_predecessor_starts[] = "predecessor_starts";
 static const char __pyx_k_reassign_threshold[] = "reassign_threshold";
 static const char __pyx_k_strided_and_direct[] = "<strided and direct>";
@@ -3637,7 +3637,7 @@ static PyObject *__pyx_pf_9cynetdiff_6models_14DiffusionModel_4reset_model(struc
 static PyObject *__pyx_pf_9cynetdiff_6models_14DiffusionModel_6advance_until_completion(struct __pyx_obj_9cynetdiff_6models_DiffusionModel *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_9cynetdiff_6models_14DiffusionModel_8__reduce_cython__(struct __pyx_obj_9cynetdiff_6models_DiffusionModel *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_9cynetdiff_6models_14DiffusionModel_10__setstate_cython__(struct __pyx_obj_9cynetdiff_6models_DiffusionModel *__pyx_v_self, PyObject *__pyx_v___pyx_state); /* proto */
-static int __pyx_pf_9cynetdiff_6models_23IndependentCascadeModel___cinit__(struct __pyx_obj_9cynetdiff_6models_IndependentCascadeModel *__pyx_v_self, arrayobject *__pyx_v_starts, arrayobject *__pyx_v_edges, double __pyx_v_threshold, arrayobject *__pyx_v_edge_thresholds, arrayobject *__pyx_v_edge_probabilities); /* proto */
+static int __pyx_pf_9cynetdiff_6models_23IndependentCascadeModel___cinit__(struct __pyx_obj_9cynetdiff_6models_IndependentCascadeModel *__pyx_v_self, arrayobject *__pyx_v_starts, arrayobject *__pyx_v_edges, double __pyx_v_activation_prob, arrayobject *__pyx_v_activation_probs, arrayobject *__pyx_v__edge_probabilities); /* proto */
 static PyObject *__pyx_pf_9cynetdiff_6models_23IndependentCascadeModel_2set_seeds(struct __pyx_obj_9cynetdiff_6models_IndependentCascadeModel *__pyx_v_self, PyObject *__pyx_v_seeds); /* proto */
 static PyObject *__pyx_pf_9cynetdiff_6models_23IndependentCascadeModel_4reset_model(struct __pyx_obj_9cynetdiff_6models_IndependentCascadeModel *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_9cynetdiff_6models_23IndependentCascadeModel_6get_newly_activated_nodes(struct __pyx_obj_9cynetdiff_6models_IndependentCascadeModel *__pyx_v_self); /* proto */
@@ -3646,8 +3646,8 @@ static PyObject *__pyx_pf_9cynetdiff_6models_23IndependentCascadeModel_11advance
 static PyObject *__pyx_pf_9cynetdiff_6models_23IndependentCascadeModel_13advance_model(struct __pyx_obj_9cynetdiff_6models_IndependentCascadeModel *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_9cynetdiff_6models_23IndependentCascadeModel_6starts___get__(struct __pyx_obj_9cynetdiff_6models_IndependentCascadeModel *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_9cynetdiff_6models_23IndependentCascadeModel_5edges___get__(struct __pyx_obj_9cynetdiff_6models_IndependentCascadeModel *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_9cynetdiff_6models_23IndependentCascadeModel_15edge_thresholds___get__(struct __pyx_obj_9cynetdiff_6models_IndependentCascadeModel *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_9cynetdiff_6models_23IndependentCascadeModel_18edge_probabilities___get__(struct __pyx_obj_9cynetdiff_6models_IndependentCascadeModel *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_9cynetdiff_6models_23IndependentCascadeModel_16activation_probs___get__(struct __pyx_obj_9cynetdiff_6models_IndependentCascadeModel *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_9cynetdiff_6models_23IndependentCascadeModel_19_edge_probabilities___get__(struct __pyx_obj_9cynetdiff_6models_IndependentCascadeModel *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_9cynetdiff_6models_23IndependentCascadeModel_15__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_9cynetdiff_6models_IndependentCascadeModel *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_9cynetdiff_6models_23IndependentCascadeModel_17__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_9cynetdiff_6models_IndependentCascadeModel *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
 static int __pyx_pf_9cynetdiff_6models_20LinearThresholdModel___cinit__(struct __pyx_obj_9cynetdiff_6models_LinearThresholdModel *__pyx_v_self, arrayobject *__pyx_v_successors, arrayobject *__pyx_v_successor_starts, arrayobject *__pyx_v_predecessors, arrayobject *__pyx_v_predecessor_starts, arrayobject *__pyx_v_influence, arrayobject *__pyx_v_thresholds); /* proto */
@@ -3891,6 +3891,8 @@ typedef struct {
   PyObject *__pyx_kp_u__6;
   PyObject *__pyx_kp_u__7;
   PyObject *__pyx_n_s_abc;
+  PyObject *__pyx_n_s_activation_prob;
+  PyObject *__pyx_n_s_activation_probs;
   PyObject *__pyx_n_s_advance_model;
   PyObject *__pyx_n_s_advance_until_completion;
   PyObject *__pyx_n_s_allocate_buffer;
@@ -3916,7 +3918,6 @@ typedef struct {
   PyObject *__pyx_kp_u_disable;
   PyObject *__pyx_n_s_dtype_is_object;
   PyObject *__pyx_n_s_edge_probabilities;
-  PyObject *__pyx_n_s_edge_thresholds;
   PyObject *__pyx_n_s_edges;
   PyObject *__pyx_kp_u_enable;
   PyObject *__pyx_n_s_encode;
@@ -3996,7 +3997,6 @@ typedef struct {
   PyObject *__pyx_n_s_successors;
   PyObject *__pyx_n_s_sys;
   PyObject *__pyx_n_s_test;
-  PyObject *__pyx_n_s_threshold;
   PyObject *__pyx_n_s_thresholds;
   PyObject *__pyx_n_s_throw;
   PyObject *__pyx_kp_s_unable_to_allocate_array_data;
@@ -4188,6 +4188,8 @@ static int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_kp_u__6);
   Py_CLEAR(clear_module_state->__pyx_kp_u__7);
   Py_CLEAR(clear_module_state->__pyx_n_s_abc);
+  Py_CLEAR(clear_module_state->__pyx_n_s_activation_prob);
+  Py_CLEAR(clear_module_state->__pyx_n_s_activation_probs);
   Py_CLEAR(clear_module_state->__pyx_n_s_advance_model);
   Py_CLEAR(clear_module_state->__pyx_n_s_advance_until_completion);
   Py_CLEAR(clear_module_state->__pyx_n_s_allocate_buffer);
@@ -4213,7 +4215,6 @@ static int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_kp_u_disable);
   Py_CLEAR(clear_module_state->__pyx_n_s_dtype_is_object);
   Py_CLEAR(clear_module_state->__pyx_n_s_edge_probabilities);
-  Py_CLEAR(clear_module_state->__pyx_n_s_edge_thresholds);
   Py_CLEAR(clear_module_state->__pyx_n_s_edges);
   Py_CLEAR(clear_module_state->__pyx_kp_u_enable);
   Py_CLEAR(clear_module_state->__pyx_n_s_encode);
@@ -4293,7 +4294,6 @@ static int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_n_s_successors);
   Py_CLEAR(clear_module_state->__pyx_n_s_sys);
   Py_CLEAR(clear_module_state->__pyx_n_s_test);
-  Py_CLEAR(clear_module_state->__pyx_n_s_threshold);
   Py_CLEAR(clear_module_state->__pyx_n_s_thresholds);
   Py_CLEAR(clear_module_state->__pyx_n_s_throw);
   Py_CLEAR(clear_module_state->__pyx_kp_s_unable_to_allocate_array_data);
@@ -4463,6 +4463,8 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   Py_VISIT(traverse_module_state->__pyx_kp_u__6);
   Py_VISIT(traverse_module_state->__pyx_kp_u__7);
   Py_VISIT(traverse_module_state->__pyx_n_s_abc);
+  Py_VISIT(traverse_module_state->__pyx_n_s_activation_prob);
+  Py_VISIT(traverse_module_state->__pyx_n_s_activation_probs);
   Py_VISIT(traverse_module_state->__pyx_n_s_advance_model);
   Py_VISIT(traverse_module_state->__pyx_n_s_advance_until_completion);
   Py_VISIT(traverse_module_state->__pyx_n_s_allocate_buffer);
@@ -4488,7 +4490,6 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   Py_VISIT(traverse_module_state->__pyx_kp_u_disable);
   Py_VISIT(traverse_module_state->__pyx_n_s_dtype_is_object);
   Py_VISIT(traverse_module_state->__pyx_n_s_edge_probabilities);
-  Py_VISIT(traverse_module_state->__pyx_n_s_edge_thresholds);
   Py_VISIT(traverse_module_state->__pyx_n_s_edges);
   Py_VISIT(traverse_module_state->__pyx_kp_u_enable);
   Py_VISIT(traverse_module_state->__pyx_n_s_encode);
@@ -4568,7 +4569,6 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   Py_VISIT(traverse_module_state->__pyx_n_s_successors);
   Py_VISIT(traverse_module_state->__pyx_n_s_sys);
   Py_VISIT(traverse_module_state->__pyx_n_s_test);
-  Py_VISIT(traverse_module_state->__pyx_n_s_threshold);
   Py_VISIT(traverse_module_state->__pyx_n_s_thresholds);
   Py_VISIT(traverse_module_state->__pyx_n_s_throw);
   Py_VISIT(traverse_module_state->__pyx_kp_s_unable_to_allocate_array_data);
@@ -4848,6 +4848,8 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_kp_u__6 __pyx_mstate_global->__pyx_kp_u__6
 #define __pyx_kp_u__7 __pyx_mstate_global->__pyx_kp_u__7
 #define __pyx_n_s_abc __pyx_mstate_global->__pyx_n_s_abc
+#define __pyx_n_s_activation_prob __pyx_mstate_global->__pyx_n_s_activation_prob
+#define __pyx_n_s_activation_probs __pyx_mstate_global->__pyx_n_s_activation_probs
 #define __pyx_n_s_advance_model __pyx_mstate_global->__pyx_n_s_advance_model
 #define __pyx_n_s_advance_until_completion __pyx_mstate_global->__pyx_n_s_advance_until_completion
 #define __pyx_n_s_allocate_buffer __pyx_mstate_global->__pyx_n_s_allocate_buffer
@@ -4873,7 +4875,6 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_kp_u_disable __pyx_mstate_global->__pyx_kp_u_disable
 #define __pyx_n_s_dtype_is_object __pyx_mstate_global->__pyx_n_s_dtype_is_object
 #define __pyx_n_s_edge_probabilities __pyx_mstate_global->__pyx_n_s_edge_probabilities
-#define __pyx_n_s_edge_thresholds __pyx_mstate_global->__pyx_n_s_edge_thresholds
 #define __pyx_n_s_edges __pyx_mstate_global->__pyx_n_s_edges
 #define __pyx_kp_u_enable __pyx_mstate_global->__pyx_kp_u_enable
 #define __pyx_n_s_encode __pyx_mstate_global->__pyx_n_s_encode
@@ -4953,7 +4954,6 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_n_s_successors __pyx_mstate_global->__pyx_n_s_successors
 #define __pyx_n_s_sys __pyx_mstate_global->__pyx_n_s_sys
 #define __pyx_n_s_test __pyx_mstate_global->__pyx_n_s_test
-#define __pyx_n_s_threshold __pyx_mstate_global->__pyx_n_s_threshold
 #define __pyx_n_s_thresholds __pyx_mstate_global->__pyx_n_s_thresholds
 #define __pyx_n_s_throw __pyx_mstate_global->__pyx_n_s_throw
 #define __pyx_kp_s_unable_to_allocate_array_data __pyx_mstate_global->__pyx_kp_s_unable_to_allocate_array_data
@@ -20778,9 +20778,9 @@ static int __pyx_pw_9cynetdiff_6models_23IndependentCascadeModel_1__cinit__(PyOb
 static int __pyx_pw_9cynetdiff_6models_23IndependentCascadeModel_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   arrayobject *__pyx_v_starts = 0;
   arrayobject *__pyx_v_edges = 0;
-  double __pyx_v_threshold;
-  arrayobject *__pyx_v_edge_thresholds = 0;
-  arrayobject *__pyx_v_edge_probabilities = 0;
+  double __pyx_v_activation_prob;
+  arrayobject *__pyx_v_activation_probs = 0;
+  arrayobject *__pyx_v__edge_probabilities = 0;
   CYTHON_UNUSED Py_ssize_t __pyx_nargs;
   CYTHON_UNUSED PyObject *const *__pyx_kwvalues;
   PyObject* values[5] = {0,0,0,0,0};
@@ -20797,21 +20797,21 @@ static int __pyx_pw_9cynetdiff_6models_23IndependentCascadeModel_1__cinit__(PyOb
   #endif
   __pyx_kwvalues = __Pyx_KwValues_VARARGS(__pyx_args, __pyx_nargs);
   {
-    PyObject **__pyx_pyargnames[] = {&__pyx_n_s_starts,&__pyx_n_s_edges,&__pyx_n_s_threshold,&__pyx_n_s_edge_thresholds,&__pyx_n_s_edge_probabilities,0};
+    PyObject **__pyx_pyargnames[] = {&__pyx_n_s_starts,&__pyx_n_s_edges,&__pyx_n_s_activation_prob,&__pyx_n_s_activation_probs,&__pyx_n_s_edge_probabilities,0};
 
     /* "cynetdiff/models.pyx":45
  *             *,
- *             double threshold = 0.1,
- *             array.array edge_thresholds = None,             # <<<<<<<<<<<<<<
- *             array.array edge_probabilities = None
+ *             double activation_prob = 0.1,
+ *             array.array activation_probs = None,             # <<<<<<<<<<<<<<
+ *             array.array _edge_probabilities = None
  *         ):
  */
     values[3] = __Pyx_Arg_NewRef_VARARGS((PyObject *)((arrayobject *)Py_None));
 
     /* "cynetdiff/models.pyx":46
- *             double threshold = 0.1,
- *             array.array edge_thresholds = None,
- *             array.array edge_probabilities = None             # <<<<<<<<<<<<<<
+ *             double activation_prob = 0.1,
+ *             array.array activation_probs = None,
+ *             array.array _edge_probabilities = None             # <<<<<<<<<<<<<<
  *         ):
  * 
  */
@@ -20867,12 +20867,12 @@ static int __pyx_pw_9cynetdiff_6models_23IndependentCascadeModel_1__cinit__(PyOb
     __pyx_v_starts = ((arrayobject *)values[0]);
     __pyx_v_edges = ((arrayobject *)values[1]);
     if (values[2]) {
-      __pyx_v_threshold = __pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_threshold == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 44, __pyx_L3_error)
+      __pyx_v_activation_prob = __pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_activation_prob == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 44, __pyx_L3_error)
     } else {
-      __pyx_v_threshold = ((double)0.1);
+      __pyx_v_activation_prob = ((double)0.1);
     }
-    __pyx_v_edge_thresholds = ((arrayobject *)values[3]);
-    __pyx_v_edge_probabilities = ((arrayobject *)values[4]);
+    __pyx_v_activation_probs = ((arrayobject *)values[3]);
+    __pyx_v__edge_probabilities = ((arrayobject *)values[4]);
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
@@ -20892,9 +20892,9 @@ static int __pyx_pw_9cynetdiff_6models_23IndependentCascadeModel_1__cinit__(PyOb
   __pyx_L4_argument_unpacking_done:;
   if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_starts), __pyx_ptype_7cpython_5array_array, 1, "starts", 0))) __PYX_ERR(0, 41, __pyx_L1_error)
   if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_edges), __pyx_ptype_7cpython_5array_array, 1, "edges", 0))) __PYX_ERR(0, 42, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_edge_thresholds), __pyx_ptype_7cpython_5array_array, 1, "edge_thresholds", 0))) __PYX_ERR(0, 45, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_edge_probabilities), __pyx_ptype_7cpython_5array_array, 1, "edge_probabilities", 0))) __PYX_ERR(0, 46, __pyx_L1_error)
-  __pyx_r = __pyx_pf_9cynetdiff_6models_23IndependentCascadeModel___cinit__(((struct __pyx_obj_9cynetdiff_6models_IndependentCascadeModel *)__pyx_v_self), __pyx_v_starts, __pyx_v_edges, __pyx_v_threshold, __pyx_v_edge_thresholds, __pyx_v_edge_probabilities);
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_activation_probs), __pyx_ptype_7cpython_5array_array, 1, "activation_probs", 0))) __PYX_ERR(0, 45, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v__edge_probabilities), __pyx_ptype_7cpython_5array_array, 1, "_edge_probabilities", 0))) __PYX_ERR(0, 46, __pyx_L1_error)
+  __pyx_r = __pyx_pf_9cynetdiff_6models_23IndependentCascadeModel___cinit__(((struct __pyx_obj_9cynetdiff_6models_IndependentCascadeModel *)__pyx_v_self), __pyx_v_starts, __pyx_v_edges, __pyx_v_activation_prob, __pyx_v_activation_probs, __pyx_v__edge_probabilities);
 
   /* "cynetdiff/models.pyx":39
  * cdef class IndependentCascadeModel(DiffusionModel):
@@ -20919,7 +20919,7 @@ static int __pyx_pw_9cynetdiff_6models_23IndependentCascadeModel_1__cinit__(PyOb
   return __pyx_r;
 }
 
-static int __pyx_pf_9cynetdiff_6models_23IndependentCascadeModel___cinit__(struct __pyx_obj_9cynetdiff_6models_IndependentCascadeModel *__pyx_v_self, arrayobject *__pyx_v_starts, arrayobject *__pyx_v_edges, double __pyx_v_threshold, arrayobject *__pyx_v_edge_thresholds, arrayobject *__pyx_v_edge_probabilities) {
+static int __pyx_pf_9cynetdiff_6models_23IndependentCascadeModel___cinit__(struct __pyx_obj_9cynetdiff_6models_IndependentCascadeModel *__pyx_v_self, arrayobject *__pyx_v_starts, arrayobject *__pyx_v_edges, double __pyx_v_activation_prob, arrayobject *__pyx_v_activation_probs, arrayobject *__pyx_v__edge_probabilities) {
   int __pyx_r;
   __Pyx_memviewslice __pyx_t_1 = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_memviewslice __pyx_t_2 = { 0, 0, { 0 }, { 0 }, { 0 } };
@@ -20935,7 +20935,7 @@ static int __pyx_pf_9cynetdiff_6models_23IndependentCascadeModel___cinit__(struc
  * 
  *         self.starts = starts             # <<<<<<<<<<<<<<
  *         self.edges = edges
- *         self.edge_probabilities = edge_probabilities
+ *         self._edge_probabilities = _edge_probabilities
  */
   __pyx_t_1 = __Pyx_PyObject_to_MemoryviewSlice_ds_unsigned_int(((PyObject *)__pyx_v_starts), PyBUF_WRITABLE); if (unlikely(!__pyx_t_1.memview)) __PYX_ERR(0, 49, __pyx_L1_error)
   __PYX_XCLEAR_MEMVIEW(&__pyx_v_self->starts, 0);
@@ -20947,8 +20947,8 @@ static int __pyx_pf_9cynetdiff_6models_23IndependentCascadeModel___cinit__(struc
  * 
  *         self.starts = starts
  *         self.edges = edges             # <<<<<<<<<<<<<<
- *         self.edge_probabilities = edge_probabilities
- *         self.threshold = threshold
+ *         self._edge_probabilities = _edge_probabilities
+ *         self.activation_prob = activation_prob
  */
   __pyx_t_1 = __Pyx_PyObject_to_MemoryviewSlice_ds_unsigned_int(((PyObject *)__pyx_v_edges), PyBUF_WRITABLE); if (unlikely(!__pyx_t_1.memview)) __PYX_ERR(0, 50, __pyx_L1_error)
   __PYX_XCLEAR_MEMVIEW(&__pyx_v_self->edges, 0);
@@ -20959,62 +20959,62 @@ static int __pyx_pf_9cynetdiff_6models_23IndependentCascadeModel___cinit__(struc
   /* "cynetdiff/models.pyx":51
  *         self.starts = starts
  *         self.edges = edges
- *         self.edge_probabilities = edge_probabilities             # <<<<<<<<<<<<<<
- *         self.threshold = threshold
- *         self.edge_thresholds = edge_thresholds
+ *         self._edge_probabilities = _edge_probabilities             # <<<<<<<<<<<<<<
+ *         self.activation_prob = activation_prob
+ *         self.activation_probs = activation_probs
  */
-  __pyx_t_2 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(((PyObject *)__pyx_v_edge_probabilities), PyBUF_WRITABLE); if (unlikely(!__pyx_t_2.memview)) __PYX_ERR(0, 51, __pyx_L1_error)
-  __PYX_XCLEAR_MEMVIEW(&__pyx_v_self->edge_probabilities, 0);
-  __pyx_v_self->edge_probabilities = __pyx_t_2;
+  __pyx_t_2 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(((PyObject *)__pyx_v__edge_probabilities), PyBUF_WRITABLE); if (unlikely(!__pyx_t_2.memview)) __PYX_ERR(0, 51, __pyx_L1_error)
+  __PYX_XCLEAR_MEMVIEW(&__pyx_v_self->_edge_probabilities, 0);
+  __pyx_v_self->_edge_probabilities = __pyx_t_2;
   __pyx_t_2.memview = NULL;
   __pyx_t_2.data = NULL;
 
   /* "cynetdiff/models.pyx":52
  *         self.edges = edges
- *         self.edge_probabilities = edge_probabilities
- *         self.threshold = threshold             # <<<<<<<<<<<<<<
- *         self.edge_thresholds = edge_thresholds
+ *         self._edge_probabilities = _edge_probabilities
+ *         self.activation_prob = activation_prob             # <<<<<<<<<<<<<<
+ *         self.activation_probs = activation_probs
  * 
  */
-  __pyx_v_self->threshold = __pyx_v_threshold;
+  __pyx_v_self->activation_prob = __pyx_v_activation_prob;
 
   /* "cynetdiff/models.pyx":53
- *         self.edge_probabilities = edge_probabilities
- *         self.threshold = threshold
- *         self.edge_thresholds = edge_thresholds             # <<<<<<<<<<<<<<
+ *         self._edge_probabilities = _edge_probabilities
+ *         self.activation_prob = activation_prob
+ *         self.activation_probs = activation_probs             # <<<<<<<<<<<<<<
  * 
- *         if self.edge_probabilities is not None:
+ *         if self._edge_probabilities is not None:
  */
-  __pyx_t_2 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(((PyObject *)__pyx_v_edge_thresholds), PyBUF_WRITABLE); if (unlikely(!__pyx_t_2.memview)) __PYX_ERR(0, 53, __pyx_L1_error)
-  __PYX_XCLEAR_MEMVIEW(&__pyx_v_self->edge_thresholds, 0);
-  __pyx_v_self->edge_thresholds = __pyx_t_2;
+  __pyx_t_2 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(((PyObject *)__pyx_v_activation_probs), PyBUF_WRITABLE); if (unlikely(!__pyx_t_2.memview)) __PYX_ERR(0, 53, __pyx_L1_error)
+  __PYX_XCLEAR_MEMVIEW(&__pyx_v_self->activation_probs, 0);
+  __pyx_v_self->activation_probs = __pyx_t_2;
   __pyx_t_2.memview = NULL;
   __pyx_t_2.data = NULL;
 
   /* "cynetdiff/models.pyx":55
- *         self.edge_thresholds = edge_thresholds
+ *         self.activation_probs = activation_probs
  * 
- *         if self.edge_probabilities is not None:             # <<<<<<<<<<<<<<
- *             assert len(self.edges) == len(self.edge_probabilities)
+ *         if self._edge_probabilities is not None:             # <<<<<<<<<<<<<<
+ *             assert len(self.edges) == len(self._edge_probabilities)
  * 
  */
-  if (unlikely(!__pyx_v_self->edge_probabilities.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 55, __pyx_L1_error)}
-  __pyx_t_3 = (((PyObject *) __pyx_v_self->edge_probabilities.memview) != Py_None);
+  if (unlikely(!__pyx_v_self->_edge_probabilities.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 55, __pyx_L1_error)}
+  __pyx_t_3 = (((PyObject *) __pyx_v_self->_edge_probabilities.memview) != Py_None);
   if (__pyx_t_3) {
 
     /* "cynetdiff/models.pyx":56
  * 
- *         if self.edge_probabilities is not None:
- *             assert len(self.edges) == len(self.edge_probabilities)             # <<<<<<<<<<<<<<
+ *         if self._edge_probabilities is not None:
+ *             assert len(self.edges) == len(self._edge_probabilities)             # <<<<<<<<<<<<<<
  * 
- *         if self.edge_thresholds is not None:
+ *         if self.activation_probs is not None:
  */
     #ifndef CYTHON_WITHOUT_ASSERTIONS
     if (unlikely(__pyx_assertions_enabled())) {
       if (unlikely(!__pyx_v_self->edges.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 56, __pyx_L1_error)}
       __pyx_t_4 = __Pyx_MemoryView_Len(__pyx_v_self->edges); 
-      if (unlikely(!__pyx_v_self->edge_probabilities.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 56, __pyx_L1_error)}
-      __pyx_t_5 = __Pyx_MemoryView_Len(__pyx_v_self->edge_probabilities); 
+      if (unlikely(!__pyx_v_self->_edge_probabilities.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 56, __pyx_L1_error)}
+      __pyx_t_5 = __Pyx_MemoryView_Len(__pyx_v_self->_edge_probabilities); 
       __pyx_t_3 = (__pyx_t_4 == __pyx_t_5);
       if (unlikely(!__pyx_t_3)) {
         __Pyx_Raise(__pyx_builtin_AssertionError, 0, 0, 0);
@@ -21026,29 +21026,29 @@ static int __pyx_pf_9cynetdiff_6models_23IndependentCascadeModel___cinit__(struc
     #endif
 
     /* "cynetdiff/models.pyx":55
- *         self.edge_thresholds = edge_thresholds
+ *         self.activation_probs = activation_probs
  * 
- *         if self.edge_probabilities is not None:             # <<<<<<<<<<<<<<
- *             assert len(self.edges) == len(self.edge_probabilities)
+ *         if self._edge_probabilities is not None:             # <<<<<<<<<<<<<<
+ *             assert len(self.edges) == len(self._edge_probabilities)
  * 
  */
   }
 
   /* "cynetdiff/models.pyx":58
- *             assert len(self.edges) == len(self.edge_probabilities)
+ *             assert len(self.edges) == len(self._edge_probabilities)
  * 
- *         if self.edge_thresholds is not None:             # <<<<<<<<<<<<<<
- *             assert len(self.edges) == len(self.edge_thresholds)
+ *         if self.activation_probs is not None:             # <<<<<<<<<<<<<<
+ *             assert len(self.edges) == len(self.activation_probs)
  * 
  */
-  if (unlikely(!__pyx_v_self->edge_thresholds.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 58, __pyx_L1_error)}
-  __pyx_t_3 = (((PyObject *) __pyx_v_self->edge_thresholds.memview) != Py_None);
+  if (unlikely(!__pyx_v_self->activation_probs.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 58, __pyx_L1_error)}
+  __pyx_t_3 = (((PyObject *) __pyx_v_self->activation_probs.memview) != Py_None);
   if (__pyx_t_3) {
 
     /* "cynetdiff/models.pyx":59
  * 
- *         if self.edge_thresholds is not None:
- *             assert len(self.edges) == len(self.edge_thresholds)             # <<<<<<<<<<<<<<
+ *         if self.activation_probs is not None:
+ *             assert len(self.edges) == len(self.activation_probs)             # <<<<<<<<<<<<<<
  * 
  *     def set_seeds(self, seeds):
  */
@@ -21056,8 +21056,8 @@ static int __pyx_pf_9cynetdiff_6models_23IndependentCascadeModel___cinit__(struc
     if (unlikely(__pyx_assertions_enabled())) {
       if (unlikely(!__pyx_v_self->edges.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 59, __pyx_L1_error)}
       __pyx_t_5 = __Pyx_MemoryView_Len(__pyx_v_self->edges); 
-      if (unlikely(!__pyx_v_self->edge_thresholds.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 59, __pyx_L1_error)}
-      __pyx_t_4 = __Pyx_MemoryView_Len(__pyx_v_self->edge_thresholds); 
+      if (unlikely(!__pyx_v_self->activation_probs.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 59, __pyx_L1_error)}
+      __pyx_t_4 = __Pyx_MemoryView_Len(__pyx_v_self->activation_probs); 
       __pyx_t_3 = (__pyx_t_5 == __pyx_t_4);
       if (unlikely(!__pyx_t_3)) {
         __Pyx_Raise(__pyx_builtin_AssertionError, 0, 0, 0);
@@ -21069,10 +21069,10 @@ static int __pyx_pf_9cynetdiff_6models_23IndependentCascadeModel___cinit__(struc
     #endif
 
     /* "cynetdiff/models.pyx":58
- *             assert len(self.edges) == len(self.edge_probabilities)
+ *             assert len(self.edges) == len(self._edge_probabilities)
  * 
- *         if self.edge_thresholds is not None:             # <<<<<<<<<<<<<<
- *             assert len(self.edges) == len(self.edge_thresholds)
+ *         if self.activation_probs is not None:             # <<<<<<<<<<<<<<
+ *             assert len(self.edges) == len(self.activation_probs)
  * 
  */
   }
@@ -21098,7 +21098,7 @@ static int __pyx_pf_9cynetdiff_6models_23IndependentCascadeModel___cinit__(struc
 }
 
 /* "cynetdiff/models.pyx":61
- *             assert len(self.edges) == len(self.edge_thresholds)
+ *             assert len(self.edges) == len(self.activation_probs)
  * 
  *     def set_seeds(self, seeds):             # <<<<<<<<<<<<<<
  *         self.original_seeds.clear()
@@ -21321,7 +21321,7 @@ static PyObject *__pyx_pf_9cynetdiff_6models_23IndependentCascadeModel_2set_seed
   ((struct __pyx_vtabstruct_9cynetdiff_6models_IndependentCascadeModel *)__pyx_v_self->__pyx_base.__pyx_vtab)->__pyx_base.reset_model(((struct __pyx_obj_9cynetdiff_6models_DiffusionModel *)__pyx_v_self), 0); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 66, __pyx_L1_error)
 
   /* "cynetdiff/models.pyx":61
- *             assert len(self.edges) == len(self.edge_thresholds)
+ *             assert len(self.edges) == len(self.activation_probs)
  * 
  *     def set_seeds(self, seeds):             # <<<<<<<<<<<<<<
  *         self.original_seeds.clear()
@@ -21821,12 +21821,12 @@ static PyObject *__pyx_pf_9cynetdiff_6models_23IndependentCascadeModel_9get_num_
  *         return self.seen_set.size()
  * 
  *     cdef inline int __activation_succeeds(self, unsigned int edge_idx) except -1 nogil:             # <<<<<<<<<<<<<<
- *         cdef float edge_threshold
+ *         cdef float activation_prob
  * 
  */
 
 static int __pyx_f_9cynetdiff_6models_23IndependentCascadeModel__IndependentCascadeModel__activation_succeeds(struct __pyx_obj_9cynetdiff_6models_IndependentCascadeModel *__pyx_v_self, unsigned int __pyx_v_edge_idx) {
-  float __pyx_v_edge_threshold;
+  float __pyx_v_activation_prob;
   int __pyx_r;
   int __pyx_t_1;
   size_t __pyx_t_2;
@@ -21841,81 +21841,81 @@ static int __pyx_f_9cynetdiff_6models_23IndependentCascadeModel__IndependentCasc
   #endif
 
   /* "cynetdiff/models.pyx":83
- *         cdef float edge_threshold
+ *         cdef float activation_prob
  * 
- *         if self.edge_thresholds is not None:             # <<<<<<<<<<<<<<
- *             edge_threshold = self.edge_thresholds[edge_idx]
+ *         if self.activation_probs is not None:             # <<<<<<<<<<<<<<
+ *             activation_prob = self.activation_probs[edge_idx]
  *         else:
  */
-  if (unlikely(!__pyx_v_self->edge_thresholds.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 83, __pyx_L1_error)}
-  __pyx_t_1 = (((PyObject *) __pyx_v_self->edge_thresholds.memview) != Py_None);
+  if (unlikely(!__pyx_v_self->activation_probs.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 83, __pyx_L1_error)}
+  __pyx_t_1 = (((PyObject *) __pyx_v_self->activation_probs.memview) != Py_None);
   if (__pyx_t_1) {
 
     /* "cynetdiff/models.pyx":84
  * 
- *         if self.edge_thresholds is not None:
- *             edge_threshold = self.edge_thresholds[edge_idx]             # <<<<<<<<<<<<<<
+ *         if self.activation_probs is not None:
+ *             activation_prob = self.activation_probs[edge_idx]             # <<<<<<<<<<<<<<
  *         else:
- *             edge_threshold = self.threshold
+ *             activation_prob = self.activation_prob
  */
-    if (unlikely(!__pyx_v_self->edge_thresholds.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 84, __pyx_L1_error)}
+    if (unlikely(!__pyx_v_self->activation_probs.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 84, __pyx_L1_error)}
     __pyx_t_2 = __pyx_v_edge_idx;
     __pyx_t_3 = -1;
-    if (unlikely(__pyx_t_2 >= (size_t)__pyx_v_self->edge_thresholds.shape[0])) __pyx_t_3 = 0;
+    if (unlikely(__pyx_t_2 >= (size_t)__pyx_v_self->activation_probs.shape[0])) __pyx_t_3 = 0;
     if (unlikely(__pyx_t_3 != -1)) {
       __Pyx_RaiseBufferIndexErrorNogil(__pyx_t_3);
       __PYX_ERR(0, 84, __pyx_L1_error)
     }
-    __pyx_v_edge_threshold = (*((float *) ( /* dim=0 */ (__pyx_v_self->edge_thresholds.data + __pyx_t_2 * __pyx_v_self->edge_thresholds.strides[0]) )));
+    __pyx_v_activation_prob = (*((float *) ( /* dim=0 */ (__pyx_v_self->activation_probs.data + __pyx_t_2 * __pyx_v_self->activation_probs.strides[0]) )));
 
     /* "cynetdiff/models.pyx":83
- *         cdef float edge_threshold
+ *         cdef float activation_prob
  * 
- *         if self.edge_thresholds is not None:             # <<<<<<<<<<<<<<
- *             edge_threshold = self.edge_thresholds[edge_idx]
+ *         if self.activation_probs is not None:             # <<<<<<<<<<<<<<
+ *             activation_prob = self.activation_probs[edge_idx]
  *         else:
  */
     goto __pyx_L3;
   }
 
   /* "cynetdiff/models.pyx":86
- *             edge_threshold = self.edge_thresholds[edge_idx]
+ *             activation_prob = self.activation_probs[edge_idx]
  *         else:
- *             edge_threshold = self.threshold             # <<<<<<<<<<<<<<
+ *             activation_prob = self.activation_prob             # <<<<<<<<<<<<<<
  * 
  *         # TODO get rid of edge probabilities
  */
   /*else*/ {
-    __pyx_t_4 = __pyx_v_self->threshold;
-    __pyx_v_edge_threshold = __pyx_t_4;
+    __pyx_t_4 = __pyx_v_self->activation_prob;
+    __pyx_v_activation_prob = __pyx_t_4;
   }
   __pyx_L3:;
 
   /* "cynetdiff/models.pyx":89
  * 
  *         # TODO get rid of edge probabilities
- *         if self.edge_probabilities is None:             # <<<<<<<<<<<<<<
- *             if next_rand() <= edge_threshold:
+ *         if self._edge_probabilities is None:             # <<<<<<<<<<<<<<
+ *             if next_rand() <= activation_prob:
  *                 return 1
  */
-  if (unlikely(!__pyx_v_self->edge_probabilities.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 89, __pyx_L1_error)}
-  __pyx_t_1 = (((PyObject *) __pyx_v_self->edge_probabilities.memview) == Py_None);
+  if (unlikely(!__pyx_v_self->_edge_probabilities.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 89, __pyx_L1_error)}
+  __pyx_t_1 = (((PyObject *) __pyx_v_self->_edge_probabilities.memview) == Py_None);
   if (__pyx_t_1) {
 
     /* "cynetdiff/models.pyx":90
  *         # TODO get rid of edge probabilities
- *         if self.edge_probabilities is None:
- *             if next_rand() <= edge_threshold:             # <<<<<<<<<<<<<<
+ *         if self._edge_probabilities is None:
+ *             if next_rand() <= activation_prob:             # <<<<<<<<<<<<<<
  *                 return 1
  *             return 0
  */
     __pyx_t_5 = __pyx_f_9cynetdiff_6models_next_rand(); if (unlikely(__pyx_t_5 == ((double)-1) && __Pyx_ErrOccurredWithGIL())) __PYX_ERR(0, 90, __pyx_L1_error)
-    __pyx_t_1 = (__pyx_t_5 <= __pyx_v_edge_threshold);
+    __pyx_t_1 = (__pyx_t_5 <= __pyx_v_activation_prob);
     if (__pyx_t_1) {
 
       /* "cynetdiff/models.pyx":91
- *         if self.edge_probabilities is None:
- *             if next_rand() <= edge_threshold:
+ *         if self._edge_probabilities is None:
+ *             if next_rand() <= activation_prob:
  *                 return 1             # <<<<<<<<<<<<<<
  *             return 0
  * 
@@ -21925,19 +21925,19 @@ static int __pyx_f_9cynetdiff_6models_23IndependentCascadeModel__IndependentCasc
 
       /* "cynetdiff/models.pyx":90
  *         # TODO get rid of edge probabilities
- *         if self.edge_probabilities is None:
- *             if next_rand() <= edge_threshold:             # <<<<<<<<<<<<<<
+ *         if self._edge_probabilities is None:
+ *             if next_rand() <= activation_prob:             # <<<<<<<<<<<<<<
  *                 return 1
  *             return 0
  */
     }
 
     /* "cynetdiff/models.pyx":92
- *             if next_rand() <= edge_threshold:
+ *             if next_rand() <= activation_prob:
  *                 return 1
  *             return 0             # <<<<<<<<<<<<<<
  * 
- *         if self.edge_probabilities[edge_idx] <= edge_threshold:
+ *         if self._edge_probabilities[edge_idx] <= activation_prob:
  */
     __pyx_r = 0;
     goto __pyx_L0;
@@ -21945,8 +21945,8 @@ static int __pyx_f_9cynetdiff_6models_23IndependentCascadeModel__IndependentCasc
     /* "cynetdiff/models.pyx":89
  * 
  *         # TODO get rid of edge probabilities
- *         if self.edge_probabilities is None:             # <<<<<<<<<<<<<<
- *             if next_rand() <= edge_threshold:
+ *         if self._edge_probabilities is None:             # <<<<<<<<<<<<<<
+ *             if next_rand() <= activation_prob:
  *                 return 1
  */
   }
@@ -21954,24 +21954,24 @@ static int __pyx_f_9cynetdiff_6models_23IndependentCascadeModel__IndependentCasc
   /* "cynetdiff/models.pyx":94
  *             return 0
  * 
- *         if self.edge_probabilities[edge_idx] <= edge_threshold:             # <<<<<<<<<<<<<<
+ *         if self._edge_probabilities[edge_idx] <= activation_prob:             # <<<<<<<<<<<<<<
  *             return 1
  *         return 0
  */
-  if (unlikely(!__pyx_v_self->edge_probabilities.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 94, __pyx_L1_error)}
+  if (unlikely(!__pyx_v_self->_edge_probabilities.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 94, __pyx_L1_error)}
   __pyx_t_2 = __pyx_v_edge_idx;
   __pyx_t_3 = -1;
-  if (unlikely(__pyx_t_2 >= (size_t)__pyx_v_self->edge_probabilities.shape[0])) __pyx_t_3 = 0;
+  if (unlikely(__pyx_t_2 >= (size_t)__pyx_v_self->_edge_probabilities.shape[0])) __pyx_t_3 = 0;
   if (unlikely(__pyx_t_3 != -1)) {
     __Pyx_RaiseBufferIndexErrorNogil(__pyx_t_3);
     __PYX_ERR(0, 94, __pyx_L1_error)
   }
-  __pyx_t_1 = ((*((float *) ( /* dim=0 */ (__pyx_v_self->edge_probabilities.data + __pyx_t_2 * __pyx_v_self->edge_probabilities.strides[0]) ))) <= __pyx_v_edge_threshold);
+  __pyx_t_1 = ((*((float *) ( /* dim=0 */ (__pyx_v_self->_edge_probabilities.data + __pyx_t_2 * __pyx_v_self->_edge_probabilities.strides[0]) ))) <= __pyx_v_activation_prob);
   if (__pyx_t_1) {
 
     /* "cynetdiff/models.pyx":95
  * 
- *         if self.edge_probabilities[edge_idx] <= edge_threshold:
+ *         if self._edge_probabilities[edge_idx] <= activation_prob:
  *             return 1             # <<<<<<<<<<<<<<
  *         return 0
  * 
@@ -21982,14 +21982,14 @@ static int __pyx_f_9cynetdiff_6models_23IndependentCascadeModel__IndependentCasc
     /* "cynetdiff/models.pyx":94
  *             return 0
  * 
- *         if self.edge_probabilities[edge_idx] <= edge_threshold:             # <<<<<<<<<<<<<<
+ *         if self._edge_probabilities[edge_idx] <= activation_prob:             # <<<<<<<<<<<<<<
  *             return 1
  *         return 0
  */
   }
 
   /* "cynetdiff/models.pyx":96
- *         if self.edge_probabilities[edge_idx] <= edge_threshold:
+ *         if self._edge_probabilities[edge_idx] <= activation_prob:
  *             return 1
  *         return 0             # <<<<<<<<<<<<<<
  * 
@@ -22002,7 +22002,7 @@ static int __pyx_f_9cynetdiff_6models_23IndependentCascadeModel__IndependentCasc
  *         return self.seen_set.size()
  * 
  *     cdef inline int __activation_succeeds(self, unsigned int edge_idx) except -1 nogil:             # <<<<<<<<<<<<<<
- *         cdef float edge_threshold
+ *         cdef float activation_prob
  * 
  */
 
@@ -22763,28 +22763,28 @@ static PyObject *__pyx_pf_9cynetdiff_6models_23IndependentCascadeModel_5edges___
 
 /* "cynetdiff/models.pxd":17
  *     # Setting the activation threshold uniformly or non-uniformly
- *     cdef float threshold
- *     cdef readonly float[:] edge_thresholds             # <<<<<<<<<<<<<<
+ *     cdef float activation_prob
+ *     cdef readonly float[:] activation_probs             # <<<<<<<<<<<<<<
  * 
  *     # Mostly for testing
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_9cynetdiff_6models_23IndependentCascadeModel_15edge_thresholds_1__get__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_9cynetdiff_6models_23IndependentCascadeModel_15edge_thresholds_1__get__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_9cynetdiff_6models_23IndependentCascadeModel_16activation_probs_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_9cynetdiff_6models_23IndependentCascadeModel_16activation_probs_1__get__(PyObject *__pyx_v_self) {
   CYTHON_UNUSED PyObject *const *__pyx_kwvalues;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
   __pyx_kwvalues = __Pyx_KwValues_VARARGS(__pyx_args, __pyx_nargs);
-  __pyx_r = __pyx_pf_9cynetdiff_6models_23IndependentCascadeModel_15edge_thresholds___get__(((struct __pyx_obj_9cynetdiff_6models_IndependentCascadeModel *)__pyx_v_self));
+  __pyx_r = __pyx_pf_9cynetdiff_6models_23IndependentCascadeModel_16activation_probs___get__(((struct __pyx_obj_9cynetdiff_6models_IndependentCascadeModel *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_9cynetdiff_6models_23IndependentCascadeModel_15edge_thresholds___get__(struct __pyx_obj_9cynetdiff_6models_IndependentCascadeModel *__pyx_v_self) {
+static PyObject *__pyx_pf_9cynetdiff_6models_23IndependentCascadeModel_16activation_probs___get__(struct __pyx_obj_9cynetdiff_6models_IndependentCascadeModel *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -22793,8 +22793,8 @@ static PyObject *__pyx_pf_9cynetdiff_6models_23IndependentCascadeModel_15edge_th
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 1);
   __Pyx_XDECREF(__pyx_r);
-  if (unlikely(!__pyx_v_self->edge_thresholds.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(4, 17, __pyx_L1_error)}
-  __pyx_t_1 = __pyx_memoryview_fromslice(__pyx_v_self->edge_thresholds, 1, (PyObject *(*)(char *)) __pyx_memview_get_float, (int (*)(char *, PyObject *)) __pyx_memview_set_float, 0);; if (unlikely(!__pyx_t_1)) __PYX_ERR(4, 17, __pyx_L1_error)
+  if (unlikely(!__pyx_v_self->activation_probs.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(4, 17, __pyx_L1_error)}
+  __pyx_t_1 = __pyx_memoryview_fromslice(__pyx_v_self->activation_probs, 1, (PyObject *(*)(char *)) __pyx_memview_get_float, (int (*)(char *, PyObject *)) __pyx_memview_set_float, 0);; if (unlikely(!__pyx_t_1)) __PYX_ERR(4, 17, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -22803,7 +22803,7 @@ static PyObject *__pyx_pf_9cynetdiff_6models_23IndependentCascadeModel_15edge_th
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("cynetdiff.models.IndependentCascadeModel.edge_thresholds.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("cynetdiff.models.IndependentCascadeModel.activation_probs.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -22814,27 +22814,27 @@ static PyObject *__pyx_pf_9cynetdiff_6models_23IndependentCascadeModel_15edge_th
 /* "cynetdiff/models.pxd":20
  * 
  *     # Mostly for testing
- *     cdef readonly float[:] edge_probabilities             # <<<<<<<<<<<<<<
+ *     cdef readonly float[:] _edge_probabilities             # <<<<<<<<<<<<<<
  * 
  *     cdef cdeque[unsigned int] work_deque
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_9cynetdiff_6models_23IndependentCascadeModel_18edge_probabilities_1__get__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_9cynetdiff_6models_23IndependentCascadeModel_18edge_probabilities_1__get__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_9cynetdiff_6models_23IndependentCascadeModel_19_edge_probabilities_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_9cynetdiff_6models_23IndependentCascadeModel_19_edge_probabilities_1__get__(PyObject *__pyx_v_self) {
   CYTHON_UNUSED PyObject *const *__pyx_kwvalues;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
   __pyx_kwvalues = __Pyx_KwValues_VARARGS(__pyx_args, __pyx_nargs);
-  __pyx_r = __pyx_pf_9cynetdiff_6models_23IndependentCascadeModel_18edge_probabilities___get__(((struct __pyx_obj_9cynetdiff_6models_IndependentCascadeModel *)__pyx_v_self));
+  __pyx_r = __pyx_pf_9cynetdiff_6models_23IndependentCascadeModel_19_edge_probabilities___get__(((struct __pyx_obj_9cynetdiff_6models_IndependentCascadeModel *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_9cynetdiff_6models_23IndependentCascadeModel_18edge_probabilities___get__(struct __pyx_obj_9cynetdiff_6models_IndependentCascadeModel *__pyx_v_self) {
+static PyObject *__pyx_pf_9cynetdiff_6models_23IndependentCascadeModel_19_edge_probabilities___get__(struct __pyx_obj_9cynetdiff_6models_IndependentCascadeModel *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -22843,8 +22843,8 @@ static PyObject *__pyx_pf_9cynetdiff_6models_23IndependentCascadeModel_18edge_pr
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 1);
   __Pyx_XDECREF(__pyx_r);
-  if (unlikely(!__pyx_v_self->edge_probabilities.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(4, 20, __pyx_L1_error)}
-  __pyx_t_1 = __pyx_memoryview_fromslice(__pyx_v_self->edge_probabilities, 1, (PyObject *(*)(char *)) __pyx_memview_get_float, (int (*)(char *, PyObject *)) __pyx_memview_set_float, 0);; if (unlikely(!__pyx_t_1)) __PYX_ERR(4, 20, __pyx_L1_error)
+  if (unlikely(!__pyx_v_self->_edge_probabilities.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(4, 20, __pyx_L1_error)}
+  __pyx_t_1 = __pyx_memoryview_fromslice(__pyx_v_self->_edge_probabilities, 1, (PyObject *(*)(char *)) __pyx_memview_get_float, (int (*)(char *, PyObject *)) __pyx_memview_set_float, 0);; if (unlikely(!__pyx_t_1)) __PYX_ERR(4, 20, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -22853,7 +22853,7 @@ static PyObject *__pyx_pf_9cynetdiff_6models_23IndependentCascadeModel_18edge_pr
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("cynetdiff.models.IndependentCascadeModel.edge_probabilities.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("cynetdiff.models.IndependentCascadeModel._edge_probabilities.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -23341,8 +23341,8 @@ static int __pyx_pf_9cynetdiff_6models_20LinearThresholdModel___cinit__(struct _
  *         self.influence = influence
  * 
  *         assert len(self.successor_starts) == len(self.predecessor_starts)             # <<<<<<<<<<<<<<
- *         # TODO I think the assertion below is not true for directed graphs.
- *         assert len(self.predecessors) == len(self.successors)
+ *         # NOTE Assertion below is true because all out-edges must appear as in-edges
+ *         # somewhere else.
  */
   #ifndef CYTHON_WITHOUT_ASSERTIONS
   if (unlikely(__pyx_assertions_enabled())) {
@@ -23360,30 +23360,30 @@ static int __pyx_pf_9cynetdiff_6models_20LinearThresholdModel___cinit__(struct _
   if ((1)); else __PYX_ERR(0, 156, __pyx_L1_error)
   #endif
 
-  /* "cynetdiff/models.pyx":158
- *         assert len(self.successor_starts) == len(self.predecessor_starts)
- *         # TODO I think the assertion below is not true for directed graphs.
+  /* "cynetdiff/models.pyx":159
+ *         # NOTE Assertion below is true because all out-edges must appear as in-edges
+ *         # somewhere else.
  *         assert len(self.predecessors) == len(self.successors)             # <<<<<<<<<<<<<<
  * 
  *         if influence is not None:
  */
   #ifndef CYTHON_WITHOUT_ASSERTIONS
   if (unlikely(__pyx_assertions_enabled())) {
-    if (unlikely(!__pyx_v_self->predecessors.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 158, __pyx_L1_error)}
+    if (unlikely(!__pyx_v_self->predecessors.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 159, __pyx_L1_error)}
     __pyx_t_4 = __Pyx_MemoryView_Len(__pyx_v_self->predecessors); 
-    if (unlikely(!__pyx_v_self->successors.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 158, __pyx_L1_error)}
+    if (unlikely(!__pyx_v_self->successors.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 159, __pyx_L1_error)}
     __pyx_t_3 = __Pyx_MemoryView_Len(__pyx_v_self->successors); 
     __pyx_t_5 = (__pyx_t_4 == __pyx_t_3);
     if (unlikely(!__pyx_t_5)) {
       __Pyx_Raise(__pyx_builtin_AssertionError, 0, 0, 0);
-      __PYX_ERR(0, 158, __pyx_L1_error)
+      __PYX_ERR(0, 159, __pyx_L1_error)
     }
   }
   #else
-  if ((1)); else __PYX_ERR(0, 158, __pyx_L1_error)
+  if ((1)); else __PYX_ERR(0, 159, __pyx_L1_error)
   #endif
 
-  /* "cynetdiff/models.pyx":160
+  /* "cynetdiff/models.pyx":161
  *         assert len(self.predecessors) == len(self.successors)
  * 
  *         if influence is not None:             # <<<<<<<<<<<<<<
@@ -23393,7 +23393,7 @@ static int __pyx_pf_9cynetdiff_6models_20LinearThresholdModel___cinit__(struct _
   __pyx_t_5 = (((PyObject *)__pyx_v_influence) != Py_None);
   if (__pyx_t_5) {
 
-    /* "cynetdiff/models.pyx":161
+    /* "cynetdiff/models.pyx":162
  * 
  *         if influence is not None:
  *             assert len(self.predecessors) == len(self.influence)             # <<<<<<<<<<<<<<
@@ -23402,21 +23402,21 @@ static int __pyx_pf_9cynetdiff_6models_20LinearThresholdModel___cinit__(struct _
  */
     #ifndef CYTHON_WITHOUT_ASSERTIONS
     if (unlikely(__pyx_assertions_enabled())) {
-      if (unlikely(!__pyx_v_self->predecessors.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 161, __pyx_L1_error)}
+      if (unlikely(!__pyx_v_self->predecessors.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 162, __pyx_L1_error)}
       __pyx_t_3 = __Pyx_MemoryView_Len(__pyx_v_self->predecessors); 
-      if (unlikely(!__pyx_v_self->influence.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 161, __pyx_L1_error)}
+      if (unlikely(!__pyx_v_self->influence.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 162, __pyx_L1_error)}
       __pyx_t_4 = __Pyx_MemoryView_Len(__pyx_v_self->influence); 
       __pyx_t_5 = (__pyx_t_3 == __pyx_t_4);
       if (unlikely(!__pyx_t_5)) {
         __Pyx_Raise(__pyx_builtin_AssertionError, 0, 0, 0);
-        __PYX_ERR(0, 161, __pyx_L1_error)
+        __PYX_ERR(0, 162, __pyx_L1_error)
       }
     }
     #else
-    if ((1)); else __PYX_ERR(0, 161, __pyx_L1_error)
+    if ((1)); else __PYX_ERR(0, 162, __pyx_L1_error)
     #endif
 
-    /* "cynetdiff/models.pyx":160
+    /* "cynetdiff/models.pyx":161
  *         assert len(self.predecessors) == len(self.successors)
  * 
  *         if influence is not None:             # <<<<<<<<<<<<<<
@@ -23425,7 +23425,7 @@ static int __pyx_pf_9cynetdiff_6models_20LinearThresholdModel___cinit__(struct _
  */
   }
 
-  /* "cynetdiff/models.pyx":163
+  /* "cynetdiff/models.pyx":164
  *             assert len(self.predecessors) == len(self.influence)
  * 
  *         if thresholds is not None:             # <<<<<<<<<<<<<<
@@ -23435,7 +23435,7 @@ static int __pyx_pf_9cynetdiff_6models_20LinearThresholdModel___cinit__(struct _
   __pyx_t_5 = (((PyObject *)__pyx_v_thresholds) != Py_None);
   if (__pyx_t_5) {
 
-    /* "cynetdiff/models.pyx":164
+    /* "cynetdiff/models.pyx":165
  * 
  *         if thresholds is not None:
  *             self.thresholds.resize(len(thresholds))             # <<<<<<<<<<<<<<
@@ -23444,17 +23444,17 @@ static int __pyx_pf_9cynetdiff_6models_20LinearThresholdModel___cinit__(struct _
  */
     if (unlikely(((PyObject *)__pyx_v_thresholds) == Py_None)) {
       PyErr_SetString(PyExc_TypeError, "object of type 'NoneType' has no len()");
-      __PYX_ERR(0, 164, __pyx_L1_error)
+      __PYX_ERR(0, 165, __pyx_L1_error)
     }
-    __pyx_t_4 = Py_SIZE(((PyObject *)__pyx_v_thresholds)); if (unlikely(__pyx_t_4 == ((Py_ssize_t)-1))) __PYX_ERR(0, 164, __pyx_L1_error)
+    __pyx_t_4 = Py_SIZE(((PyObject *)__pyx_v_thresholds)); if (unlikely(__pyx_t_4 == ((Py_ssize_t)-1))) __PYX_ERR(0, 165, __pyx_L1_error)
     try {
       __pyx_v_self->thresholds.resize(__pyx_t_4);
     } catch(...) {
       __Pyx_CppExn2PyErr();
-      __PYX_ERR(0, 164, __pyx_L1_error)
+      __PYX_ERR(0, 165, __pyx_L1_error)
     }
 
-    /* "cynetdiff/models.pyx":165
+    /* "cynetdiff/models.pyx":166
  *         if thresholds is not None:
  *             self.thresholds.resize(len(thresholds))
  *             for i in range(len(thresholds)):             # <<<<<<<<<<<<<<
@@ -23463,28 +23463,28 @@ static int __pyx_pf_9cynetdiff_6models_20LinearThresholdModel___cinit__(struct _
  */
     if (unlikely(((PyObject *)__pyx_v_thresholds) == Py_None)) {
       PyErr_SetString(PyExc_TypeError, "object of type 'NoneType' has no len()");
-      __PYX_ERR(0, 165, __pyx_L1_error)
+      __PYX_ERR(0, 166, __pyx_L1_error)
     }
-    __pyx_t_4 = Py_SIZE(((PyObject *)__pyx_v_thresholds)); if (unlikely(__pyx_t_4 == ((Py_ssize_t)-1))) __PYX_ERR(0, 165, __pyx_L1_error)
+    __pyx_t_4 = Py_SIZE(((PyObject *)__pyx_v_thresholds)); if (unlikely(__pyx_t_4 == ((Py_ssize_t)-1))) __PYX_ERR(0, 166, __pyx_L1_error)
     __pyx_t_3 = __pyx_t_4;
     for (__pyx_t_6 = 0; __pyx_t_6 < __pyx_t_3; __pyx_t_6+=1) {
       __pyx_v_i = __pyx_t_6;
 
-      /* "cynetdiff/models.pyx":166
+      /* "cynetdiff/models.pyx":167
  *             self.thresholds.resize(len(thresholds))
  *             for i in range(len(thresholds)):
  *                 self.thresholds[i] = thresholds[i]             # <<<<<<<<<<<<<<
  * 
  *             assert len(self.successor_starts) == len(self.thresholds)
  */
-      __pyx_t_7 = __Pyx_GetItemInt(((PyObject *)__pyx_v_thresholds), __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 166, __pyx_L1_error)
+      __pyx_t_7 = __Pyx_GetItemInt(((PyObject *)__pyx_v_thresholds), __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 167, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
-      __pyx_t_8 = __pyx_PyFloat_AsFloat(__pyx_t_7); if (unlikely((__pyx_t_8 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 166, __pyx_L1_error)
+      __pyx_t_8 = __pyx_PyFloat_AsFloat(__pyx_t_7); if (unlikely((__pyx_t_8 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 167, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
       (__pyx_v_self->thresholds[__pyx_v_i]) = __pyx_t_8;
     }
 
-    /* "cynetdiff/models.pyx":168
+    /* "cynetdiff/models.pyx":169
  *                 self.thresholds[i] = thresholds[i]
  * 
  *             assert len(self.successor_starts) == len(self.thresholds)             # <<<<<<<<<<<<<<
@@ -23493,23 +23493,23 @@ static int __pyx_pf_9cynetdiff_6models_20LinearThresholdModel___cinit__(struct _
  */
     #ifndef CYTHON_WITHOUT_ASSERTIONS
     if (unlikely(__pyx_assertions_enabled())) {
-      if (unlikely(!__pyx_v_self->successor_starts.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 168, __pyx_L1_error)}
+      if (unlikely(!__pyx_v_self->successor_starts.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 169, __pyx_L1_error)}
       __pyx_t_4 = __Pyx_MemoryView_Len(__pyx_v_self->successor_starts); 
-      __pyx_t_7 = __pyx_convert_vector_to_py_float(__pyx_v_self->thresholds); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 168, __pyx_L1_error)
+      __pyx_t_7 = __pyx_convert_vector_to_py_float(__pyx_v_self->thresholds); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 169, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
-      __pyx_t_3 = PyObject_Length(__pyx_t_7); if (unlikely(__pyx_t_3 == ((Py_ssize_t)-1))) __PYX_ERR(0, 168, __pyx_L1_error)
+      __pyx_t_3 = PyObject_Length(__pyx_t_7); if (unlikely(__pyx_t_3 == ((Py_ssize_t)-1))) __PYX_ERR(0, 169, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
       __pyx_t_5 = (__pyx_t_4 == __pyx_t_3);
       if (unlikely(!__pyx_t_5)) {
         __Pyx_Raise(__pyx_builtin_AssertionError, 0, 0, 0);
-        __PYX_ERR(0, 168, __pyx_L1_error)
+        __PYX_ERR(0, 169, __pyx_L1_error)
       }
     }
     #else
-    if ((1)); else __PYX_ERR(0, 168, __pyx_L1_error)
+    if ((1)); else __PYX_ERR(0, 169, __pyx_L1_error)
     #endif
 
-    /* "cynetdiff/models.pyx":163
+    /* "cynetdiff/models.pyx":164
  *             assert len(self.predecessors) == len(self.influence)
  * 
  *         if thresholds is not None:             # <<<<<<<<<<<<<<
@@ -23540,7 +23540,7 @@ static int __pyx_pf_9cynetdiff_6models_20LinearThresholdModel___cinit__(struct _
   return __pyx_r;
 }
 
-/* "cynetdiff/models.pyx":171
+/* "cynetdiff/models.pyx":172
  * 
  * 
  *     def set_seeds(self, seeds):             # <<<<<<<<<<<<<<
@@ -23601,12 +23601,12 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 171, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 172, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "set_seeds") < 0)) __PYX_ERR(0, 171, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "set_seeds") < 0)) __PYX_ERR(0, 172, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
@@ -23617,7 +23617,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("set_seeds", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 171, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("set_seeds", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 172, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -23658,7 +23658,7 @@ static PyObject *__pyx_pf_9cynetdiff_6models_20LinearThresholdModel_2set_seeds(s
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("set_seeds", 1);
 
-  /* "cynetdiff/models.pyx":172
+  /* "cynetdiff/models.pyx":173
  * 
  *     def set_seeds(self, seeds):
  *         self.original_seeds.clear()             # <<<<<<<<<<<<<<
@@ -23667,7 +23667,7 @@ static PyObject *__pyx_pf_9cynetdiff_6models_20LinearThresholdModel_2set_seeds(s
  */
   __pyx_v_self->original_seeds.clear();
 
-  /* "cynetdiff/models.pyx":173
+  /* "cynetdiff/models.pyx":174
  *     def set_seeds(self, seeds):
  *         self.original_seeds.clear()
  *         for seed in seeds:             # <<<<<<<<<<<<<<
@@ -23679,9 +23679,9 @@ static PyObject *__pyx_pf_9cynetdiff_6models_20LinearThresholdModel_2set_seeds(s
     __pyx_t_2 = 0;
     __pyx_t_3 = NULL;
   } else {
-    __pyx_t_2 = -1; __pyx_t_1 = PyObject_GetIter(__pyx_v_seeds); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 173, __pyx_L1_error)
+    __pyx_t_2 = -1; __pyx_t_1 = PyObject_GetIter(__pyx_v_seeds); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 174, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_3 = __Pyx_PyObject_GetIterNextFunc(__pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 173, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetIterNextFunc(__pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 174, __pyx_L1_error)
   }
   for (;;) {
     if (likely(!__pyx_t_3)) {
@@ -23689,28 +23689,28 @@ static PyObject *__pyx_pf_9cynetdiff_6models_20LinearThresholdModel_2set_seeds(s
         {
           Py_ssize_t __pyx_temp = __Pyx_PyList_GET_SIZE(__pyx_t_1);
           #if !CYTHON_ASSUME_SAFE_MACROS
-          if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 173, __pyx_L1_error)
+          if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 174, __pyx_L1_error)
           #endif
           if (__pyx_t_2 >= __pyx_temp) break;
         }
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_4 = PyList_GET_ITEM(__pyx_t_1, __pyx_t_2); __Pyx_INCREF(__pyx_t_4); __pyx_t_2++; if (unlikely((0 < 0))) __PYX_ERR(0, 173, __pyx_L1_error)
+        __pyx_t_4 = PyList_GET_ITEM(__pyx_t_1, __pyx_t_2); __Pyx_INCREF(__pyx_t_4); __pyx_t_2++; if (unlikely((0 < 0))) __PYX_ERR(0, 174, __pyx_L1_error)
         #else
-        __pyx_t_4 = __Pyx_PySequence_ITEM(__pyx_t_1, __pyx_t_2); __pyx_t_2++; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 173, __pyx_L1_error)
+        __pyx_t_4 = __Pyx_PySequence_ITEM(__pyx_t_1, __pyx_t_2); __pyx_t_2++; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 174, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
         #endif
       } else {
         {
           Py_ssize_t __pyx_temp = __Pyx_PyTuple_GET_SIZE(__pyx_t_1);
           #if !CYTHON_ASSUME_SAFE_MACROS
-          if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 173, __pyx_L1_error)
+          if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 174, __pyx_L1_error)
           #endif
           if (__pyx_t_2 >= __pyx_temp) break;
         }
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_4 = PyTuple_GET_ITEM(__pyx_t_1, __pyx_t_2); __Pyx_INCREF(__pyx_t_4); __pyx_t_2++; if (unlikely((0 < 0))) __PYX_ERR(0, 173, __pyx_L1_error)
+        __pyx_t_4 = PyTuple_GET_ITEM(__pyx_t_1, __pyx_t_2); __Pyx_INCREF(__pyx_t_4); __pyx_t_2++; if (unlikely((0 < 0))) __PYX_ERR(0, 174, __pyx_L1_error)
         #else
-        __pyx_t_4 = __Pyx_PySequence_ITEM(__pyx_t_1, __pyx_t_2); __pyx_t_2++; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 173, __pyx_L1_error)
+        __pyx_t_4 = __Pyx_PySequence_ITEM(__pyx_t_1, __pyx_t_2); __pyx_t_2++; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 174, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
         #endif
       }
@@ -23720,7 +23720,7 @@ static PyObject *__pyx_pf_9cynetdiff_6models_20LinearThresholdModel_2set_seeds(s
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(0, 173, __pyx_L1_error)
+          else __PYX_ERR(0, 174, __pyx_L1_error)
         }
         break;
       }
@@ -23729,22 +23729,22 @@ static PyObject *__pyx_pf_9cynetdiff_6models_20LinearThresholdModel_2set_seeds(s
     __Pyx_XDECREF_SET(__pyx_v_seed, __pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "cynetdiff/models.pyx":174
+    /* "cynetdiff/models.pyx":175
  *         self.original_seeds.clear()
  *         for seed in seeds:
  *             self.original_seeds.insert(seed)             # <<<<<<<<<<<<<<
  * 
  *         self.reset_model()
  */
-    __pyx_t_5 = __Pyx_PyInt_As_unsigned_int(__pyx_v_seed); if (unlikely((__pyx_t_5 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 174, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyInt_As_unsigned_int(__pyx_v_seed); if (unlikely((__pyx_t_5 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 175, __pyx_L1_error)
     try {
       __pyx_v_self->original_seeds.insert(__pyx_t_5);
     } catch(...) {
       __Pyx_CppExn2PyErr();
-      __PYX_ERR(0, 174, __pyx_L1_error)
+      __PYX_ERR(0, 175, __pyx_L1_error)
     }
 
-    /* "cynetdiff/models.pyx":173
+    /* "cynetdiff/models.pyx":174
  *     def set_seeds(self, seeds):
  *         self.original_seeds.clear()
  *         for seed in seeds:             # <<<<<<<<<<<<<<
@@ -23754,16 +23754,16 @@ static PyObject *__pyx_pf_9cynetdiff_6models_20LinearThresholdModel_2set_seeds(s
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "cynetdiff/models.pyx":176
+  /* "cynetdiff/models.pyx":177
  *             self.original_seeds.insert(seed)
  * 
  *         self.reset_model()             # <<<<<<<<<<<<<<
  * 
  * 
  */
-  ((struct __pyx_vtabstruct_9cynetdiff_6models_LinearThresholdModel *)__pyx_v_self->__pyx_base.__pyx_vtab)->__pyx_base.reset_model(((struct __pyx_obj_9cynetdiff_6models_DiffusionModel *)__pyx_v_self), 0); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 176, __pyx_L1_error)
+  ((struct __pyx_vtabstruct_9cynetdiff_6models_LinearThresholdModel *)__pyx_v_self->__pyx_base.__pyx_vtab)->__pyx_base.reset_model(((struct __pyx_obj_9cynetdiff_6models_DiffusionModel *)__pyx_v_self), 0); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 177, __pyx_L1_error)
 
-  /* "cynetdiff/models.pyx":171
+  /* "cynetdiff/models.pyx":172
  * 
  * 
  *     def set_seeds(self, seeds):             # <<<<<<<<<<<<<<
@@ -23786,7 +23786,7 @@ static PyObject *__pyx_pf_9cynetdiff_6models_20LinearThresholdModel_2set_seeds(s
   return __pyx_r;
 }
 
-/* "cynetdiff/models.pyx":179
+/* "cynetdiff/models.pyx":180
  * 
  * 
  *     cpdef void reassign_threshold(self):             # <<<<<<<<<<<<<<
@@ -23826,7 +23826,7 @@ static void __pyx_f_9cynetdiff_6models_20LinearThresholdModel_reassign_threshold
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_reassign_threshold); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 179, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_reassign_threshold); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 180, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!__Pyx_IsSameCFunction(__pyx_t_1, (void*) __pyx_pw_9cynetdiff_6models_20LinearThresholdModel_5reassign_threshold)) {
         __Pyx_INCREF(__pyx_t_1);
@@ -23848,7 +23848,7 @@ static void __pyx_f_9cynetdiff_6models_20LinearThresholdModel_reassign_threshold
           PyObject *__pyx_callargs[2] = {__pyx_t_4, NULL};
           __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_3, __pyx_callargs+1-__pyx_t_5, 0+__pyx_t_5);
           __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 179, __pyx_L1_error)
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 180, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
         }
@@ -23869,7 +23869,7 @@ static void __pyx_f_9cynetdiff_6models_20LinearThresholdModel_reassign_threshold
     #endif
   }
 
-  /* "cynetdiff/models.pyx":180
+  /* "cynetdiff/models.pyx":181
  * 
  *     cpdef void reassign_threshold(self):
  *         for i in range(self.thresholds.size()):             # <<<<<<<<<<<<<<
@@ -23881,18 +23881,18 @@ static void __pyx_f_9cynetdiff_6models_20LinearThresholdModel_reassign_threshold
   for (__pyx_t_8 = 0; __pyx_t_8 < __pyx_t_7; __pyx_t_8+=1) {
     __pyx_v_i = __pyx_t_8;
 
-    /* "cynetdiff/models.pyx":181
+    /* "cynetdiff/models.pyx":182
  *     cpdef void reassign_threshold(self):
  *         for i in range(self.thresholds.size()):
  *             self.thresholds[i] = next_rand()             # <<<<<<<<<<<<<<
  * 
  *     cpdef void reset_model(self):
  */
-    __pyx_t_9 = __pyx_f_9cynetdiff_6models_next_rand(); if (unlikely(__pyx_t_9 == ((double)-1) && PyErr_Occurred())) __PYX_ERR(0, 181, __pyx_L1_error)
+    __pyx_t_9 = __pyx_f_9cynetdiff_6models_next_rand(); if (unlikely(__pyx_t_9 == ((double)-1) && PyErr_Occurred())) __PYX_ERR(0, 182, __pyx_L1_error)
     (__pyx_v_self->thresholds[__pyx_v_i]) = __pyx_t_9;
   }
 
-  /* "cynetdiff/models.pyx":179
+  /* "cynetdiff/models.pyx":180
  * 
  * 
  *     cpdef void reassign_threshold(self):             # <<<<<<<<<<<<<<
@@ -23962,8 +23962,8 @@ static PyObject *__pyx_pf_9cynetdiff_6models_20LinearThresholdModel_4reassign_th
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("reassign_threshold", 1);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_f_9cynetdiff_6models_20LinearThresholdModel_reassign_threshold(__pyx_v_self, 1); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 179, __pyx_L1_error)
-  __pyx_t_1 = __Pyx_void_to_None(NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 179, __pyx_L1_error)
+  __pyx_f_9cynetdiff_6models_20LinearThresholdModel_reassign_threshold(__pyx_v_self, 1); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 180, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_void_to_None(NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 180, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -23980,7 +23980,7 @@ static PyObject *__pyx_pf_9cynetdiff_6models_20LinearThresholdModel_4reassign_th
   return __pyx_r;
 }
 
-/* "cynetdiff/models.pyx":183
+/* "cynetdiff/models.pyx":184
  *             self.thresholds[i] = next_rand()
  * 
  *     cpdef void reset_model(self):             # <<<<<<<<<<<<<<
@@ -24015,7 +24015,7 @@ static void __pyx_f_9cynetdiff_6models_20LinearThresholdModel_reset_model(struct
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_reset_model); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 183, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_reset_model); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 184, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!__Pyx_IsSameCFunction(__pyx_t_1, (void*) __pyx_pw_9cynetdiff_6models_20LinearThresholdModel_7reset_model)) {
         __Pyx_INCREF(__pyx_t_1);
@@ -24037,7 +24037,7 @@ static void __pyx_f_9cynetdiff_6models_20LinearThresholdModel_reset_model(struct
           PyObject *__pyx_callargs[2] = {__pyx_t_4, NULL};
           __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_3, __pyx_callargs+1-__pyx_t_5, 0+__pyx_t_5);
           __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 183, __pyx_L1_error)
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 184, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
         }
@@ -24058,7 +24058,7 @@ static void __pyx_f_9cynetdiff_6models_20LinearThresholdModel_reset_model(struct
     #endif
   }
 
-  /* "cynetdiff/models.pyx":184
+  /* "cynetdiff/models.pyx":185
  * 
  *     cpdef void reset_model(self):
  *         self.work_deque.assign(self.original_seeds.begin(), self.original_seeds.end())             # <<<<<<<<<<<<<<
@@ -24069,10 +24069,10 @@ static void __pyx_f_9cynetdiff_6models_20LinearThresholdModel_reset_model(struct
     __pyx_v_self->work_deque.assign(__pyx_v_self->original_seeds.begin(), __pyx_v_self->original_seeds.end());
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(0, 184, __pyx_L1_error)
+    __PYX_ERR(0, 185, __pyx_L1_error)
   }
 
-  /* "cynetdiff/models.pyx":185
+  /* "cynetdiff/models.pyx":186
  *     cpdef void reset_model(self):
  *         self.work_deque.assign(self.original_seeds.begin(), self.original_seeds.end())
  *         self.seen_set.clear()             # <<<<<<<<<<<<<<
@@ -24081,7 +24081,7 @@ static void __pyx_f_9cynetdiff_6models_20LinearThresholdModel_reset_model(struct
  */
   __pyx_v_self->seen_set.clear();
 
-  /* "cynetdiff/models.pyx":186
+  /* "cynetdiff/models.pyx":187
  *         self.work_deque.assign(self.original_seeds.begin(), self.original_seeds.end())
  *         self.seen_set.clear()
  *         self.seen_set.insert(self.original_seeds.begin(), self.original_seeds.end())             # <<<<<<<<<<<<<<
@@ -24092,10 +24092,10 @@ static void __pyx_f_9cynetdiff_6models_20LinearThresholdModel_reset_model(struct
     __pyx_v_self->seen_set.insert(__pyx_v_self->original_seeds.begin(), __pyx_v_self->original_seeds.end());
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(0, 186, __pyx_L1_error)
+    __PYX_ERR(0, 187, __pyx_L1_error)
   }
 
-  /* "cynetdiff/models.pyx":183
+  /* "cynetdiff/models.pyx":184
  *             self.thresholds[i] = next_rand()
  * 
  *     cpdef void reset_model(self):             # <<<<<<<<<<<<<<
@@ -24165,8 +24165,8 @@ static PyObject *__pyx_pf_9cynetdiff_6models_20LinearThresholdModel_6reset_model
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("reset_model", 1);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_f_9cynetdiff_6models_20LinearThresholdModel_reset_model(__pyx_v_self, 1); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 183, __pyx_L1_error)
-  __pyx_t_1 = __Pyx_void_to_None(NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 183, __pyx_L1_error)
+  __pyx_f_9cynetdiff_6models_20LinearThresholdModel_reset_model(__pyx_v_self, 1); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 184, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_void_to_None(NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 184, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -24184,7 +24184,7 @@ static PyObject *__pyx_pf_9cynetdiff_6models_20LinearThresholdModel_6reset_model
 }
 static PyObject *__pyx_gb_9cynetdiff_6models_20LinearThresholdModel_10generator1(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
 
-/* "cynetdiff/models.pyx":188
+/* "cynetdiff/models.pyx":189
  *         self.seen_set.insert(self.original_seeds.begin(), self.original_seeds.end())
  * 
  *     def get_newly_activated_nodes(self):             # <<<<<<<<<<<<<<
@@ -24245,7 +24245,7 @@ static PyObject *__pyx_pf_9cynetdiff_6models_20LinearThresholdModel_8get_newly_a
   if (unlikely(!__pyx_cur_scope)) {
     __pyx_cur_scope = ((struct __pyx_obj_9cynetdiff_6models___pyx_scope_struct_1_get_newly_activated_nodes *)Py_None);
     __Pyx_INCREF(Py_None);
-    __PYX_ERR(0, 188, __pyx_L1_error)
+    __PYX_ERR(0, 189, __pyx_L1_error)
   } else {
     __Pyx_GOTREF((PyObject *)__pyx_cur_scope);
   }
@@ -24253,7 +24253,7 @@ static PyObject *__pyx_pf_9cynetdiff_6models_20LinearThresholdModel_8get_newly_a
   __Pyx_INCREF((PyObject *)__pyx_cur_scope->__pyx_v_self);
   __Pyx_GIVEREF((PyObject *)__pyx_cur_scope->__pyx_v_self);
   {
-    __pyx_CoroutineObject *gen = __Pyx_Generator_New((__pyx_coroutine_body_t) __pyx_gb_9cynetdiff_6models_20LinearThresholdModel_10generator1, __pyx_codeobj__10, (PyObject *) __pyx_cur_scope, __pyx_n_s_get_newly_activated_nodes, __pyx_n_s_LinearThresholdModel_get_newly_a, __pyx_n_s_cynetdiff_models); if (unlikely(!gen)) __PYX_ERR(0, 188, __pyx_L1_error)
+    __pyx_CoroutineObject *gen = __Pyx_Generator_New((__pyx_coroutine_body_t) __pyx_gb_9cynetdiff_6models_20LinearThresholdModel_10generator1, __pyx_codeobj__10, (PyObject *) __pyx_cur_scope, __pyx_n_s_get_newly_activated_nodes, __pyx_n_s_LinearThresholdModel_get_newly_a, __pyx_n_s_cynetdiff_models); if (unlikely(!gen)) __PYX_ERR(0, 189, __pyx_L1_error)
     __Pyx_DECREF(__pyx_cur_scope);
     __Pyx_RefNannyFinishContext();
     return (PyObject *) gen;
@@ -24289,9 +24289,9 @@ static PyObject *__pyx_gb_9cynetdiff_6models_20LinearThresholdModel_10generator1
     return NULL;
   }
   __pyx_L3_first_run:;
-  if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 188, __pyx_L1_error)
+  if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 189, __pyx_L1_error)
 
-  /* "cynetdiff/models.pyx":189
+  /* "cynetdiff/models.pyx":190
  * 
  *     def get_newly_activated_nodes(self):
  *         for node in self.work_deque:             # <<<<<<<<<<<<<<
@@ -24305,14 +24305,14 @@ static PyObject *__pyx_gb_9cynetdiff_6models_20LinearThresholdModel_10generator1
     ++__pyx_t_1;
     __pyx_cur_scope->__pyx_v_node = __pyx_t_2;
 
-    /* "cynetdiff/models.pyx":190
+    /* "cynetdiff/models.pyx":191
  *     def get_newly_activated_nodes(self):
  *         for node in self.work_deque:
  *             yield node             # <<<<<<<<<<<<<<
  * 
  *     def get_num_activated_nodes(self):
  */
-    __pyx_t_3 = __Pyx_PyInt_From_unsigned_int(__pyx_cur_scope->__pyx_v_node); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 190, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyInt_From_unsigned_int(__pyx_cur_scope->__pyx_v_node); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 191, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_r = __pyx_t_3;
     __pyx_t_3 = 0;
@@ -24325,9 +24325,9 @@ static PyObject *__pyx_gb_9cynetdiff_6models_20LinearThresholdModel_10generator1
     return __pyx_r;
     __pyx_L6_resume_from_yield:;
     __pyx_t_1 = __PYX_STD_MOVE_IF_SUPPORTED(__pyx_cur_scope->__pyx_t_0);
-    if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 190, __pyx_L1_error)
+    if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 191, __pyx_L1_error)
 
-    /* "cynetdiff/models.pyx":189
+    /* "cynetdiff/models.pyx":190
  * 
  *     def get_newly_activated_nodes(self):
  *         for node in self.work_deque:             # <<<<<<<<<<<<<<
@@ -24337,7 +24337,7 @@ static PyObject *__pyx_gb_9cynetdiff_6models_20LinearThresholdModel_10generator1
   }
   CYTHON_MAYBE_UNUSED_VAR(__pyx_cur_scope);
 
-  /* "cynetdiff/models.pyx":188
+  /* "cynetdiff/models.pyx":189
  *         self.seen_set.insert(self.original_seeds.begin(), self.original_seeds.end())
  * 
  *     def get_newly_activated_nodes(self):             # <<<<<<<<<<<<<<
@@ -24363,7 +24363,7 @@ static PyObject *__pyx_gb_9cynetdiff_6models_20LinearThresholdModel_10generator1
   return __pyx_r;
 }
 
-/* "cynetdiff/models.pyx":192
+/* "cynetdiff/models.pyx":193
  *             yield node
  * 
  *     def get_num_activated_nodes(self):             # <<<<<<<<<<<<<<
@@ -24421,7 +24421,7 @@ static PyObject *__pyx_pf_9cynetdiff_6models_20LinearThresholdModel_11get_num_ac
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("get_num_activated_nodes", 1);
 
-  /* "cynetdiff/models.pyx":193
+  /* "cynetdiff/models.pyx":194
  * 
  *     def get_num_activated_nodes(self):
  *         return self.seen_set.size()             # <<<<<<<<<<<<<<
@@ -24429,13 +24429,13 @@ static PyObject *__pyx_pf_9cynetdiff_6models_20LinearThresholdModel_11get_num_ac
  *     # Functions that actually advance the model
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_FromSize_t(__pyx_v_self->seen_set.size()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 193, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_FromSize_t(__pyx_v_self->seen_set.size()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 194, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "cynetdiff/models.pyx":192
+  /* "cynetdiff/models.pyx":193
  *             yield node
  * 
  *     def get_num_activated_nodes(self):             # <<<<<<<<<<<<<<
@@ -24454,7 +24454,7 @@ static PyObject *__pyx_pf_9cynetdiff_6models_20LinearThresholdModel_11get_num_ac
   return __pyx_r;
 }
 
-/* "cynetdiff/models.pyx":196
+/* "cynetdiff/models.pyx":197
  * 
  *     # Functions that actually advance the model
  *     cpdef void advance_until_completion(self):             # <<<<<<<<<<<<<<
@@ -24490,7 +24490,7 @@ static void __pyx_f_9cynetdiff_6models_20LinearThresholdModel_advance_until_comp
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_advance_until_completion); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 196, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_advance_until_completion); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 197, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!__Pyx_IsSameCFunction(__pyx_t_1, (void*) __pyx_pw_9cynetdiff_6models_20LinearThresholdModel_14advance_until_completion)) {
         __Pyx_INCREF(__pyx_t_1);
@@ -24512,7 +24512,7 @@ static void __pyx_f_9cynetdiff_6models_20LinearThresholdModel_advance_until_comp
           PyObject *__pyx_callargs[2] = {__pyx_t_4, NULL};
           __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_3, __pyx_callargs+1-__pyx_t_5, 0+__pyx_t_5);
           __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 196, __pyx_L1_error)
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 197, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
         }
@@ -24533,7 +24533,7 @@ static void __pyx_f_9cynetdiff_6models_20LinearThresholdModel_advance_until_comp
     #endif
   }
 
-  /* "cynetdiff/models.pyx":197
+  /* "cynetdiff/models.pyx":198
  *     # Functions that actually advance the model
  *     cpdef void advance_until_completion(self):
  *         while self.work_deque.size() > 0:             # <<<<<<<<<<<<<<
@@ -24544,17 +24544,17 @@ static void __pyx_f_9cynetdiff_6models_20LinearThresholdModel_advance_until_comp
     __pyx_t_6 = (__pyx_v_self->work_deque.size() > 0);
     if (!__pyx_t_6) break;
 
-    /* "cynetdiff/models.pyx":198
+    /* "cynetdiff/models.pyx":199
  *     cpdef void advance_until_completion(self):
  *         while self.work_deque.size() > 0:
  *             self.__advance_model(self.work_deque, self.seen_set)             # <<<<<<<<<<<<<<
  * 
  *     cpdef void advance_model(self):
  */
-    __pyx_t_5 = ((struct __pyx_vtabstruct_9cynetdiff_6models_LinearThresholdModel *)__pyx_v_self->__pyx_base.__pyx_vtab)->_LinearThresholdModel__advance_model(__pyx_v_self, __pyx_v_self->work_deque, __pyx_v_self->seen_set); if (unlikely(__pyx_t_5 == ((int)-1))) __PYX_ERR(0, 198, __pyx_L1_error)
+    __pyx_t_5 = ((struct __pyx_vtabstruct_9cynetdiff_6models_LinearThresholdModel *)__pyx_v_self->__pyx_base.__pyx_vtab)->_LinearThresholdModel__advance_model(__pyx_v_self, __pyx_v_self->work_deque, __pyx_v_self->seen_set); if (unlikely(__pyx_t_5 == ((int)-1))) __PYX_ERR(0, 199, __pyx_L1_error)
   }
 
-  /* "cynetdiff/models.pyx":196
+  /* "cynetdiff/models.pyx":197
  * 
  *     # Functions that actually advance the model
  *     cpdef void advance_until_completion(self):             # <<<<<<<<<<<<<<
@@ -24624,8 +24624,8 @@ static PyObject *__pyx_pf_9cynetdiff_6models_20LinearThresholdModel_13advance_un
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("advance_until_completion", 1);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_f_9cynetdiff_6models_20LinearThresholdModel_advance_until_completion(__pyx_v_self, 1); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 196, __pyx_L1_error)
-  __pyx_t_1 = __Pyx_void_to_None(NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 196, __pyx_L1_error)
+  __pyx_f_9cynetdiff_6models_20LinearThresholdModel_advance_until_completion(__pyx_v_self, 1); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 197, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_void_to_None(NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 197, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -24642,7 +24642,7 @@ static PyObject *__pyx_pf_9cynetdiff_6models_20LinearThresholdModel_13advance_un
   return __pyx_r;
 }
 
-/* "cynetdiff/models.pyx":200
+/* "cynetdiff/models.pyx":201
  *             self.__advance_model(self.work_deque, self.seen_set)
  * 
  *     cpdef void advance_model(self):             # <<<<<<<<<<<<<<
@@ -24677,7 +24677,7 @@ static void __pyx_f_9cynetdiff_6models_20LinearThresholdModel_advance_model(stru
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_advance_model); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 200, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_advance_model); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 201, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!__Pyx_IsSameCFunction(__pyx_t_1, (void*) __pyx_pw_9cynetdiff_6models_20LinearThresholdModel_16advance_model)) {
         __Pyx_INCREF(__pyx_t_1);
@@ -24699,7 +24699,7 @@ static void __pyx_f_9cynetdiff_6models_20LinearThresholdModel_advance_model(stru
           PyObject *__pyx_callargs[2] = {__pyx_t_4, NULL};
           __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_3, __pyx_callargs+1-__pyx_t_5, 0+__pyx_t_5);
           __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 200, __pyx_L1_error)
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 201, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
         }
@@ -24720,16 +24720,16 @@ static void __pyx_f_9cynetdiff_6models_20LinearThresholdModel_advance_model(stru
     #endif
   }
 
-  /* "cynetdiff/models.pyx":201
+  /* "cynetdiff/models.pyx":202
  * 
  *     cpdef void advance_model(self):
  *         self.__advance_model(self.work_deque, self.seen_set)             # <<<<<<<<<<<<<<
  * 
  *     cdef inline int __activation_succeeds(self, unsigned int vtx_idx, const cset[unsigned int]& seen_set) except -1 nogil:
  */
-  __pyx_t_5 = ((struct __pyx_vtabstruct_9cynetdiff_6models_LinearThresholdModel *)__pyx_v_self->__pyx_base.__pyx_vtab)->_LinearThresholdModel__advance_model(__pyx_v_self, __pyx_v_self->work_deque, __pyx_v_self->seen_set); if (unlikely(__pyx_t_5 == ((int)-1))) __PYX_ERR(0, 201, __pyx_L1_error)
+  __pyx_t_5 = ((struct __pyx_vtabstruct_9cynetdiff_6models_LinearThresholdModel *)__pyx_v_self->__pyx_base.__pyx_vtab)->_LinearThresholdModel__advance_model(__pyx_v_self, __pyx_v_self->work_deque, __pyx_v_self->seen_set); if (unlikely(__pyx_t_5 == ((int)-1))) __PYX_ERR(0, 202, __pyx_L1_error)
 
-  /* "cynetdiff/models.pyx":200
+  /* "cynetdiff/models.pyx":201
  *             self.__advance_model(self.work_deque, self.seen_set)
  * 
  *     cpdef void advance_model(self):             # <<<<<<<<<<<<<<
@@ -24799,8 +24799,8 @@ static PyObject *__pyx_pf_9cynetdiff_6models_20LinearThresholdModel_15advance_mo
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("advance_model", 1);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_f_9cynetdiff_6models_20LinearThresholdModel_advance_model(__pyx_v_self, 1); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 200, __pyx_L1_error)
-  __pyx_t_1 = __Pyx_void_to_None(NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 200, __pyx_L1_error)
+  __pyx_f_9cynetdiff_6models_20LinearThresholdModel_advance_model(__pyx_v_self, 1); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 201, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_void_to_None(NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 201, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -24817,7 +24817,7 @@ static PyObject *__pyx_pf_9cynetdiff_6models_20LinearThresholdModel_15advance_mo
   return __pyx_r;
 }
 
-/* "cynetdiff/models.pyx":203
+/* "cynetdiff/models.pyx":204
  *         self.__advance_model(self.work_deque, self.seen_set)
  * 
  *     cdef inline int __activation_succeeds(self, unsigned int vtx_idx, const cset[unsigned int]& seen_set) except -1 nogil:             # <<<<<<<<<<<<<<
@@ -24848,37 +24848,37 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
   PyGILState_STATE __pyx_gilstate_save;
   #endif
 
-  /* "cynetdiff/models.pyx":208
+  /* "cynetdiff/models.pyx":209
  *         cdef unsigned int parent
  * 
  *         range_end = len(self.predecessors)             # <<<<<<<<<<<<<<
  *         if vtx_idx + 1 < len(self.predecessor_starts):
  *             range_end = self.predecessor_starts[vtx_idx + 1]
  */
-  if (unlikely(!__pyx_v_self->predecessors.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 208, __pyx_L1_error)}
+  if (unlikely(!__pyx_v_self->predecessors.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 209, __pyx_L1_error)}
   __pyx_t_1 = __Pyx_MemoryView_Len(__pyx_v_self->predecessors); 
   __pyx_v_range_end = __pyx_t_1;
 
-  /* "cynetdiff/models.pyx":209
+  /* "cynetdiff/models.pyx":210
  * 
  *         range_end = len(self.predecessors)
  *         if vtx_idx + 1 < len(self.predecessor_starts):             # <<<<<<<<<<<<<<
  *             range_end = self.predecessor_starts[vtx_idx + 1]
  * 
  */
-  if (unlikely(!__pyx_v_self->predecessor_starts.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 209, __pyx_L1_error)}
+  if (unlikely(!__pyx_v_self->predecessor_starts.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 210, __pyx_L1_error)}
   __pyx_t_1 = __Pyx_MemoryView_Len(__pyx_v_self->predecessor_starts); 
   __pyx_t_2 = ((__pyx_v_vtx_idx + 1) < __pyx_t_1);
   if (__pyx_t_2) {
 
-    /* "cynetdiff/models.pyx":210
+    /* "cynetdiff/models.pyx":211
  *         range_end = len(self.predecessors)
  *         if vtx_idx + 1 < len(self.predecessor_starts):
  *             range_end = self.predecessor_starts[vtx_idx + 1]             # <<<<<<<<<<<<<<
  * 
  *         cdef float influence_sum = 0.0
  */
-    if (unlikely(!__pyx_v_self->predecessor_starts.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 210, __pyx_L1_error)}
+    if (unlikely(!__pyx_v_self->predecessor_starts.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 211, __pyx_L1_error)}
     __pyx_t_3 = (__pyx_v_vtx_idx + 1);
     __pyx_t_4 = -1;
     if (__pyx_t_3 < 0) {
@@ -24887,11 +24887,11 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
     } else if (unlikely(__pyx_t_3 >= __pyx_v_self->predecessor_starts.shape[0])) __pyx_t_4 = 0;
     if (unlikely(__pyx_t_4 != -1)) {
       __Pyx_RaiseBufferIndexErrorNogil(__pyx_t_4);
-      __PYX_ERR(0, 210, __pyx_L1_error)
+      __PYX_ERR(0, 211, __pyx_L1_error)
     }
     __pyx_v_range_end = (*((unsigned int *) ( /* dim=0 */ (__pyx_v_self->predecessor_starts.data + __pyx_t_3 * __pyx_v_self->predecessor_starts.strides[0]) )));
 
-    /* "cynetdiff/models.pyx":209
+    /* "cynetdiff/models.pyx":210
  * 
  *         range_end = len(self.predecessors)
  *         if vtx_idx + 1 < len(self.predecessor_starts):             # <<<<<<<<<<<<<<
@@ -24900,7 +24900,7 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
  */
   }
 
-  /* "cynetdiff/models.pyx":212
+  /* "cynetdiff/models.pyx":213
  *             range_end = self.predecessor_starts[vtx_idx + 1]
  * 
  *         cdef float influence_sum = 0.0             # <<<<<<<<<<<<<<
@@ -24909,7 +24909,7 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
  */
   __pyx_v_influence_sum = 0.0;
 
-  /* "cynetdiff/models.pyx":214
+  /* "cynetdiff/models.pyx":215
  *         cdef float influence_sum = 0.0
  * 
  *         for i in range(self.predecessor_starts[vtx_idx], range_end):             # <<<<<<<<<<<<<<
@@ -24917,36 +24917,36 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
  *             # Parent is in the seen set
  */
   __pyx_t_5 = __pyx_v_range_end;
-  if (unlikely(!__pyx_v_self->predecessor_starts.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 214, __pyx_L1_error)}
+  if (unlikely(!__pyx_v_self->predecessor_starts.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 215, __pyx_L1_error)}
   __pyx_t_6 = __pyx_v_vtx_idx;
   __pyx_t_4 = -1;
   if (unlikely(__pyx_t_6 >= (size_t)__pyx_v_self->predecessor_starts.shape[0])) __pyx_t_4 = 0;
   if (unlikely(__pyx_t_4 != -1)) {
     __Pyx_RaiseBufferIndexErrorNogil(__pyx_t_4);
-    __PYX_ERR(0, 214, __pyx_L1_error)
+    __PYX_ERR(0, 215, __pyx_L1_error)
   }
   __pyx_t_7 = __pyx_t_5;
   for (__pyx_t_8 = (*((unsigned int *) ( /* dim=0 */ (__pyx_v_self->predecessor_starts.data + __pyx_t_6 * __pyx_v_self->predecessor_starts.strides[0]) ))); __pyx_t_8 < __pyx_t_7; __pyx_t_8+=1) {
     __pyx_v_i = __pyx_t_8;
 
-    /* "cynetdiff/models.pyx":215
+    /* "cynetdiff/models.pyx":216
  * 
  *         for i in range(self.predecessor_starts[vtx_idx], range_end):
  *             parent = self.predecessors[i]             # <<<<<<<<<<<<<<
  *             # Parent is in the seen set
  *             if seen_set.find(parent) != seen_set.end():
  */
-    if (unlikely(!__pyx_v_self->predecessors.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 215, __pyx_L1_error)}
+    if (unlikely(!__pyx_v_self->predecessors.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 216, __pyx_L1_error)}
     __pyx_t_9 = __pyx_v_i;
     __pyx_t_4 = -1;
     if (unlikely(__pyx_t_9 >= (size_t)__pyx_v_self->predecessors.shape[0])) __pyx_t_4 = 0;
     if (unlikely(__pyx_t_4 != -1)) {
       __Pyx_RaiseBufferIndexErrorNogil(__pyx_t_4);
-      __PYX_ERR(0, 215, __pyx_L1_error)
+      __PYX_ERR(0, 216, __pyx_L1_error)
     }
     __pyx_v_parent = (*((unsigned int *) ( /* dim=0 */ (__pyx_v_self->predecessors.data + __pyx_t_9 * __pyx_v_self->predecessors.strides[0]) )));
 
-    /* "cynetdiff/models.pyx":217
+    /* "cynetdiff/models.pyx":218
  *             parent = self.predecessors[i]
  *             # Parent is in the seen set
  *             if seen_set.find(parent) != seen_set.end():             # <<<<<<<<<<<<<<
@@ -24956,31 +24956,31 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
     __pyx_t_2 = (__pyx_v_seen_set.find(__pyx_v_parent) != __pyx_v_seen_set.end());
     if (__pyx_t_2) {
 
-      /* "cynetdiff/models.pyx":218
+      /* "cynetdiff/models.pyx":219
  *             # Parent is in the seen set
  *             if seen_set.find(parent) != seen_set.end():
  *                 if self.influence is None:             # <<<<<<<<<<<<<<
  *                     #NOTE shouldn't need a nonzero check here, because if the in-degree is
  *                     #0 this should never be hit.
  */
-      if (unlikely(!__pyx_v_self->influence.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 218, __pyx_L1_error)}
+      if (unlikely(!__pyx_v_self->influence.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 219, __pyx_L1_error)}
       __pyx_t_2 = (((PyObject *) __pyx_v_self->influence.memview) == Py_None);
       if (__pyx_t_2) {
 
-        /* "cynetdiff/models.pyx":221
+        /* "cynetdiff/models.pyx":222
  *                     #NOTE shouldn't need a nonzero check here, because if the in-degree is
  *                     #0 this should never be hit.
  *                     influence_sum += 1.0 / (range_end - self.predecessor_starts[vtx_idx])             # <<<<<<<<<<<<<<
  *                 else:
  *                     influence_sum += self.influence[i]
  */
-        if (unlikely(!__pyx_v_self->predecessor_starts.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 221, __pyx_L1_error)}
+        if (unlikely(!__pyx_v_self->predecessor_starts.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 222, __pyx_L1_error)}
         __pyx_t_9 = __pyx_v_vtx_idx;
         __pyx_t_4 = -1;
         if (unlikely(__pyx_t_9 >= (size_t)__pyx_v_self->predecessor_starts.shape[0])) __pyx_t_4 = 0;
         if (unlikely(__pyx_t_4 != -1)) {
           __Pyx_RaiseBufferIndexErrorNogil(__pyx_t_4);
-          __PYX_ERR(0, 221, __pyx_L1_error)
+          __PYX_ERR(0, 222, __pyx_L1_error)
         }
         __pyx_t_10 = (__pyx_v_range_end - (*((unsigned int *) ( /* dim=0 */ (__pyx_v_self->predecessor_starts.data + __pyx_t_9 * __pyx_v_self->predecessor_starts.strides[0]) ))));
         if (unlikely(__pyx_t_10 == 0)) {
@@ -24991,11 +24991,11 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
           #ifdef WITH_THREAD
           __Pyx_PyGILState_Release(__pyx_gilstate_save);
           #endif
-          __PYX_ERR(0, 221, __pyx_L1_error)
+          __PYX_ERR(0, 222, __pyx_L1_error)
         }
         __pyx_v_influence_sum = (__pyx_v_influence_sum + (1.0 / ((double)__pyx_t_10)));
 
-        /* "cynetdiff/models.pyx":218
+        /* "cynetdiff/models.pyx":219
  *             # Parent is in the seen set
  *             if seen_set.find(parent) != seen_set.end():
  *                 if self.influence is None:             # <<<<<<<<<<<<<<
@@ -25005,7 +25005,7 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
         goto __pyx_L7;
       }
 
-      /* "cynetdiff/models.pyx":223
+      /* "cynetdiff/models.pyx":224
  *                     influence_sum += 1.0 / (range_end - self.predecessor_starts[vtx_idx])
  *                 else:
  *                     influence_sum += self.influence[i]             # <<<<<<<<<<<<<<
@@ -25013,19 +25013,19 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
  *         if influence_sum >= self.thresholds[vtx_idx]:
  */
       /*else*/ {
-        if (unlikely(!__pyx_v_self->influence.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 223, __pyx_L1_error)}
+        if (unlikely(!__pyx_v_self->influence.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 224, __pyx_L1_error)}
         __pyx_t_9 = __pyx_v_i;
         __pyx_t_4 = -1;
         if (unlikely(__pyx_t_9 >= (size_t)__pyx_v_self->influence.shape[0])) __pyx_t_4 = 0;
         if (unlikely(__pyx_t_4 != -1)) {
           __Pyx_RaiseBufferIndexErrorNogil(__pyx_t_4);
-          __PYX_ERR(0, 223, __pyx_L1_error)
+          __PYX_ERR(0, 224, __pyx_L1_error)
         }
         __pyx_v_influence_sum = (__pyx_v_influence_sum + (*((float *) ( /* dim=0 */ (__pyx_v_self->influence.data + __pyx_t_9 * __pyx_v_self->influence.strides[0]) ))));
       }
       __pyx_L7:;
 
-      /* "cynetdiff/models.pyx":217
+      /* "cynetdiff/models.pyx":218
  *             parent = self.predecessors[i]
  *             # Parent is in the seen set
  *             if seen_set.find(parent) != seen_set.end():             # <<<<<<<<<<<<<<
@@ -25035,7 +25035,7 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
     }
   }
 
-  /* "cynetdiff/models.pyx":225
+  /* "cynetdiff/models.pyx":226
  *                     influence_sum += self.influence[i]
  * 
  *         if influence_sum >= self.thresholds[vtx_idx]:             # <<<<<<<<<<<<<<
@@ -25045,7 +25045,7 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
   __pyx_t_2 = (__pyx_v_influence_sum >= (__pyx_v_self->thresholds[__pyx_v_vtx_idx]));
   if (__pyx_t_2) {
 
-    /* "cynetdiff/models.pyx":226
+    /* "cynetdiff/models.pyx":227
  * 
  *         if influence_sum >= self.thresholds[vtx_idx]:
  *             return 1             # <<<<<<<<<<<<<<
@@ -25055,7 +25055,7 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
     __pyx_r = 1;
     goto __pyx_L0;
 
-    /* "cynetdiff/models.pyx":225
+    /* "cynetdiff/models.pyx":226
  *                     influence_sum += self.influence[i]
  * 
  *         if influence_sum >= self.thresholds[vtx_idx]:             # <<<<<<<<<<<<<<
@@ -25064,7 +25064,7 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
  */
   }
 
-  /* "cynetdiff/models.pyx":227
+  /* "cynetdiff/models.pyx":228
  *         if influence_sum >= self.thresholds[vtx_idx]:
  *             return 1
  *         return 0             # <<<<<<<<<<<<<<
@@ -25074,7 +25074,7 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
   __pyx_r = 0;
   goto __pyx_L0;
 
-  /* "cynetdiff/models.pyx":203
+  /* "cynetdiff/models.pyx":204
  *         self.__advance_model(self.work_deque, self.seen_set)
  * 
  *     cdef inline int __activation_succeeds(self, unsigned int vtx_idx, const cset[unsigned int]& seen_set) except -1 nogil:             # <<<<<<<<<<<<<<
@@ -25096,7 +25096,7 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
   return __pyx_r;
 }
 
-/* "cynetdiff/models.pyx":231
+/* "cynetdiff/models.pyx":232
  *     # Internal-only function to advance,
  *     # returns an int to allow for exceptions
  *     cdef int __advance_model(self, cdeque[unsigned int]& work_deque, cset[unsigned int]& seen_set) except -1 nogil:             # <<<<<<<<<<<<<<
@@ -25136,7 +25136,7 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
   PyGILState_STATE __pyx_gilstate_save;
   #endif
 
-  /* "cynetdiff/models.pyx":232
+  /* "cynetdiff/models.pyx":233
  *     # returns an int to allow for exceptions
  *     cdef int __advance_model(self, cdeque[unsigned int]& work_deque, cset[unsigned int]& seen_set) except -1 nogil:
  *         cdef unsigned int q = work_deque.size()             # <<<<<<<<<<<<<<
@@ -25145,7 +25145,7 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
  */
   __pyx_v_q = __pyx_v_work_deque.size();
 
-  /* "cynetdiff/models.pyx":243
+  /* "cynetdiff/models.pyx":244
  *         cdef cset[unsigned int] seen_this_iter
  * 
  *         for _ in range(q):             # <<<<<<<<<<<<<<
@@ -25157,7 +25157,7 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
   for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v__ = __pyx_t_3;
 
-    /* "cynetdiff/models.pyx":244
+    /* "cynetdiff/models.pyx":245
  * 
  *         for _ in range(q):
  *             node = work_deque.front()             # <<<<<<<<<<<<<<
@@ -25166,7 +25166,7 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
  */
     __pyx_v_node = __pyx_v_work_deque.front();
 
-    /* "cynetdiff/models.pyx":245
+    /* "cynetdiff/models.pyx":246
  *         for _ in range(q):
  *             node = work_deque.front()
  *             work_deque.pop_front()             # <<<<<<<<<<<<<<
@@ -25175,37 +25175,37 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
  */
     __pyx_v_work_deque.pop_front();
 
-    /* "cynetdiff/models.pyx":247
+    /* "cynetdiff/models.pyx":248
  *             work_deque.pop_front()
  * 
  *             range_end = len(self.successors)             # <<<<<<<<<<<<<<
  *             if node + 1 < len(self.successor_starts):
  *                 range_end = self.successor_starts[node + 1]
  */
-    if (unlikely(!__pyx_v_self->successors.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 247, __pyx_L1_error)}
+    if (unlikely(!__pyx_v_self->successors.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 248, __pyx_L1_error)}
     __pyx_t_4 = __Pyx_MemoryView_Len(__pyx_v_self->successors); 
     __pyx_v_range_end = __pyx_t_4;
 
-    /* "cynetdiff/models.pyx":248
+    /* "cynetdiff/models.pyx":249
  * 
  *             range_end = len(self.successors)
  *             if node + 1 < len(self.successor_starts):             # <<<<<<<<<<<<<<
  *                 range_end = self.successor_starts[node + 1]
  * 
  */
-    if (unlikely(!__pyx_v_self->successor_starts.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 248, __pyx_L1_error)}
+    if (unlikely(!__pyx_v_self->successor_starts.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 249, __pyx_L1_error)}
     __pyx_t_4 = __Pyx_MemoryView_Len(__pyx_v_self->successor_starts); 
     __pyx_t_5 = ((__pyx_v_node + 1) < __pyx_t_4);
     if (__pyx_t_5) {
 
-      /* "cynetdiff/models.pyx":249
+      /* "cynetdiff/models.pyx":250
  *             range_end = len(self.successors)
  *             if node + 1 < len(self.successor_starts):
  *                 range_end = self.successor_starts[node + 1]             # <<<<<<<<<<<<<<
  * 
  *             for i in range(self.successor_starts[node], range_end):
  */
-      if (unlikely(!__pyx_v_self->successor_starts.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 249, __pyx_L1_error)}
+      if (unlikely(!__pyx_v_self->successor_starts.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 250, __pyx_L1_error)}
       __pyx_t_6 = (__pyx_v_node + 1);
       __pyx_t_7 = -1;
       if (__pyx_t_6 < 0) {
@@ -25214,11 +25214,11 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
       } else if (unlikely(__pyx_t_6 >= __pyx_v_self->successor_starts.shape[0])) __pyx_t_7 = 0;
       if (unlikely(__pyx_t_7 != -1)) {
         __Pyx_RaiseBufferIndexErrorNogil(__pyx_t_7);
-        __PYX_ERR(0, 249, __pyx_L1_error)
+        __PYX_ERR(0, 250, __pyx_L1_error)
       }
       __pyx_v_range_end = (*((unsigned int *) ( /* dim=0 */ (__pyx_v_self->successor_starts.data + __pyx_t_6 * __pyx_v_self->successor_starts.strides[0]) )));
 
-      /* "cynetdiff/models.pyx":248
+      /* "cynetdiff/models.pyx":249
  * 
  *             range_end = len(self.successors)
  *             if node + 1 < len(self.successor_starts):             # <<<<<<<<<<<<<<
@@ -25227,7 +25227,7 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
  */
     }
 
-    /* "cynetdiff/models.pyx":251
+    /* "cynetdiff/models.pyx":252
  *                 range_end = self.successor_starts[node + 1]
  * 
  *             for i in range(self.successor_starts[node], range_end):             # <<<<<<<<<<<<<<
@@ -25235,47 +25235,47 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
  * 
  */
     __pyx_t_8 = __pyx_v_range_end;
-    if (unlikely(!__pyx_v_self->successor_starts.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 251, __pyx_L1_error)}
+    if (unlikely(!__pyx_v_self->successor_starts.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 252, __pyx_L1_error)}
     __pyx_t_9 = __pyx_v_node;
     __pyx_t_7 = -1;
     if (unlikely(__pyx_t_9 >= (size_t)__pyx_v_self->successor_starts.shape[0])) __pyx_t_7 = 0;
     if (unlikely(__pyx_t_7 != -1)) {
       __Pyx_RaiseBufferIndexErrorNogil(__pyx_t_7);
-      __PYX_ERR(0, 251, __pyx_L1_error)
+      __PYX_ERR(0, 252, __pyx_L1_error)
     }
     __pyx_t_10 = __pyx_t_8;
     for (__pyx_t_11 = (*((unsigned int *) ( /* dim=0 */ (__pyx_v_self->successor_starts.data + __pyx_t_9 * __pyx_v_self->successor_starts.strides[0]) ))); __pyx_t_11 < __pyx_t_10; __pyx_t_11+=1) {
       __pyx_v_i = __pyx_t_11;
 
-      /* "cynetdiff/models.pyx":252
+      /* "cynetdiff/models.pyx":253
  * 
  *             for i in range(self.successor_starts[node], range_end):
  *                 child = self.successors[i]             # <<<<<<<<<<<<<<
  * 
  *                 if self.__activation_succeeds(child, seen_set) == 0:
  */
-      if (unlikely(!__pyx_v_self->successors.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 252, __pyx_L1_error)}
+      if (unlikely(!__pyx_v_self->successors.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 253, __pyx_L1_error)}
       __pyx_t_12 = __pyx_v_i;
       __pyx_t_7 = -1;
       if (unlikely(__pyx_t_12 >= (size_t)__pyx_v_self->successors.shape[0])) __pyx_t_7 = 0;
       if (unlikely(__pyx_t_7 != -1)) {
         __Pyx_RaiseBufferIndexErrorNogil(__pyx_t_7);
-        __PYX_ERR(0, 252, __pyx_L1_error)
+        __PYX_ERR(0, 253, __pyx_L1_error)
       }
       __pyx_v_child = (*((unsigned int *) ( /* dim=0 */ (__pyx_v_self->successors.data + __pyx_t_12 * __pyx_v_self->successors.strides[0]) )));
 
-      /* "cynetdiff/models.pyx":254
+      /* "cynetdiff/models.pyx":255
  *                 child = self.successors[i]
  * 
  *                 if self.__activation_succeeds(child, seen_set) == 0:             # <<<<<<<<<<<<<<
  *                     continue
  * 
  */
-      __pyx_t_7 = __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdModel__activation_succeeds(__pyx_v_self, __pyx_v_child, __pyx_v_seen_set); if (unlikely(__pyx_t_7 == ((int)-1))) __PYX_ERR(0, 254, __pyx_L1_error)
+      __pyx_t_7 = __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdModel__activation_succeeds(__pyx_v_self, __pyx_v_child, __pyx_v_seen_set); if (unlikely(__pyx_t_7 == ((int)-1))) __PYX_ERR(0, 255, __pyx_L1_error)
       __pyx_t_5 = (__pyx_t_7 == 0);
       if (__pyx_t_5) {
 
-        /* "cynetdiff/models.pyx":255
+        /* "cynetdiff/models.pyx":256
  * 
  *                 if self.__activation_succeeds(child, seen_set) == 0:
  *                     continue             # <<<<<<<<<<<<<<
@@ -25284,7 +25284,7 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
  */
         goto __pyx_L6_continue;
 
-        /* "cynetdiff/models.pyx":254
+        /* "cynetdiff/models.pyx":255
  *                 child = self.successors[i]
  * 
  *                 if self.__activation_succeeds(child, seen_set) == 0:             # <<<<<<<<<<<<<<
@@ -25293,7 +25293,7 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
  */
       }
 
-      /* "cynetdiff/models.pyx":259
+      /* "cynetdiff/models.pyx":260
  *                 # Child has _not_ been seen yet
  *                 if (
  *                     seen_this_iter.find(child) == seen_this_iter.end()             # <<<<<<<<<<<<<<
@@ -25307,7 +25307,7 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
         goto __pyx_L10_bool_binop_done;
       }
 
-      /* "cynetdiff/models.pyx":260
+      /* "cynetdiff/models.pyx":261
  *                 if (
  *                     seen_this_iter.find(child) == seen_this_iter.end()
  *                     and seen_set.find(child) == seen_set.end()             # <<<<<<<<<<<<<<
@@ -25318,7 +25318,7 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
       __pyx_t_5 = __pyx_t_13;
       __pyx_L10_bool_binop_done:;
 
-      /* "cynetdiff/models.pyx":258
+      /* "cynetdiff/models.pyx":259
  * 
  *                 # Child has _not_ been seen yet
  *                 if (             # <<<<<<<<<<<<<<
@@ -25327,7 +25327,7 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
  */
       if (__pyx_t_5) {
 
-        /* "cynetdiff/models.pyx":262
+        /* "cynetdiff/models.pyx":263
  *                     and seen_set.find(child) == seen_set.end()
  *                 ):
  *                     work_deque.push_back(child)             # <<<<<<<<<<<<<<
@@ -25344,10 +25344,10 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
           #ifdef WITH_THREAD
           __Pyx_PyGILState_Release(__pyx_gilstate_save);
           #endif
-          __PYX_ERR(0, 262, __pyx_L1_error)
+          __PYX_ERR(0, 263, __pyx_L1_error)
         }
 
-        /* "cynetdiff/models.pyx":263
+        /* "cynetdiff/models.pyx":264
  *                 ):
  *                     work_deque.push_back(child)
  *                     seen_this_iter.insert(child)             # <<<<<<<<<<<<<<
@@ -25364,10 +25364,10 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
           #ifdef WITH_THREAD
           __Pyx_PyGILState_Release(__pyx_gilstate_save);
           #endif
-          __PYX_ERR(0, 263, __pyx_L1_error)
+          __PYX_ERR(0, 264, __pyx_L1_error)
         }
 
-        /* "cynetdiff/models.pyx":258
+        /* "cynetdiff/models.pyx":259
  * 
  *                 # Child has _not_ been seen yet
  *                 if (             # <<<<<<<<<<<<<<
@@ -25379,7 +25379,7 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
     }
   }
 
-  /* "cynetdiff/models.pyx":265
+  /* "cynetdiff/models.pyx":266
  *                     seen_this_iter.insert(child)
  * 
  *         for num in seen_this_iter:             # <<<<<<<<<<<<<<
@@ -25393,7 +25393,7 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
     ++__pyx_t_14;
     __pyx_v_num = __pyx_t_15;
 
-    /* "cynetdiff/models.pyx":267
+    /* "cynetdiff/models.pyx":268
  *         for num in seen_this_iter:
  *             # Assert the numbers are not in the seen set
  *             assert seen_set.find(num) == seen_set.end()             # <<<<<<<<<<<<<<
@@ -25409,7 +25409,7 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
             #endif
             /*try:*/ {
               __Pyx_Raise(__pyx_builtin_AssertionError, 0, 0, 0);
-              __PYX_ERR(0, 267, __pyx_L17_error)
+              __PYX_ERR(0, 268, __pyx_L17_error)
             }
             /*finally:*/ {
               __pyx_L17_error: {
@@ -25423,10 +25423,10 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
       }
     }
     #else
-    if ((1)); else __PYX_ERR(0, 267, __pyx_L1_error)
+    if ((1)); else __PYX_ERR(0, 268, __pyx_L1_error)
     #endif
 
-    /* "cynetdiff/models.pyx":268
+    /* "cynetdiff/models.pyx":269
  *             # Assert the numbers are not in the seen set
  *             assert seen_set.find(num) == seen_set.end()
  *             seen_set.insert(num)             # <<<<<<<<<<<<<<
@@ -25441,10 +25441,10 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
       #ifdef WITH_THREAD
       __Pyx_PyGILState_Release(__pyx_gilstate_save);
       #endif
-      __PYX_ERR(0, 268, __pyx_L1_error)
+      __PYX_ERR(0, 269, __pyx_L1_error)
     }
 
-    /* "cynetdiff/models.pyx":265
+    /* "cynetdiff/models.pyx":266
  *                     seen_this_iter.insert(child)
  * 
  *         for num in seen_this_iter:             # <<<<<<<<<<<<<<
@@ -25453,7 +25453,7 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
  */
   }
 
-  /* "cynetdiff/models.pyx":231
+  /* "cynetdiff/models.pyx":232
  *     # Internal-only function to advance,
  *     # returns an int to allow for exceptions
  *     cdef int __advance_model(self, cdeque[unsigned int]& work_deque, cset[unsigned int]& seen_set) except -1 nogil:             # <<<<<<<<<<<<<<
@@ -26521,10 +26521,10 @@ static PyObject *__pyx_tp_new_9cynetdiff_6models_IndependentCascadeModel(PyTypeO
   p->starts.memview = NULL;
   p->edges.data = NULL;
   p->edges.memview = NULL;
-  p->edge_thresholds.data = NULL;
-  p->edge_thresholds.memview = NULL;
-  p->edge_probabilities.data = NULL;
-  p->edge_probabilities.memview = NULL;
+  p->activation_probs.data = NULL;
+  p->activation_probs.memview = NULL;
+  p->_edge_probabilities.data = NULL;
+  p->_edge_probabilities.memview = NULL;
   if (unlikely(__pyx_pw_9cynetdiff_6models_23IndependentCascadeModel_1__cinit__(o, a, k) < 0)) goto bad;
   return o;
   bad:
@@ -26548,10 +26548,10 @@ static void __pyx_tp_dealloc_9cynetdiff_6models_IndependentCascadeModel(PyObject
   p->starts.memview = NULL; p->starts.data = NULL;
   __PYX_XCLEAR_MEMVIEW(&p->edges, 1);
   p->edges.memview = NULL; p->edges.data = NULL;
-  __PYX_XCLEAR_MEMVIEW(&p->edge_thresholds, 1);
-  p->edge_thresholds.memview = NULL; p->edge_thresholds.data = NULL;
-  __PYX_XCLEAR_MEMVIEW(&p->edge_probabilities, 1);
-  p->edge_probabilities.memview = NULL; p->edge_probabilities.data = NULL;
+  __PYX_XCLEAR_MEMVIEW(&p->activation_probs, 1);
+  p->activation_probs.memview = NULL; p->activation_probs.data = NULL;
+  __PYX_XCLEAR_MEMVIEW(&p->_edge_probabilities, 1);
+  p->_edge_probabilities.memview = NULL; p->_edge_probabilities.data = NULL;
   __pyx_tp_dealloc_9cynetdiff_6models_DiffusionModel(o);
 }
 
@@ -26563,12 +26563,12 @@ static PyObject *__pyx_getprop_9cynetdiff_6models_23IndependentCascadeModel_edge
   return __pyx_pw_9cynetdiff_6models_23IndependentCascadeModel_5edges_1__get__(o);
 }
 
-static PyObject *__pyx_getprop_9cynetdiff_6models_23IndependentCascadeModel_edge_thresholds(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_9cynetdiff_6models_23IndependentCascadeModel_15edge_thresholds_1__get__(o);
+static PyObject *__pyx_getprop_9cynetdiff_6models_23IndependentCascadeModel_activation_probs(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_9cynetdiff_6models_23IndependentCascadeModel_16activation_probs_1__get__(o);
 }
 
-static PyObject *__pyx_getprop_9cynetdiff_6models_23IndependentCascadeModel_edge_probabilities(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_9cynetdiff_6models_23IndependentCascadeModel_18edge_probabilities_1__get__(o);
+static PyObject *__pyx_getprop_9cynetdiff_6models_23IndependentCascadeModel__edge_probabilities(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_9cynetdiff_6models_23IndependentCascadeModel_19_edge_probabilities_1__get__(o);
 }
 
 static PyMethodDef __pyx_methods_9cynetdiff_6models_IndependentCascadeModel[] = {
@@ -26583,8 +26583,8 @@ static PyMethodDef __pyx_methods_9cynetdiff_6models_IndependentCascadeModel[] = 
 static struct PyGetSetDef __pyx_getsets_9cynetdiff_6models_IndependentCascadeModel[] = {
   {(char *)"starts", __pyx_getprop_9cynetdiff_6models_23IndependentCascadeModel_starts, 0, (char *)0, 0},
   {(char *)"edges", __pyx_getprop_9cynetdiff_6models_23IndependentCascadeModel_edges, 0, (char *)0, 0},
-  {(char *)"edge_thresholds", __pyx_getprop_9cynetdiff_6models_23IndependentCascadeModel_edge_thresholds, 0, (char *)0, 0},
-  {(char *)"edge_probabilities", __pyx_getprop_9cynetdiff_6models_23IndependentCascadeModel_edge_probabilities, 0, (char *)0, 0},
+  {(char *)"activation_probs", __pyx_getprop_9cynetdiff_6models_23IndependentCascadeModel_activation_probs, 0, (char *)0, 0},
+  {(char *)"_edge_probabilities", __pyx_getprop_9cynetdiff_6models_23IndependentCascadeModel__edge_probabilities, 0, (char *)0, 0},
   {0, 0, 0, 0, 0}
 };
 #if CYTHON_USE_TYPE_SPECS
@@ -28231,6 +28231,8 @@ static int __Pyx_CreateStringTabAndInitStrings(void) {
     {&__pyx_kp_u__6, __pyx_k__6, sizeof(__pyx_k__6), 0, 1, 0, 0},
     {&__pyx_kp_u__7, __pyx_k__7, sizeof(__pyx_k__7), 0, 1, 0, 0},
     {&__pyx_n_s_abc, __pyx_k_abc, sizeof(__pyx_k_abc), 0, 0, 1, 1},
+    {&__pyx_n_s_activation_prob, __pyx_k_activation_prob, sizeof(__pyx_k_activation_prob), 0, 0, 1, 1},
+    {&__pyx_n_s_activation_probs, __pyx_k_activation_probs, sizeof(__pyx_k_activation_probs), 0, 0, 1, 1},
     {&__pyx_n_s_advance_model, __pyx_k_advance_model, sizeof(__pyx_k_advance_model), 0, 0, 1, 1},
     {&__pyx_n_s_advance_until_completion, __pyx_k_advance_until_completion, sizeof(__pyx_k_advance_until_completion), 0, 0, 1, 1},
     {&__pyx_n_s_allocate_buffer, __pyx_k_allocate_buffer, sizeof(__pyx_k_allocate_buffer), 0, 0, 1, 1},
@@ -28256,7 +28258,6 @@ static int __Pyx_CreateStringTabAndInitStrings(void) {
     {&__pyx_kp_u_disable, __pyx_k_disable, sizeof(__pyx_k_disable), 0, 1, 0, 0},
     {&__pyx_n_s_dtype_is_object, __pyx_k_dtype_is_object, sizeof(__pyx_k_dtype_is_object), 0, 0, 1, 1},
     {&__pyx_n_s_edge_probabilities, __pyx_k_edge_probabilities, sizeof(__pyx_k_edge_probabilities), 0, 0, 1, 1},
-    {&__pyx_n_s_edge_thresholds, __pyx_k_edge_thresholds, sizeof(__pyx_k_edge_thresholds), 0, 0, 1, 1},
     {&__pyx_n_s_edges, __pyx_k_edges, sizeof(__pyx_k_edges), 0, 0, 1, 1},
     {&__pyx_kp_u_enable, __pyx_k_enable, sizeof(__pyx_k_enable), 0, 1, 0, 0},
     {&__pyx_n_s_encode, __pyx_k_encode, sizeof(__pyx_k_encode), 0, 0, 1, 1},
@@ -28336,7 +28337,6 @@ static int __Pyx_CreateStringTabAndInitStrings(void) {
     {&__pyx_n_s_successors, __pyx_k_successors, sizeof(__pyx_k_successors), 0, 0, 1, 1},
     {&__pyx_n_s_sys, __pyx_k_sys, sizeof(__pyx_k_sys), 0, 0, 1, 1},
     {&__pyx_n_s_test, __pyx_k_test, sizeof(__pyx_k_test), 0, 0, 1, 1},
-    {&__pyx_n_s_threshold, __pyx_k_threshold, sizeof(__pyx_k_threshold), 0, 0, 1, 1},
     {&__pyx_n_s_thresholds, __pyx_k_thresholds, sizeof(__pyx_k_thresholds), 0, 0, 1, 1},
     {&__pyx_n_s_throw, __pyx_k_throw, sizeof(__pyx_k_throw), 0, 0, 1, 1},
     {&__pyx_kp_s_unable_to_allocate_array_data, __pyx_k_unable_to_allocate_array_data, sizeof(__pyx_k_unable_to_allocate_array_data), 0, 0, 1, 0},
@@ -28573,7 +28573,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __pyx_codeobj__31 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__30, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 16, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__31)) __PYX_ERR(1, 16, __pyx_L1_error)
 
   /* "cynetdiff/models.pyx":61
- *             assert len(self.edges) == len(self.edge_thresholds)
+ *             assert len(self.edges) == len(self.activation_probs)
  * 
  *     def set_seeds(self, seeds):             # <<<<<<<<<<<<<<
  *         self.original_seeds.clear()
@@ -28647,68 +28647,68 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  */
   __pyx_codeobj__40 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__30, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 3, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__40)) __PYX_ERR(1, 3, __pyx_L1_error)
 
-  /* "cynetdiff/models.pyx":171
+  /* "cynetdiff/models.pyx":172
  * 
  * 
  *     def set_seeds(self, seeds):             # <<<<<<<<<<<<<<
  *         self.original_seeds.clear()
  *         for seed in seeds:
  */
-  __pyx_codeobj__41 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__32, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_cynetdiff_models_pyx, __pyx_n_s_set_seeds, 171, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__41)) __PYX_ERR(0, 171, __pyx_L1_error)
+  __pyx_codeobj__41 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__32, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_cynetdiff_models_pyx, __pyx_n_s_set_seeds, 172, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__41)) __PYX_ERR(0, 172, __pyx_L1_error)
 
-  /* "cynetdiff/models.pyx":179
+  /* "cynetdiff/models.pyx":180
  * 
  * 
  *     cpdef void reassign_threshold(self):             # <<<<<<<<<<<<<<
  *         for i in range(self.thresholds.size()):
  *             self.thresholds[i] = next_rand()
  */
-  __pyx_codeobj__42 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__23, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_cynetdiff_models_pyx, __pyx_n_s_reassign_threshold, 179, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__42)) __PYX_ERR(0, 179, __pyx_L1_error)
+  __pyx_codeobj__42 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__23, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_cynetdiff_models_pyx, __pyx_n_s_reassign_threshold, 180, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__42)) __PYX_ERR(0, 180, __pyx_L1_error)
 
-  /* "cynetdiff/models.pyx":183
+  /* "cynetdiff/models.pyx":184
  *             self.thresholds[i] = next_rand()
  * 
  *     cpdef void reset_model(self):             # <<<<<<<<<<<<<<
  *         self.work_deque.assign(self.original_seeds.begin(), self.original_seeds.end())
  *         self.seen_set.clear()
  */
-  __pyx_codeobj__43 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__23, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_cynetdiff_models_pyx, __pyx_n_s_reset_model, 183, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__43)) __PYX_ERR(0, 183, __pyx_L1_error)
+  __pyx_codeobj__43 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__23, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_cynetdiff_models_pyx, __pyx_n_s_reset_model, 184, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__43)) __PYX_ERR(0, 184, __pyx_L1_error)
 
-  /* "cynetdiff/models.pyx":188
+  /* "cynetdiff/models.pyx":189
  *         self.seen_set.insert(self.original_seeds.begin(), self.original_seeds.end())
  * 
  *     def get_newly_activated_nodes(self):             # <<<<<<<<<<<<<<
  *         for node in self.work_deque:
  *             yield node
  */
-  __pyx_codeobj__10 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS|CO_GENERATOR, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__35, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_cynetdiff_models_pyx, __pyx_n_s_get_newly_activated_nodes, 188, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__10)) __PYX_ERR(0, 188, __pyx_L1_error)
+  __pyx_codeobj__10 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS|CO_GENERATOR, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__35, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_cynetdiff_models_pyx, __pyx_n_s_get_newly_activated_nodes, 189, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__10)) __PYX_ERR(0, 189, __pyx_L1_error)
 
-  /* "cynetdiff/models.pyx":192
+  /* "cynetdiff/models.pyx":193
  *             yield node
  * 
  *     def get_num_activated_nodes(self):             # <<<<<<<<<<<<<<
  *         return self.seen_set.size()
  * 
  */
-  __pyx_codeobj__44 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__23, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_cynetdiff_models_pyx, __pyx_n_s_get_num_activated_nodes, 192, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__44)) __PYX_ERR(0, 192, __pyx_L1_error)
+  __pyx_codeobj__44 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__23, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_cynetdiff_models_pyx, __pyx_n_s_get_num_activated_nodes, 193, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__44)) __PYX_ERR(0, 193, __pyx_L1_error)
 
-  /* "cynetdiff/models.pyx":196
+  /* "cynetdiff/models.pyx":197
  * 
  *     # Functions that actually advance the model
  *     cpdef void advance_until_completion(self):             # <<<<<<<<<<<<<<
  *         while self.work_deque.size() > 0:
  *             self.__advance_model(self.work_deque, self.seen_set)
  */
-  __pyx_codeobj__45 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__23, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_cynetdiff_models_pyx, __pyx_n_s_advance_until_completion, 196, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__45)) __PYX_ERR(0, 196, __pyx_L1_error)
+  __pyx_codeobj__45 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__23, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_cynetdiff_models_pyx, __pyx_n_s_advance_until_completion, 197, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__45)) __PYX_ERR(0, 197, __pyx_L1_error)
 
-  /* "cynetdiff/models.pyx":200
+  /* "cynetdiff/models.pyx":201
  *             self.__advance_model(self.work_deque, self.seen_set)
  * 
  *     cpdef void advance_model(self):             # <<<<<<<<<<<<<<
  *         self.__advance_model(self.work_deque, self.seen_set)
  * 
  */
-  __pyx_codeobj__46 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__23, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_cynetdiff_models_pyx, __pyx_n_s_advance_model, 200, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__46)) __PYX_ERR(0, 200, __pyx_L1_error)
+  __pyx_codeobj__46 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__23, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_cynetdiff_models_pyx, __pyx_n_s_advance_model, 201, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__46)) __PYX_ERR(0, 201, __pyx_L1_error)
 
   /* "(tree fragment)":1
  * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
@@ -28945,15 +28945,15 @@ static int __Pyx_modinit_type_init_code(void) {
   }
   #endif
   #if CYTHON_USE_TYPE_SPECS
-  __pyx_ptype_9cynetdiff_6models___pyx_scope_struct_1_get_newly_activated_nodes = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_9cynetdiff_6models___pyx_scope_struct_1_get_newly_activated_nodes_spec, NULL); if (unlikely(!__pyx_ptype_9cynetdiff_6models___pyx_scope_struct_1_get_newly_activated_nodes)) __PYX_ERR(0, 188, __pyx_L1_error)
-  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_9cynetdiff_6models___pyx_scope_struct_1_get_newly_activated_nodes_spec, __pyx_ptype_9cynetdiff_6models___pyx_scope_struct_1_get_newly_activated_nodes) < 0) __PYX_ERR(0, 188, __pyx_L1_error)
+  __pyx_ptype_9cynetdiff_6models___pyx_scope_struct_1_get_newly_activated_nodes = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_9cynetdiff_6models___pyx_scope_struct_1_get_newly_activated_nodes_spec, NULL); if (unlikely(!__pyx_ptype_9cynetdiff_6models___pyx_scope_struct_1_get_newly_activated_nodes)) __PYX_ERR(0, 189, __pyx_L1_error)
+  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_9cynetdiff_6models___pyx_scope_struct_1_get_newly_activated_nodes_spec, __pyx_ptype_9cynetdiff_6models___pyx_scope_struct_1_get_newly_activated_nodes) < 0) __PYX_ERR(0, 189, __pyx_L1_error)
   #else
   __pyx_ptype_9cynetdiff_6models___pyx_scope_struct_1_get_newly_activated_nodes = &__pyx_type_9cynetdiff_6models___pyx_scope_struct_1_get_newly_activated_nodes;
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   #endif
   #if !CYTHON_USE_TYPE_SPECS
-  if (__Pyx_PyType_Ready(__pyx_ptype_9cynetdiff_6models___pyx_scope_struct_1_get_newly_activated_nodes) < 0) __PYX_ERR(0, 188, __pyx_L1_error)
+  if (__Pyx_PyType_Ready(__pyx_ptype_9cynetdiff_6models___pyx_scope_struct_1_get_newly_activated_nodes) < 0) __PYX_ERR(0, 189, __pyx_L1_error)
   #endif
   #if PY_MAJOR_VERSION < 3
   __pyx_ptype_9cynetdiff_6models___pyx_scope_struct_1_get_newly_activated_nodes->tp_print = 0;
@@ -30077,7 +30077,7 @@ if (!__Pyx_RefNanny) {
   PyType_Modified(__pyx_ptype_9cynetdiff_6models_DiffusionModel);
 
   /* "cynetdiff/models.pyx":61
- *             assert len(self.edges) == len(self.edge_thresholds)
+ *             assert len(self.edges) == len(self.activation_probs)
  * 
  *     def set_seeds(self, seeds):             # <<<<<<<<<<<<<<
  *         self.original_seeds.clear()
@@ -30175,94 +30175,94 @@ if (!__Pyx_RefNanny) {
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_setstate_cython, __pyx_t_7) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-  /* "cynetdiff/models.pyx":171
+  /* "cynetdiff/models.pyx":172
  * 
  * 
  *     def set_seeds(self, seeds):             # <<<<<<<<<<<<<<
  *         self.original_seeds.clear()
  *         for seed in seeds:
  */
-  __pyx_t_7 = __Pyx_CyFunction_New(&__pyx_mdef_9cynetdiff_6models_20LinearThresholdModel_3set_seeds, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_LinearThresholdModel_set_seeds, NULL, __pyx_n_s_cynetdiff_models, __pyx_d, ((PyObject *)__pyx_codeobj__41)); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 171, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_CyFunction_New(&__pyx_mdef_9cynetdiff_6models_20LinearThresholdModel_3set_seeds, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_LinearThresholdModel_set_seeds, NULL, __pyx_n_s_cynetdiff_models, __pyx_d, ((PyObject *)__pyx_codeobj__41)); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 172, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (__Pyx_SetItemOnTypeDict((PyObject *)__pyx_ptype_9cynetdiff_6models_LinearThresholdModel, __pyx_n_s_set_seeds, __pyx_t_7) < 0) __PYX_ERR(0, 171, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict((PyObject *)__pyx_ptype_9cynetdiff_6models_LinearThresholdModel, __pyx_n_s_set_seeds, __pyx_t_7) < 0) __PYX_ERR(0, 172, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   PyType_Modified(__pyx_ptype_9cynetdiff_6models_LinearThresholdModel);
 
-  /* "cynetdiff/models.pyx":179
+  /* "cynetdiff/models.pyx":180
  * 
  * 
  *     cpdef void reassign_threshold(self):             # <<<<<<<<<<<<<<
  *         for i in range(self.thresholds.size()):
  *             self.thresholds[i] = next_rand()
  */
-  __pyx_t_7 = __Pyx_CyFunction_New(&__pyx_mdef_9cynetdiff_6models_20LinearThresholdModel_5reassign_threshold, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_LinearThresholdModel_reassign_th, NULL, __pyx_n_s_cynetdiff_models, __pyx_d, ((PyObject *)__pyx_codeobj__42)); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 179, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_CyFunction_New(&__pyx_mdef_9cynetdiff_6models_20LinearThresholdModel_5reassign_threshold, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_LinearThresholdModel_reassign_th, NULL, __pyx_n_s_cynetdiff_models, __pyx_d, ((PyObject *)__pyx_codeobj__42)); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 180, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (__Pyx_SetItemOnTypeDict((PyObject *)__pyx_ptype_9cynetdiff_6models_LinearThresholdModel, __pyx_n_s_reassign_threshold, __pyx_t_7) < 0) __PYX_ERR(0, 179, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict((PyObject *)__pyx_ptype_9cynetdiff_6models_LinearThresholdModel, __pyx_n_s_reassign_threshold, __pyx_t_7) < 0) __PYX_ERR(0, 180, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   PyType_Modified(__pyx_ptype_9cynetdiff_6models_LinearThresholdModel);
 
-  /* "cynetdiff/models.pyx":183
+  /* "cynetdiff/models.pyx":184
  *             self.thresholds[i] = next_rand()
  * 
  *     cpdef void reset_model(self):             # <<<<<<<<<<<<<<
  *         self.work_deque.assign(self.original_seeds.begin(), self.original_seeds.end())
  *         self.seen_set.clear()
  */
-  __pyx_t_7 = __Pyx_CyFunction_New(&__pyx_mdef_9cynetdiff_6models_20LinearThresholdModel_7reset_model, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_LinearThresholdModel_reset_model, NULL, __pyx_n_s_cynetdiff_models, __pyx_d, ((PyObject *)__pyx_codeobj__43)); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 183, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_CyFunction_New(&__pyx_mdef_9cynetdiff_6models_20LinearThresholdModel_7reset_model, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_LinearThresholdModel_reset_model, NULL, __pyx_n_s_cynetdiff_models, __pyx_d, ((PyObject *)__pyx_codeobj__43)); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 184, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (__Pyx_SetItemOnTypeDict((PyObject *)__pyx_ptype_9cynetdiff_6models_LinearThresholdModel, __pyx_n_s_reset_model, __pyx_t_7) < 0) __PYX_ERR(0, 183, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict((PyObject *)__pyx_ptype_9cynetdiff_6models_LinearThresholdModel, __pyx_n_s_reset_model, __pyx_t_7) < 0) __PYX_ERR(0, 184, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   PyType_Modified(__pyx_ptype_9cynetdiff_6models_LinearThresholdModel);
 
-  /* "cynetdiff/models.pyx":188
+  /* "cynetdiff/models.pyx":189
  *         self.seen_set.insert(self.original_seeds.begin(), self.original_seeds.end())
  * 
  *     def get_newly_activated_nodes(self):             # <<<<<<<<<<<<<<
  *         for node in self.work_deque:
  *             yield node
  */
-  __pyx_t_7 = __Pyx_CyFunction_New(&__pyx_mdef_9cynetdiff_6models_20LinearThresholdModel_9get_newly_activated_nodes, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_LinearThresholdModel_get_newly_a, NULL, __pyx_n_s_cynetdiff_models, __pyx_d, ((PyObject *)__pyx_codeobj__10)); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 188, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_CyFunction_New(&__pyx_mdef_9cynetdiff_6models_20LinearThresholdModel_9get_newly_activated_nodes, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_LinearThresholdModel_get_newly_a, NULL, __pyx_n_s_cynetdiff_models, __pyx_d, ((PyObject *)__pyx_codeobj__10)); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 189, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (__Pyx_SetItemOnTypeDict((PyObject *)__pyx_ptype_9cynetdiff_6models_LinearThresholdModel, __pyx_n_s_get_newly_activated_nodes, __pyx_t_7) < 0) __PYX_ERR(0, 188, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict((PyObject *)__pyx_ptype_9cynetdiff_6models_LinearThresholdModel, __pyx_n_s_get_newly_activated_nodes, __pyx_t_7) < 0) __PYX_ERR(0, 189, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   PyType_Modified(__pyx_ptype_9cynetdiff_6models_LinearThresholdModel);
 
-  /* "cynetdiff/models.pyx":192
+  /* "cynetdiff/models.pyx":193
  *             yield node
  * 
  *     def get_num_activated_nodes(self):             # <<<<<<<<<<<<<<
  *         return self.seen_set.size()
  * 
  */
-  __pyx_t_7 = __Pyx_CyFunction_New(&__pyx_mdef_9cynetdiff_6models_20LinearThresholdModel_12get_num_activated_nodes, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_LinearThresholdModel_get_num_act, NULL, __pyx_n_s_cynetdiff_models, __pyx_d, ((PyObject *)__pyx_codeobj__44)); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 192, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_CyFunction_New(&__pyx_mdef_9cynetdiff_6models_20LinearThresholdModel_12get_num_activated_nodes, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_LinearThresholdModel_get_num_act, NULL, __pyx_n_s_cynetdiff_models, __pyx_d, ((PyObject *)__pyx_codeobj__44)); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 193, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (__Pyx_SetItemOnTypeDict((PyObject *)__pyx_ptype_9cynetdiff_6models_LinearThresholdModel, __pyx_n_s_get_num_activated_nodes, __pyx_t_7) < 0) __PYX_ERR(0, 192, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict((PyObject *)__pyx_ptype_9cynetdiff_6models_LinearThresholdModel, __pyx_n_s_get_num_activated_nodes, __pyx_t_7) < 0) __PYX_ERR(0, 193, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   PyType_Modified(__pyx_ptype_9cynetdiff_6models_LinearThresholdModel);
 
-  /* "cynetdiff/models.pyx":196
+  /* "cynetdiff/models.pyx":197
  * 
  *     # Functions that actually advance the model
  *     cpdef void advance_until_completion(self):             # <<<<<<<<<<<<<<
  *         while self.work_deque.size() > 0:
  *             self.__advance_model(self.work_deque, self.seen_set)
  */
-  __pyx_t_7 = __Pyx_CyFunction_New(&__pyx_mdef_9cynetdiff_6models_20LinearThresholdModel_14advance_until_completion, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_LinearThresholdModel_advance_unt, NULL, __pyx_n_s_cynetdiff_models, __pyx_d, ((PyObject *)__pyx_codeobj__45)); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 196, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_CyFunction_New(&__pyx_mdef_9cynetdiff_6models_20LinearThresholdModel_14advance_until_completion, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_LinearThresholdModel_advance_unt, NULL, __pyx_n_s_cynetdiff_models, __pyx_d, ((PyObject *)__pyx_codeobj__45)); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 197, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (__Pyx_SetItemOnTypeDict((PyObject *)__pyx_ptype_9cynetdiff_6models_LinearThresholdModel, __pyx_n_s_advance_until_completion, __pyx_t_7) < 0) __PYX_ERR(0, 196, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict((PyObject *)__pyx_ptype_9cynetdiff_6models_LinearThresholdModel, __pyx_n_s_advance_until_completion, __pyx_t_7) < 0) __PYX_ERR(0, 197, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   PyType_Modified(__pyx_ptype_9cynetdiff_6models_LinearThresholdModel);
 
-  /* "cynetdiff/models.pyx":200
+  /* "cynetdiff/models.pyx":201
  *             self.__advance_model(self.work_deque, self.seen_set)
  * 
  *     cpdef void advance_model(self):             # <<<<<<<<<<<<<<
  *         self.__advance_model(self.work_deque, self.seen_set)
  * 
  */
-  __pyx_t_7 = __Pyx_CyFunction_New(&__pyx_mdef_9cynetdiff_6models_20LinearThresholdModel_16advance_model, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_LinearThresholdModel_advance_mod, NULL, __pyx_n_s_cynetdiff_models, __pyx_d, ((PyObject *)__pyx_codeobj__46)); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 200, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_CyFunction_New(&__pyx_mdef_9cynetdiff_6models_20LinearThresholdModel_16advance_model, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_LinearThresholdModel_advance_mod, NULL, __pyx_n_s_cynetdiff_models, __pyx_d, ((PyObject *)__pyx_codeobj__46)); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 201, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (__Pyx_SetItemOnTypeDict((PyObject *)__pyx_ptype_9cynetdiff_6models_LinearThresholdModel, __pyx_n_s_advance_model, __pyx_t_7) < 0) __PYX_ERR(0, 200, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict((PyObject *)__pyx_ptype_9cynetdiff_6models_LinearThresholdModel, __pyx_n_s_advance_model, __pyx_t_7) < 0) __PYX_ERR(0, 201, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   PyType_Modified(__pyx_ptype_9cynetdiff_6models_LinearThresholdModel);
 

@@ -13,11 +13,11 @@ cdef class IndependentCascadeModel(DiffusionModel):
     cdef readonly unsigned int[:] edges
 
     # Setting the activation threshold uniformly or non-uniformly
-    cdef float threshold
-    cdef readonly float[:] edge_thresholds
+    cdef float activation_prob
+    cdef readonly float[:] activation_probs
 
     # Mostly for testing
-    cdef readonly float[:] edge_probabilities
+    cdef readonly float[:] _edge_probabilities
 
     cdef cdeque[unsigned int] work_deque
     cdef cset[unsigned int] seen_set

@@ -71,13 +71,13 @@ class IndependentCascadeModel(DiffusionModel):
     edges : array.array
         An array of edges represented as integer indices of nodes. Type
         of array elements must be unsigned int.
-    threshold : float, optional
-        Uniform threshold for the Independent Cascade model. Defaults to 0.1.
-        Should not be set if edge_thresholds is set.
-    edge_thresholds : array.array, optional
-        Set individual thresholds for the Independent Cascade model.
+    activation_prob : float, optional
+        Uniform activation probability for the Independent Cascade model. Defaults to 0.1.
+        Should not be set if activation_probs is set.
+    activation_probs : array.array, optional
+        Set individual activation probabilities for the Independent Cascade model.
         Overrides threshold.
-    edge_probabilities : array.array, optional
+    _edge_probabilities : array.array, optional
         An array of success probabilities for each edge, default is None.
     """
 
@@ -86,9 +86,9 @@ class IndependentCascadeModel(DiffusionModel):
         starts: array.array,
         edges: array.array,
         *,
-        threshold: float = 0.1,
-        edge_thresholds: t.Optional[array.array] = None,
-        edge_probabilities: t.Optional[array.array] = None,
+        activation_prob: float = 0.1,
+        activation_probs: t.Optional[array.array] = None,
+        _edge_probabilities: t.Optional[array.array] = None,
     ) -> None: ...
 
 class LinearThresholdModel(DiffusionModel):
@@ -112,8 +112,8 @@ class LinearThresholdModel(DiffusionModel):
         An array of start indices for each node's predecessors in the predecessor array.
         Type of array elements must be unsigned int.
     thresholds : array.array, optional
-        An array of thresholds for each node. Type
-        of array elements must be float.
+        An array of thresholds for each node. Type of array elements must be float
+        in [0,1].
     influence : array.array, optional
         An array of influence values for each edge. Array elements must be
         floats in [0,1]. If not set, the inverse of the in-degree of a node

@@ -230,7 +230,7 @@ def test_specific_model(
     # Set up the model
     if set_act_prob_fn is None:
         model = networkx_to_ic_model(
-            test_graph, threshold=indep_cascade_prob, _include_succcess_prob=True
+            test_graph, activation_prob=indep_cascade_prob, _include_succcess_prob=True
         )
     else:
         model = networkx_to_ic_model(test_graph, _include_succcess_prob=True)

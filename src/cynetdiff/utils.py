@@ -44,7 +44,15 @@ def set_activation_random_sample(
 ) -> None:
     """
     Set activation probability on each edge uniformly at random from the
-    given input set.
+    given weight set.
+
+    Parameters
+    ----------
+    graph : nx.Graph or nx.DiGraph
+        A NetworkX graph or directed graph.
+    weight_set : AbstractSet[float]
+        The set of weights to sample from. Assigns each edge in the input graph
+        a weight uniformly at random from this set.
     """
     weights = tuple(weight_set)
 
@@ -55,7 +63,7 @@ def set_activation_random_sample(
 def networkx_to_ic_model(
     graph: nx.Graph | nx.DiGraph,
     *,
-    threshold: t.Optional[float] = None,
+    activation_prob: t.Optional[float] = None,
     _include_succcess_prob: bool = False,
 ) -> IndependentCascadeModel:
     """
@@ -65,13 +73,13 @@ def networkx_to_ic_model(
     ----------
     graph : nx.Graph or nx.DiGraph
         A NetworkX graph or directed graph.
-    threshold : float, optional
-        Threshold for the Independent Cascade model, by default None.
+    activation_prob : float, optional
+        Activation probability for the Independent Cascade model, by default None.
         If not set, and "activation_prob" key not found on edges, set to 0.1.
     _include_succcess_prob : bool, optional
         If True, includes success probabilities for each edge. These probabilities
         are then stored in the edge data dictionary with the key "success_prob",
-        by default False.
+        by default False. Used mainly for testing.
 
     Returns
     -------
@@ -85,14 +93,14 @@ def networkx_to_ic_model(
     starts = array.array("I")
     edges = array.array("I")
     success_prob = None
-    activation_prob = None
+    activation_probs = None
 
     if _include_succcess_prob:
         success_prob = array.array("f")
 
     if next(iter(graph.edges.data("activation_prob", None)))[2] is not None:
-        assert threshold is None  # Don't have both things set.
-        activation_prob = array.array("f")
+        assert activation_prob is None  # Don't have both things set.
+        activation_probs = array.array("f")
 
     curr_start = 0
     for _, node in node_list:
@@ -105,29 +113,40 @@ def networkx_to_ic_model(
             if success_prob is not None:
                 success_prob.append(graph.get_edge_data(node, other)["success_prob"])
 
-            if activation_prob is not None:
+            if activation_probs is not None:
                 act_prob = graph[node][neighbor]["activation_prob"]
                 assert 0.0 <= act_prob <= 1.0
-                activation_prob.append(act_prob)
+                activation_probs.append(act_prob)
 
     # Can always set threshold, as it gets ignored if edge probabilities are set.
-    if threshold is None:
-        threshold = 0.1
+    if activation_prob is not None:
+        return IndependentCascadeModel(
+            starts,
+            edges,
+            activation_prob=activation_prob,
+            _edge_probabilities=success_prob,
+        )
 
-    return IndependentCascadeModel(
-        starts,
-        edges,
-        threshold=threshold,
-        edge_probabilities=success_prob,
-        edge_thresholds=activation_prob,
-    )
+    elif activation_probs is not None:
+        return IndependentCascadeModel(
+            starts,
+            edges,
+            activation_probs=activation_probs,
+            _edge_probabilities=success_prob,
+        )
+    else:
+        return IndependentCascadeModel(
+            starts,
+            edges,
+            _edge_probabilities=success_prob,
+        )
 
 
 def networkx_to_lt_model(graph: nx.Graph | nx.DiGraph) -> LinearThresholdModel:
     """
     Converts a NetworkX graph into a Linear Threshold model. Includes influence
-    values if they are defined on each edge under the key "influence". Threshold
-    values must be set on each node under the key "threshold", optional.
+    values if they are defined on each edge under the key "influence". Includes
+    threshold  values if they are defined on each node under the key "threshold".
 
     Parameters
     ----------
