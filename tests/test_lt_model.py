@@ -182,7 +182,7 @@ def generate_random_graph_from_seed(
 @pytest.mark.parametrize("directed", [True, False])
 @pytest.mark.parametrize("nondefault_influence", [True, False])
 def test_specific_model(directed: bool, nondefault_influence: bool) -> None:
-    n = 100
+    n = 1_000
     p = 0.05
     k = 10
     test_graph = generate_random_graph_from_seed(
@@ -213,6 +213,7 @@ def test_specific_model(directed: bool, nondefault_influence: bool) -> None:
         model.reset_model()
 
     total_num = sum(map(len, activated_nodes_levels))
+
     # Reassigning the threshold should change the total number of activated nodes
     model.reassign_threshold()
     model.advance_until_completion()
