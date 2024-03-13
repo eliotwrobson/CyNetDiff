@@ -18,8 +18,19 @@ def set_activation_uniformly_random(
 ) -> None:
     """
     Set activation probability on each edge uniformly at random in the range
-    [range_start, range_end]. Must have that
-    0.0 <= range_start < range_end <= 1.0
+    [`range_start`, `range_end`]. Must have that
+    `0.0` <= `range_start` < `range_end` <= `1.0`.
+
+    Parameters
+    ----------
+    graph : nx.Graph or nx.DiGraph
+        A NetworkX graph or directed graph.
+    range_start : float, optional
+        The start of the range to sample activation probabilities from. If not set,
+        defaults to `0.0`.
+    range_end : float, optional
+        The end of the range to sample activation probabilities from. If not set,
+        defaults to `1.0`.
     """
 
     assert 0.0 <= range_start < range_end <= 1.0
@@ -30,7 +41,13 @@ def set_activation_uniformly_random(
 
 def set_activation_weighted_cascade(graph: nx.DiGraph) -> None:
     """
-    Set activation probability on each edge to 1/in_degree[u].
+    Set activation probability on each edge (u,v) to 1/in_degree(v). Graph
+    must be directed.
+
+    Parameters
+    ----------
+    graph : nx.DiGraph
+        A NetworkX directed graph.
     """
     if not graph.is_directed():
         raise ValueError("Graph must be directed or weighting will not be correct.")
@@ -67,15 +84,16 @@ def networkx_to_ic_model(
     _include_succcess_prob: bool = False,
 ) -> IndependentCascadeModel:
     """
-    Converts a NetworkX graph into an Independent Cascade model.
+    Converts a NetworkX graph into an Independent Cascade model. Includes activation
+    probability values if they are defined on each edge under the key `"activation_prob"`.
 
     Parameters
     ----------
     graph : nx.Graph or nx.DiGraph
         A NetworkX graph or directed graph.
     activation_prob : float, optional
-        Activation probability for the Independent Cascade model, by default None.
-        If not set, and "activation_prob" key not found on edges, set to 0.1.
+        Activation probability for the Independent Cascade model, by default `None`.
+        If not set, and `"activation_prob"` key not found on edges, set to 0.1.
     _include_succcess_prob : bool, optional
         If True, includes success probabilities for each edge. These probabilities
         are then stored in the edge data dictionary with the key "success_prob",
@@ -84,7 +102,7 @@ def networkx_to_ic_model(
     Returns
     -------
     IndependentCascadeModel
-        An instance of IndependentCascadeModel representing the given graph.
+        An instance of IndependentCascadeModel using the given graph.
     """
 
     node_list = list(enumerate(graph.nodes()))
@@ -145,8 +163,8 @@ def networkx_to_ic_model(
 def networkx_to_lt_model(graph: nx.Graph | nx.DiGraph) -> LinearThresholdModel:
     """
     Converts a NetworkX graph into a Linear Threshold model. Includes influence
-    values if they are defined on each edge under the key "influence". Includes
-    threshold  values if they are defined on each node under the key "threshold".
+    values if they are defined on each edge under the key `"influence"`. Includes
+    threshold values if they are defined on each node under the key `"threshold"`.
 
     Parameters
     ----------
@@ -156,7 +174,7 @@ def networkx_to_lt_model(graph: nx.Graph | nx.DiGraph) -> LinearThresholdModel:
     Returns
     -------
     LinearThresholdModel
-        An instance of LinearThresholdModel representing the given graph.
+        An instance of LinearThresholdModel using the given graph.
     """
 
     node_list = list(enumerate(graph.nodes(data=True)))
