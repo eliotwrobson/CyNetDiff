@@ -80,7 +80,7 @@ def set_activation_random_sample(
 
 
 def networkx_to_ic_model(
-    graph: nx.Graph | nx.DiGraph,
+    graph: Graph,
     *,
     activation_prob: t.Optional[float] = None,
     _include_succcess_prob: bool = False,
@@ -162,7 +162,7 @@ def networkx_to_ic_model(
         )
 
 
-def networkx_to_lt_model(graph: nx.Graph | nx.DiGraph) -> LinearThresholdModel:
+def networkx_to_lt_model(graph: Graph) -> LinearThresholdModel:
     """
     Converts a NetworkX graph into a Linear Threshold model. Includes influence
     values if they are defined on each edge under the key `"influence"`. Includes

@@ -14,7 +14,7 @@ from cynetdiff.utils import networkx_to_lt_model
 
 
 def linear_threshold(
-    G: nx.Graph | nx.DiGraph, seeds: t.Iterable[int], steps: int = 0
+    G: t.Union[nx.Graph, nx.DiGraph], seeds: t.Iterable[int], steps: int = 0
 ) -> t.List[t.List[int]]:
     """Return the active nodes of each diffusion step by linear threshold model
 
