@@ -39,6 +39,6 @@ cdef class LinearThresholdModel(DiffusionModel):
     cdef cset[unsigned int] original_seeds
     cdef cvector[float] thresholds
 
-    cpdef void reassign_threshold(self)
+    cpdef void reassign_thresholds(self)
     cdef int __activation_succeeds(self, unsigned int vtx_idx, const cset[unsigned int]& seen_set) except -1 nogil
     cdef int __advance_model(self, cdeque[unsigned int]& work_deque, cset[unsigned int]& seen_set) except -1 nogil

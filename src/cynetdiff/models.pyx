@@ -161,13 +161,17 @@ cdef class LinearThresholdModel(DiffusionModel):
         if influence is not None:
             assert len(self.predecessors) == len(self.influence)
 
+
+        self.thresholds.resize(len(self.successor_starts))
+
         if thresholds is not None:
-            self.thresholds.resize(len(thresholds))
+            assert len(self.successor_starts) == len(thresholds)
+
             for i in range(len(thresholds)):
                 self.thresholds[i] = thresholds[i]
-
-            assert len(self.successor_starts) == len(self.thresholds)
-
+        else:
+            # Make sure to reassign the size before running this.
+            self.reassign_thresholds()
 
     def set_seeds(self, seeds):
         self.original_seeds.clear()
@@ -177,7 +181,7 @@ cdef class LinearThresholdModel(DiffusionModel):
         self.reset_model()
 
 
-    cpdef void reassign_threshold(self):
+    cpdef void reassign_thresholds(self):
         for i in range(self.thresholds.size()):
             self.thresholds[i] = next_rand()
 

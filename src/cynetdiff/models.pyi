@@ -72,11 +72,11 @@ class IndependentCascadeModel(DiffusionModel):
         An array of edges represented as integer indices of nodes. Type
         of array elements must be unsigned int.
     activation_prob : float, optional
-        Uniform activation probability for the Independent Cascade model. Defaults to 0.1.
-        Should not be set if activation_probs is set.
+        Uniform activation probability for the Independent Cascade model.
+        Defaults to `0.1`. Should not be set if `activation_probs` is set.
     activation_probs : array.array, optional
         Set individual activation probabilities for the Independent Cascade model.
-        Overrides threshold.
+        Overrides `activation_prob`.
     _edge_probabilities : array.array, optional
         An array of success probabilities for each edge, default is None.
     """
@@ -100,24 +100,24 @@ class LinearThresholdModel(DiffusionModel):
     Parameters
     ----------
     successors : array.array
-        An array of successor nodes for each node. Type
-        of array elements must be unsigned int.
+        An array of successor nodes for each node.
+        Type of array elements must be unsigned int.
     successor_starts : array.array
         An array of start indices for each node's successors in the successor array.
         Type of array elements must be unsigned int.
     predecessors : array.array
-        An array of predecessor nodes for each node. Type
-        of array elements must be unsigned int.
+        An array of predecessor nodes for each node.
+        Type of array elements must be unsigned int.
     predecessor_starts : array.array
         An array of start indices for each node's predecessors in the predecessor array.
         Type of array elements must be unsigned int.
-    thresholds : array.array, optional
-        An array of thresholds for each node. Type of array elements must be float
-        in [0,1].
     influence : array.array, optional
         An array of influence values for each edge. Array elements must be
-        floats in [0,1]. If not set, the inverse of the in-degree of a node
+        floats in [`0.0`,`1.0`]. If not set, the inverse of the in-degree of a node
         is used for the influence.
+    thresholds : array.array, optional
+        An array of thresholds for each node. Type of array elements must be float
+        in [`0.0`,`1.0`]. If not set, defaults to setting thresholds uniformly at random.
     """
 
     def __init__(
@@ -130,4 +130,8 @@ class LinearThresholdModel(DiffusionModel):
         influence: t.Optional[array.array] = None,
         thresholds: t.Optional[array.array] = None,
     ) -> None: ...
-    def reassign_threshold(self) -> None: ...
+    def reassign_thresholds(self) -> None:
+        """
+        Randomly assign new thresholds by choosing them from uniformly
+        the range [`0.0`, `1.0`]. Usually done before re-running the model.
+        """
