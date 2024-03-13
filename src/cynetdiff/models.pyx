@@ -177,8 +177,8 @@ cdef class LinearThresholdModel(DiffusionModel):
 
 
     cpdef void reassign_threshold(self):
-        for i in range(self.threshold.size()):
-            self.threshold[i] = next_rand()
+        for i in range(self.thresholds.size()):
+            self.thresholds[i] = next_rand()
 
     cpdef void reset_model(self):
         self.work_deque.assign(self.original_seeds.begin(), self.original_seeds.end())

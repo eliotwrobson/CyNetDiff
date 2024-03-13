@@ -211,3 +211,12 @@ def test_specific_model(directed: bool, nondefault_influence: bool) -> None:
             model.advance_model()
 
         model.reset_model()
+
+    total_num = sum(map(len, activated_nodes_levels))
+    # Reassigning the threshold should change the total number of activated nodes
+    model.reassign_threshold()
+    model.advance_until_completion()
+
+    # TODO this test passes with high-enough probability. Refactor to avoid a possible
+    # random failure,
+    assert total_num != model.get_num_activated_nodes()
