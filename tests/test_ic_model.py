@@ -11,9 +11,11 @@ from cynetdiff.utils import (
     set_activation_weighted_cascade,
 )
 
+Graph = t.Union[nx.Graph, nx.DiGraph]
+
 
 def independent_cascade(
-    G: nx.Graph | nx.DiGraph,
+    G: Graph,
     seeds: t.Iterable[int],
     *,
     steps: int = 0,
@@ -203,7 +205,7 @@ def test_model_basic(directed: bool) -> None:
     ],
 )
 def test_specific_model(
-    set_act_prob_fn: t.Optional[t.Callable[[nx.Graph | nx.DiGraph], None]],
+    set_act_prob_fn: t.Optional[t.Callable[[Graph], None]],
     directed: bool,
 ) -> None:
     n = 1000
