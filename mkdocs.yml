@@ -37,8 +37,9 @@ theme:
   # - header.autohide
   icon:
     repo: fontawesome/brands/github
-  logo: assets/img/logo.svg
-  favicon: assets/img/favicon.png
+  # TODO need to add back a logo
+  #logo: assets/img/logo.svg
+  #favicon: assets/img/favicon.png
   language: en
 plugins:
   - search:
@@ -56,6 +57,7 @@ plugins:
       default_handler: python
       handlers:
         python:
+          paths: [src]
           options:
             show_source: false
             docstring_style: "numpy"
@@ -109,13 +111,12 @@ copyright: Copyright &copy; 2024 Eliot Robson
 nav:
   - Introduction:
       - index.md
-      - migration.md
-      - characteristics.md
+      - contributing.md
   - Examples:
-      - examples/fa-examples.md
+      - examples/examples.md
   - API:
       - api/index.md
-      - Utils: api/utils.md
+      - Utilities: api/utils.md
       - Models: api/models.md
   - Community:
       - people.md

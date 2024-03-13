@@ -201,11 +201,11 @@ def test_specific_model(directed: bool, nondefault_influence: bool) -> None:
     # Run twice to check that the reset works
     for _ in range(2):
         assert model.get_num_activated_nodes() == len(seeds)
-        assert len(set(model.get_newly_activated_nodes())) == len(seeds)
+        assert len(sorted(model.get_newly_activated_nodes())) == len(seeds)
 
         for node_level in activated_nodes_levels:
-            model_set = set(model.get_newly_activated_nodes())
-            node_set = set(node_level)
+            model_set = sorted(model.get_newly_activated_nodes())
+            node_set = sorted(node_level)
 
             assert model_set == node_set
             model.advance_model()

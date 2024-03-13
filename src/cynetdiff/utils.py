@@ -19,7 +19,8 @@ def set_activation_uniformly_random(
     """
     Set activation probability on each edge uniformly at random in the range
     [`range_start`, `range_end`]. Must have that
-    `0.0` <= `range_start` < `range_end` <= `1.0`.
+    `0.0` <= `range_start` < `range_end` <= `1.0`. Should be used on graphs before
+    creating the independent cascade model.
 
     Parameters
     ----------
@@ -42,7 +43,8 @@ def set_activation_uniformly_random(
 def set_activation_weighted_cascade(graph: nx.DiGraph) -> None:
     """
     Set activation probability on each edge (u,v) to 1/in_degree(v). Graph
-    must be directed.
+    must be directed. Should be used on graphs before creating the independent
+    cascade model.
 
     Parameters
     ----------
@@ -60,8 +62,8 @@ def set_activation_random_sample(
     graph: Graph, weight_set: t.AbstractSet[float]
 ) -> None:
     """
-    Set activation probability on each edge uniformly at random from the
-    given weight set.
+    Set activation probability on each edge uniformly at random from the given weight set.
+    Should be used on graphs before creating the independent cascade model.
 
     Parameters
     ----------

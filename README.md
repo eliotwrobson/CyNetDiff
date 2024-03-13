@@ -11,6 +11,43 @@
 A performance-focused library implementing algorithms for simulating network
 diffusion processes, written in Cython.
 
+## Quick Start
+
+### Installation
+```sh
+pip install cynetdiff
+```
+*Note:* The installation includes a build step that requires having a C++ complier installed.
+
+### Usage
+We can run models over graphs we define, using pre-defined weighting schemes. Here is a simple
+example
+```python
+import random
+import networkx as nx
+from cynetdiff.utils import networkx_to_ic_model
+
+# Randomly generate the graph
+n = 1_000
+p = 0.05
+graph = nx.fast_gnp_random_graph(n, p)
+
+# Randomly choose seed nodes
+k = 10
+nodes = list(graph.nodes)
+seeds = random.sample(nodes, k)
+
+# Set the activation probability uniformly and set seeds
+model = networkx_to_ic_model(graph, activation_prob=0.2)
+model.set_seeds(seeds)
+
+# Run the diffusion process
+model.advance_until_completion()
+
+# Get the number of nodes activated
+model.get_num_activated_nodes()
+```
+
 ## Project Status
 
 This project is still considered in an alpha stage of development. As such,
@@ -18,7 +55,3 @@ the API is still relatively undocumented, not yet fully featured, and
 could still change.
 
 All feedback is greatly appreciated!
-
-## Contributing
-
-Take a look at the [Contributing Guide](./CONTRIBUTING.md).
