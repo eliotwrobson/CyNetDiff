@@ -126,7 +126,8 @@ class LinearThresholdModel(DiffusionModel):
         successor_starts: array.array,
         predecessors: array.array,
         predecessor_starts: array.array,
-        threshold: array.array,
         *,
         influence: t.Optional[array.array] = None,
+        thresholds: t.Optional[array.array] = None,
     ) -> None: ...
+    def reassign_threshold(self) -> None: ...

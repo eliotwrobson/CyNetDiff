@@ -157,8 +157,6 @@ def generate_random_graph_from_seed(
     for _, data in graph.nodes(data=True):
         data["threshold"] = random.random()
 
-    # TODO make this make the in-edge weights sum to 1 and then have the
-    # utility function check for this.
     if include_influence:
         for _, _, data in graph.edges(data=True):
             data["influence"] = random.random()

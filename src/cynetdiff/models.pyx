@@ -2,7 +2,6 @@
 from cpython cimport array
 from libcpp.deque cimport deque as cdeque
 from libcpp.unordered_set cimport unordered_set as cset
-from libcpp cimport bool
 
 import array
 import random
@@ -143,24 +142,31 @@ cdef class LinearThresholdModel(DiffusionModel):
             array.array successor_starts,
             array.array predecessors,
             array.array predecessor_starts,
-            array.array threshold
             *,
             array.array influence = None,
+            array.array thresholds = None
         ):
 
         self.successors = successors
         self.successor_starts = successor_starts
         self.predecessors = predecessors
         self.predecessor_starts = predecessor_starts
-        self.threshold = threshold
         self.influence = influence
 
         assert len(self.successor_starts) == len(self.predecessor_starts)
+        # TODO I think the assertion below is not true for directed graphs.
         assert len(self.predecessors) == len(self.successors)
-        assert len(self.successor_starts) == len(self.threshold)
 
         if influence is not None:
             assert len(self.predecessors) == len(self.influence)
+
+        if thresholds is not None:
+            self.thresholds.resize(len(thresholds))
+            for i in range(len(thresholds)):
+                self.thresholds[i] = thresholds[i]
+
+            assert len(self.successor_starts) == len(self.thresholds)
+
 
     def set_seeds(self, seeds):
         self.original_seeds.clear()
@@ -168,6 +174,11 @@ cdef class LinearThresholdModel(DiffusionModel):
             self.original_seeds.insert(seed)
 
         self.reset_model()
+
+
+    cpdef void reassign_threshold(self):
+        for i in range(self.threshold.size()):
+            self.threshold[i] = next_rand()
 
     cpdef void reset_model(self):
         self.work_deque.assign(self.original_seeds.begin(), self.original_seeds.end())
@@ -211,7 +222,7 @@ cdef class LinearThresholdModel(DiffusionModel):
                 else:
                     influence_sum += self.influence[i]
 
-        if influence_sum >= self.threshold[vtx_idx]:
+        if influence_sum >= self.thresholds[vtx_idx]:
             return 1
         return 0
 

@@ -127,7 +127,7 @@ def networkx_to_lt_model(graph: nx.Graph | nx.DiGraph) -> LinearThresholdModel:
     """
     Converts a NetworkX graph into a Linear Threshold model. Includes influence
     values if they are defined on each edge under the key "influence". Threshold
-    values must be set on each node under the key "threshold".
+    values must be set on each node under the key "threshold", optional.
 
     Parameters
     ----------
@@ -149,11 +149,14 @@ def networkx_to_lt_model(graph: nx.Graph | nx.DiGraph) -> LinearThresholdModel:
     predecessors = array.array("I")
     predecessor_starts = array.array("I")
 
-    threshold = array.array("f")
+    thresholds = None
     influence = None
 
     if next(iter(graph.edges.data("influence", None)))[2] is not None:
         influence = array.array("f")
+
+    if next(iter(graph.nodes.data("threshold", None)))[1] is not None:
+        thresholds = array.array("f")
 
     curr_successor = 0
     curr_predecessor = 0
@@ -188,13 +191,14 @@ def networkx_to_lt_model(graph: nx.Graph | nx.DiGraph) -> LinearThresholdModel:
                 "must be less than 1.0."
             )
 
-        threshold.append(data["threshold"])
+        if thresholds is not None:
+            thresholds.append(data["threshold"])
 
     return LinearThresholdModel(
         successors,
         successor_starts,
         predecessors,
         predecessor_starts,
-        threshold=threshold,
+        thresholds=thresholds,
         influence=influence,
     )
