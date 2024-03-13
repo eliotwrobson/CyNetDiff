@@ -29,7 +29,7 @@ documentation = "https://eliotwrobson.github.io/CyNetDiff/"
 #gitter = "https://gitter/area"
 
 [tool.poetry.dependencies]
-python = ">=3.10"
+python = ">=3.9"
 
 [tool.poetry.group.benchmark]
 optional = true
