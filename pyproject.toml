@@ -31,6 +31,9 @@ tracker = "https://github.com/eliotwrobson/CyNetDiff/issues"
 [tool.poetry.dependencies]
 python = ">=3.10"
 
+[tool.poetry.group.benchmark]
+optional = true
+
 [tool.poetry.group.benchmark.dependencies]
 python = ">=3.10"
 ndlib = "^5.1.1"
