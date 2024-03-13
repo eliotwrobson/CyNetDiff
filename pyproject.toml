@@ -24,9 +24,9 @@ classifiers = [
 [tool.poetry.urls]
 homepage = "https://github.com/eliotwrobson/CyNetDiff"
 tracker = "https://github.com/eliotwrobson/CyNetDiff/issues"
+documentation = "https://eliotwrobson.github.io/CyNetDiff/"
 # TODO add these later
 #gitter = "https://gitter/area"
-#documentation = "https://readthedocs.org"
 
 [tool.poetry.dependencies]
 python = ">=3.10"
