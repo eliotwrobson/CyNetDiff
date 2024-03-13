@@ -31,14 +31,23 @@ encouraged to modify the codebase with new fixes and enhancements. Please
 observe the following guidelines when submitting pull requests for new fixes or
 features:
 
-1. All new code must be formatted with [ruff](https://github.com/astral-sh/ruff). The .vscode directory in this repository is configured to autoformat with ruff on save.
+1. All new code must be formatted with [ruff](https://github.com/astral-sh/ruff). The .vscode directory in this repository is configured to autoformat with ruff on save if you are using VSCode.
 
 2. Whether you are introducing a bug fix or a new feature, you *must* add tests to verify that your code additions function correctly and break nothing else.
 
-3. Make sure that all new code includes docstrings in the [NumPy style](https://numpydoc.readthedocs.io/en/latest/format.html).
+3. Make sure that all new code includes updated docstrings in the [NumPy style](https://numpydoc.readthedocs.io/en/latest/format.html).
 
-4. If you are adding a new feature or changing behavior, please update the documentation and include examples if possible.
+4. If you are adding a new feature or changing behavior, please update the documentation appropriately with the relevant information. To run the documentation site locally, install the documentation dependencies with:
 
+```sh
+poetry install --with docs
+```
+
+Then, start the local server with the following command:
+
+```sh
+mkdocs serve
+```
 ### Using Poetry
 
 This project is developed using [poetry](https://python-poetry.org/). It is strongly recommended for local development.

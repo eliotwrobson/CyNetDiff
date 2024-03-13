@@ -56,7 +56,6 @@ class DiffusionModel:
             Total number of activated nodes.
         """
 
-# TODO rename some of the parameters
 class IndependentCascadeModel(DiffusionModel):
     """
     A Diffusion Model representing the Independent Cascade process. This class is a
