@@ -3,6 +3,8 @@ from cpython cimport array
 from libcpp.deque cimport deque as cdeque
 from libcpp.unordered_set cimport unordered_set as cset
 from libcpp.algorithm cimport fill
+from libcpp.vector cimport vector as cvector
+from libcpp.unordered_map cimport unordered_map as cmap
 
 import array
 import random
@@ -176,8 +178,7 @@ cdef class LinearThresholdModel(DiffusionModel):
             self.influence = influence_arr
 
 
-        # Setting activation threshold at each node
-        self.thresholds.resize(n)
+        # Setting activation threshold at each node if provided
         if thresholds is not None:
             # If provided, copy from user code
             assert n == len(thresholds)
@@ -185,12 +186,6 @@ cdef class LinearThresholdModel(DiffusionModel):
             # Make a copy to avoid destroying memory on resets.
             for i in range(n):
                 self.thresholds[i] = thresholds[i]
-        else:
-            # Otherwise, generate
-            # Make sure to reassign the size before running this.
-            self.reassign_thresholds()
-
-        self.buckets.resize(n)
 
     def set_seeds(self, seeds):
         self.original_seeds.clear()
@@ -199,16 +194,15 @@ cdef class LinearThresholdModel(DiffusionModel):
 
         self.reset_model()
 
-
+    # TODO figure out if we want to refactor this.
     cpdef void reassign_thresholds(self):
-        for i in range(self.thresholds.size()):
-            self.thresholds[i] = next_rand()
+        self.thresholds.clear()
 
     cpdef void reset_model(self):
         self.work_deque.assign(self.original_seeds.begin(), self.original_seeds.end())
         self.seen_set.clear()
         self.seen_set.insert(self.original_seeds.begin(), self.original_seeds.end())
-        fill(self.buckets.begin(), self.buckets.end(), 0.0)
+        self.buckets.clear()
 
     def get_newly_activated_nodes(self):
         for node in self.work_deque:
@@ -220,16 +214,17 @@ cdef class LinearThresholdModel(DiffusionModel):
     # Functions that actually advance the model
     cpdef void advance_until_completion(self):
         while self.work_deque.size() > 0:
-            self.__advance_model(self.work_deque, self.seen_set, self.buckets)
+            self.__advance_model(self.work_deque, self.seen_set, self.thresholds, self.buckets)
 
     cpdef void advance_model(self):
-        self.__advance_model(self.work_deque, self.seen_set, self.buckets)
+        self.__advance_model(self.work_deque, self.seen_set, self.thresholds, self.buckets)
 
     cdef int __advance_model(
         self,
         cdeque[unsigned int]& work_deque,
         cset[unsigned int]& seen_set,
-        cvector[float]& buckets
+        cmap[unsigned int, float]& thresholds,
+        cmap[unsigned int, float]& buckets,
     ) except -1 nogil:
 
         # Internal-only function to advance,
@@ -242,9 +237,7 @@ cdef class LinearThresholdModel(DiffusionModel):
         cdef unsigned int range_end
         cdef unsigned int child
         cdef unsigned int edge_idx
-
-        # Use temporary seen set because we don't want this feeding into
-        #cdef cset[unsigned int] seen_this_iter
+        cdef float threshold
 
         for _ in range(q):
             node = work_deque.front()
@@ -261,15 +254,22 @@ cdef class LinearThresholdModel(DiffusionModel):
                 if seen_set.find(child) == seen_set.end():
                     child = self.edges[edge_idx]
 
-                    influence = self.influence[edge_idx]
+                    # Lazy evaluation for buckets and thresholds
+                    if buckets.count(child) == 0:
+                        buckets[child] = 0.0
+
+                    if thresholds.count(child) == 0:
+                        thresholds[child] = next_rand()
+
+                    threshold = thresholds[child]
 
                     # Function is written so that each edge is traversed _once_
-                    assert buckets[child] < self.thresholds[child]
+                    assert buckets[child] < threshold
 
-                    buckets[child] += influence
+                    buckets[child] += self.influence[edge_idx]
 
                     # Skip if we don't have enough influence yet.
-                    if buckets[child] < self.thresholds[child]:
+                    if buckets[child] < threshold:
                         continue
 
                     work_deque.push_back(child)
