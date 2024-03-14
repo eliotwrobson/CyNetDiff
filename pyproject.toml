@@ -67,7 +67,7 @@ setuptools = "^69.0.3"
 # NOTE to enable Cython generation during development, add "cython" to the
 # build dependencies before doing "poetry install".
 [build-system]
-requires = ["poetry-core", "setuptools", "cython"]
+requires = ["poetry-core", "setuptools"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.build]
