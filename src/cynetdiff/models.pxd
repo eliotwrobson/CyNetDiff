@@ -31,7 +31,7 @@ cdef class LinearThresholdModel(DiffusionModel):
     # Core model parameters
     cdef readonly unsigned int[:] starts
     cdef readonly unsigned int[:] edges
-    cdef cvector[float] influence
+    cdef readonly float[:] influence
 
     # Model simulation data structures
     cdef cdeque[unsigned int] work_deque

@@ -86,7 +86,7 @@ cdef class IndependentCascadeModel(DiffusionModel):
         else:
             activation_prob = self.activation_prob
 
-        # TODO get rid of edge probabilities
+        # NOTE don't need to store random number since only one is drawn for each edge.
         if self._edge_probabilities is None:
             if next_rand() <= activation_prob:
                 return 1
@@ -156,14 +156,10 @@ cdef class LinearThresholdModel(DiffusionModel):
         cdef cvector[unsigned int] in_degrees
 
         # Setting the influence sent across each edge
-        self.influence.resize(m)
         if influence is not None:
             # If provided, copy from user code
             assert m == len(influence)
-
-            for i in range(m):
-                self.influence[i] = influence[i]
-
+            self.influence = influence
         else:
             # Otherwise, default to 1/in_degree
             in_degrees.resize(n)
@@ -172,8 +168,12 @@ cdef class LinearThresholdModel(DiffusionModel):
             for i in range(m):
                 in_degrees[self.edges[i]] += 1
 
+            influence_arr = array.array("f")
+
             for i in range(m):
-                self.influence[i] = 1.0 / in_degrees[self.edges[i]]
+                influence_arr.append(1.0 / in_degrees[self.edges[i]])
+
+            self.influence = influence_arr
 
 
         # Setting activation threshold at each node
@@ -182,6 +182,7 @@ cdef class LinearThresholdModel(DiffusionModel):
             # If provided, copy from user code
             assert n == len(thresholds)
 
+            # Make a copy to avoid destroying memory on resets.
             for i in range(n):
                 self.thresholds[i] = thresholds[i]
         else:
