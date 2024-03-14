@@ -19,6 +19,7 @@ cdef class IndependentCascadeModel(DiffusionModel):
     # Mostly for testing
     cdef readonly float[:] _edge_probabilities
 
+    # Model simulation data structures
     cdef cdeque[unsigned int] work_deque
     cdef cset[unsigned int] seen_set
     cdef cset[unsigned int] original_seeds
@@ -28,10 +29,11 @@ cdef class IndependentCascadeModel(DiffusionModel):
 
 cdef class LinearThresholdModel(DiffusionModel):
     # Core model parameters
-    cdef readonly unsigned int[:] successors
-    cdef readonly unsigned int[:] successor_starts
+    cdef readonly unsigned int[:] starts
+    cdef readonly unsigned int[:] edges
     cdef cvector[float] influence
 
+    # Model simulation data structures
     cdef cdeque[unsigned int] work_deque
     cdef cset[unsigned int] seen_set
     cdef cset[unsigned int] original_seeds

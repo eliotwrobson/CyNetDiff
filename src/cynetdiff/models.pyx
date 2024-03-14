@@ -139,8 +139,8 @@ cdef class LinearThresholdModel(DiffusionModel):
     # Functions that interface with the Python side of things
     def __cinit__(
             self,
-            array.array successors,
-            array.array successor_starts,
+            array.array starts,
+            array.array edges,
             *,
             array.array influence = None,
             array.array thresholds = None
@@ -148,11 +148,11 @@ cdef class LinearThresholdModel(DiffusionModel):
 
         cdef unsigned int i
 
-        self.successors = successors
-        self.successor_starts = successor_starts
+        self.starts = starts
+        self.edges = edges
 
-        cdef unsigned int n = len(self.successor_starts)
-        cdef unsigned int m = len(self.successors)
+        cdef unsigned int n = len(self.starts)
+        cdef unsigned int m = len(self.edges)
         cdef cvector[unsigned int] in_degrees
 
         # Setting the influence sent across each edge
@@ -170,10 +170,10 @@ cdef class LinearThresholdModel(DiffusionModel):
             fill(in_degrees.begin(), in_degrees.end(), 0)
 
             for i in range(m):
-                in_degrees[self.successors[i]] += 1
+                in_degrees[self.edges[i]] += 1
 
             for i in range(m):
-                self.influence[i] = 1.0 / in_degrees[self.successors[i]]
+                self.influence[i] = 1.0 / in_degrees[self.edges[i]]
 
 
         # Setting activation threshold at each node
@@ -249,16 +249,16 @@ cdef class LinearThresholdModel(DiffusionModel):
             node = work_deque.front()
             work_deque.pop_front()
 
-            range_end = len(self.successors)
-            if node + 1 < len(self.successor_starts):
-                range_end = self.successor_starts[node + 1]
+            range_end = len(self.edges)
+            if node + 1 < len(self.starts):
+                range_end = self.starts[node + 1]
 
-            for edge_idx in range(self.successor_starts[node], range_end):
-                child = self.successors[edge_idx]
+            for edge_idx in range(self.starts[node], range_end):
+                child = self.edges[edge_idx]
 
                 # Child has _not_ been activated yet
                 if seen_set.find(child) == seen_set.end():
-                    child = self.successors[edge_idx]
+                    child = self.edges[edge_idx]
 
                     # TODO remove this assertion once default influence gets fixed.
                     #assert self.influence is not None

@@ -182,8 +182,8 @@ def networkx_to_lt_model(graph: Graph) -> LinearThresholdModel:
     node_list = list(enumerate(graph.nodes(data=True)))
     node_mapping = {node: i for i, (node, _) in node_list}
 
-    successors = array.array("I")
-    successor_starts = array.array("I")
+    starts = array.array("I")
+    edges = array.array("I")
 
     thresholds = None
     influence = None
@@ -197,11 +197,11 @@ def networkx_to_lt_model(graph: Graph) -> LinearThresholdModel:
     curr_successor = 0
     for _, (node, data) in node_list:
         # First, add to out neighbors
-        successor_starts.append(curr_successor)
+        starts.append(curr_successor)
         for successor in graph.successors(node):
             other = node_mapping[successor]
             curr_successor += 1
-            successors.append(other)
+            edges.append(other)
 
             if influence is not None:
                 edge_influence = graph[node][successor]["influence"]
@@ -228,8 +228,8 @@ def networkx_to_lt_model(graph: Graph) -> LinearThresholdModel:
             thresholds.append(threshold)
 
     return LinearThresholdModel(
-        successors,
-        successor_starts,
+        starts,
+        edges,
         thresholds=thresholds,
         influence=influence,
     )
