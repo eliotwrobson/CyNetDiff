@@ -66,16 +66,17 @@ class IndependentCascadeModel(DiffusionModel):
     ----------
     starts : array.array
         An array of start indices for each node's edges in the edge array. Type
-        of array elements must be unsigned int.
+        of array elements must be `unsigned int`.
     edges : array.array
         An array of edges represented as integer indices of nodes. Type
-        of array elements must be unsigned int.
+        of array elements must be `unsigned int`.
     activation_prob : float, optional
         Uniform activation probability for the Independent Cascade model.
         Defaults to `0.1`. Should not be set if `activation_probs` is set.
+        Must be in [`0.0`,`1.0`].
     activation_probs : array.array, optional
         Set individual activation probabilities for the Independent Cascade model.
-        Overrides `activation_prob`.
+        Overrides `activation_prob`. Array elements must be `float`s in [`0.0`,`1.0`].
     _edge_probabilities : array.array, optional
         An array of success probabilities for each edge, default is None.
     """
@@ -100,17 +101,18 @@ class LinearThresholdModel(DiffusionModel):
     ----------
     starts : array.array
         An array of start indices for each node's edges in the edge array. Type
-        of array elements must be unsigned int.
+        of array elements must be `unsigned int`.
     edges : array.array
         An array of edges represented as integer indices of nodes. Type
-        of array elements must be unsigned int.
+        of array elements must be `unsigned int`.
     influence : array.array, optional
         An array of influence values for each edge. Array elements must be
-        floats in [`0.0`,`1.0`]. If not set, the inverse of the in-degree of a node
+        `float`s in [`0.0`,`1.0`]. If not set, the inverse of the in-degree of a node
         is used for the influence.
     thresholds : array.array, optional
-        An array of thresholds for each node. Type of array elements must be float
-        in [`0.0`,`1.0`]. If not set, defaults to setting thresholds uniformly at random.
+        An array of activation thresholds for each node. Array elements must be
+        `float`s in [`0.0`,`1.0`]. If not set, defaults to setting thresholds
+        uniformly at random in the range.
     """
 
     def __init__(
