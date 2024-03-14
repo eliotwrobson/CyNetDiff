@@ -30,6 +30,7 @@ documentation = "https://eliotwrobson.github.io/CyNetDiff/"
 
 [tool.poetry.dependencies]
 python = ">=3.9"
+jupyter = "^1.0.0"
 
 [tool.poetry.group.benchmark]
 optional = true

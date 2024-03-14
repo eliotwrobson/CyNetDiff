@@ -8,7 +8,6 @@ import ndlib.models.epidemics as ep
 import ndlib.models.ModelConfig as mc
 import networkx as nx
 import pandas as pd
-import pooch
 from cynetdiff.utils import networkx_to_ic_model
 from tqdm import trange
 
