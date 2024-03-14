@@ -180,7 +180,7 @@ def generate_random_graph_from_seed(
 
 
 @pytest.mark.parametrize("directed", [True, False])
-@pytest.mark.parametrize("nondefault_influence", [True, False])  # , False])
+@pytest.mark.parametrize("nondefault_influence", [True, False])
 def test_specific_model(directed: bool, nondefault_influence: bool) -> None:
     n = 500
     p = 0.05
