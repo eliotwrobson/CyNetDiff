@@ -261,9 +261,6 @@ cdef class LinearThresholdModel(DiffusionModel):
                 if seen_set.find(child) == seen_set.end():
                     child = self.edges[edge_idx]
 
-                    # TODO remove this assertion once default influence gets fixed.
-                    #assert self.influence is not None
-
                     influence = self.influence[edge_idx]
 
                     # Function is written so that each edge is traversed _once_
