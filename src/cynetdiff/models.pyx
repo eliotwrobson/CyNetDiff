@@ -2,6 +2,7 @@
 from cpython cimport array
 from libcpp.deque cimport deque as cdeque
 from libcpp.unordered_set cimport unordered_set as cset
+from libcpp.algorithm cimport fill
 
 import array
 import random
@@ -140,38 +141,55 @@ cdef class LinearThresholdModel(DiffusionModel):
             self,
             array.array successors,
             array.array successor_starts,
-            array.array predecessors,
-            array.array predecessor_starts,
             *,
             array.array influence = None,
             array.array thresholds = None
         ):
 
+        cdef unsigned int i
+
         self.successors = successors
         self.successor_starts = successor_starts
-        self.predecessors = predecessors
-        self.predecessor_starts = predecessor_starts
-        self.influence = influence
 
-        assert len(self.successor_starts) == len(self.predecessor_starts)
-        # NOTE Assertion below is true because all out-edges must appear as in-edges
-        # somewhere else.
-        assert len(self.predecessors) == len(self.successors)
+        cdef unsigned int n = len(self.successor_starts)
+        cdef unsigned int m = len(self.successors)
+        cdef cvector[unsigned int] in_degrees
 
+        # Setting the influence sent across each edge
+        self.influence.resize(m)
         if influence is not None:
-            assert len(self.predecessors) == len(self.influence)
+            # If provided, copy from user code
+            assert m == len(influence)
+
+            for i in range(m):
+                self.influence[i] = influence[i]
+
+        else:
+            # Otherwise, default to 1/in_degree
+            in_degrees.resize(n)
+            fill(in_degrees.begin(), in_degrees.end(), 0)
+
+            for i in range(m):
+                in_degrees[self.successors[i]] += 1
+
+            for i in range(m):
+                self.influence[i] = 1.0 / in_degrees[self.successors[i]]
 
 
-        self.thresholds.resize(len(self.successor_starts))
-
+        # Setting activation threshold at each node
+        self.thresholds.resize(n)
         if thresholds is not None:
-            assert len(self.successor_starts) == len(thresholds)
+            # If provided, copy from user code
+            assert n == len(thresholds)
 
-            for i in range(len(thresholds)):
+            for i in range(n):
                 self.thresholds[i] = thresholds[i]
         else:
+            # Otherwise, generate
             # Make sure to reassign the size before running this.
             self.reassign_thresholds()
+
+        self.buckets.resize(n)
 
     def set_seeds(self, seeds):
         self.original_seeds.clear()
@@ -189,6 +207,7 @@ cdef class LinearThresholdModel(DiffusionModel):
         self.work_deque.assign(self.original_seeds.begin(), self.original_seeds.end())
         self.seen_set.clear()
         self.seen_set.insert(self.original_seeds.begin(), self.original_seeds.end())
+        fill(self.buckets.begin(), self.buckets.end(), 0.0)
 
     def get_newly_activated_nodes(self):
         for node in self.work_deque:
@@ -200,50 +219,31 @@ cdef class LinearThresholdModel(DiffusionModel):
     # Functions that actually advance the model
     cpdef void advance_until_completion(self):
         while self.work_deque.size() > 0:
-            self.__advance_model(self.work_deque, self.seen_set)
+            self.__advance_model(self.work_deque, self.seen_set, self.buckets)
 
     cpdef void advance_model(self):
-        self.__advance_model(self.work_deque, self.seen_set)
+        self.__advance_model(self.work_deque, self.seen_set, self.buckets)
 
-    cdef inline int __activation_succeeds(self, unsigned int vtx_idx, const cset[unsigned int]& seen_set) except -1 nogil:
-        cdef unsigned int i
-        cdef unsigned int range_end
-        cdef unsigned int parent
+    cdef int __advance_model(
+        self,
+        cdeque[unsigned int]& work_deque,
+        cset[unsigned int]& seen_set,
+        cvector[float]& buckets
+    ) except -1 nogil:
 
-        range_end = len(self.predecessors)
-        if vtx_idx + 1 < len(self.predecessor_starts):
-            range_end = self.predecessor_starts[vtx_idx + 1]
+        # Internal-only function to advance,
+        # returns an int to allow for exceptions
 
-        cdef float influence_sum = 0.0
-
-        for i in range(self.predecessor_starts[vtx_idx], range_end):
-            parent = self.predecessors[i]
-            # Parent is in the seen set
-            if seen_set.find(parent) != seen_set.end():
-                if self.influence is None:
-                    #NOTE shouldn't need a nonzero check here, because if the in-degree is
-                    #0 this should never be hit.
-                    influence_sum += 1.0 / (range_end - self.predecessor_starts[vtx_idx])
-                else:
-                    influence_sum += self.influence[i]
-
-        if influence_sum >= self.thresholds[vtx_idx]:
-            return 1
-        return 0
-
-    # Internal-only function to advance,
-    # returns an int to allow for exceptions
-    cdef int __advance_model(self, cdeque[unsigned int]& work_deque, cset[unsigned int]& seen_set) except -1 nogil:
         cdef unsigned int q = work_deque.size()
 
         # Working variables
         cdef unsigned int node
         cdef unsigned int range_end
         cdef unsigned int child
-        cdef unsigned int i
+        cdef unsigned int edge_idx
 
         # Use temporary seen set because we don't want this feeding into
-        cdef cset[unsigned int] seen_this_iter
+        #cdef cset[unsigned int] seen_this_iter
 
         for _ in range(q):
             node = work_deque.front()
@@ -253,21 +253,26 @@ cdef class LinearThresholdModel(DiffusionModel):
             if node + 1 < len(self.successor_starts):
                 range_end = self.successor_starts[node + 1]
 
-            for i in range(self.successor_starts[node], range_end):
-                child = self.successors[i]
+            for edge_idx in range(self.successor_starts[node], range_end):
+                child = self.successors[edge_idx]
 
-                if self.__activation_succeeds(child, seen_set) == 0:
-                    continue
+                # Child has _not_ been activated yet
+                if seen_set.find(child) == seen_set.end():
+                    child = self.successors[edge_idx]
 
-                # Child has _not_ been seen yet
-                if (
-                    seen_this_iter.find(child) == seen_this_iter.end()
-                    and seen_set.find(child) == seen_set.end()
-                ):
+                    # TODO remove this assertion once default influence gets fixed.
+                    #assert self.influence is not None
+
+                    influence = self.influence[edge_idx]
+
+                    # Function is written so that each edge is traversed _once_
+                    assert buckets[child] < self.thresholds[child]
+
+                    buckets[child] += influence
+
+                    # Skip if we don't have enough influence yet.
+                    if buckets[child] < self.thresholds[child]:
+                        continue
+
                     work_deque.push_back(child)
-                    seen_this_iter.insert(child)
-
-        for num in seen_this_iter:
-            # Assert the numbers are not in the seen set
-            assert seen_set.find(num) == seen_set.end()
-            seen_set.insert(num)
+                    seen_set.insert(child)

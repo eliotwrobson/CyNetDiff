@@ -104,12 +104,6 @@ class LinearThresholdModel(DiffusionModel):
     successor_starts : array.array
         An array of start indices for each node's successors in the successor array.
         Type of array elements must be unsigned int.
-    predecessors : array.array
-        An array of predecessor nodes for each node.
-        Type of array elements must be unsigned int.
-    predecessor_starts : array.array
-        An array of start indices for each node's predecessors in the predecessor array.
-        Type of array elements must be unsigned int.
     influence : array.array, optional
         An array of influence values for each edge. Array elements must be
         floats in [`0.0`,`1.0`]. If not set, the inverse of the in-degree of a node
@@ -123,8 +117,6 @@ class LinearThresholdModel(DiffusionModel):
         self,
         successors: array.array,
         successor_starts: array.array,
-        predecessors: array.array,
-        predecessor_starts: array.array,
         *,
         influence: t.Optional[array.array] = None,
         thresholds: t.Optional[array.array] = None,

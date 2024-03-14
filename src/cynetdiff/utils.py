@@ -185,9 +185,6 @@ def networkx_to_lt_model(graph: Graph) -> LinearThresholdModel:
     successors = array.array("I")
     successor_starts = array.array("I")
 
-    predecessors = array.array("I")
-    predecessor_starts = array.array("I")
-
     thresholds = None
     influence = None
 
@@ -198,7 +195,6 @@ def networkx_to_lt_model(graph: Graph) -> LinearThresholdModel:
         thresholds = array.array("f")
 
     curr_successor = 0
-    curr_predecessor = 0
     for _, (node, data) in node_list:
         # First, add to out neighbors
         successor_starts.append(curr_successor)
@@ -207,28 +203,24 @@ def networkx_to_lt_model(graph: Graph) -> LinearThresholdModel:
             curr_successor += 1
             successors.append(other)
 
-        # Next, do the same but for in-neighbors,
-        # logic is largely the same
-        predecessor_starts.append(curr_predecessor)
-        pred_sum = 0.0
-
-        for predecessor in graph.predecessors(node):
-            other = node_mapping[predecessor]
-            curr_predecessor += 1
-            predecessors.append(other)
-
             if influence is not None:
-                edge_influence = graph[other][node]["influence"]
-                pred_sum += edge_influence
+                edge_influence = graph[node][successor]["influence"]
                 influence.append(edge_influence)
 
-        # 1.0001 instead of 1.0 to avoid floating point issues.
-        # TODO will this annoy people?
-        if pred_sum > 1.0001:
-            raise ValueError(
-                f"Node {node} has inward influence {pred_sum}, "
-                "must be less than 1.0."
-            )
+        if influence is not None:
+            # Check that in-sum is not too high.
+            pred_sum = 0.0
+
+            for predecessor in graph.predecessors(node):
+                pred_sum += graph[predecessor][node]["influence"]
+
+            # 1.0001 instead of 1.0 to avoid floating point issues.
+            # TODO will this annoy people?
+            if pred_sum > 1.0001:
+                raise ValueError(
+                    f"Node {node} has inward influence {pred_sum}, "
+                    "must be less than 1.0."
+                )
 
         if thresholds is not None:
             threshold = data["threshold"]
@@ -238,8 +230,6 @@ def networkx_to_lt_model(graph: Graph) -> LinearThresholdModel:
     return LinearThresholdModel(
         successors,
         successor_starts,
-        predecessors,
-        predecessor_starts,
         thresholds=thresholds,
         influence=influence,
     )

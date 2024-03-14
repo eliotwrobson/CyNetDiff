@@ -30,15 +30,13 @@ cdef class LinearThresholdModel(DiffusionModel):
     # Core model parameters
     cdef readonly unsigned int[:] successors
     cdef readonly unsigned int[:] successor_starts
-    cdef readonly unsigned int[:] predecessors
-    cdef readonly unsigned int[:] predecessor_starts
-    cdef readonly float[:] influence
+    cdef cvector[float] influence
 
     cdef cdeque[unsigned int] work_deque
     cdef cset[unsigned int] seen_set
     cdef cset[unsigned int] original_seeds
     cdef cvector[float] thresholds
+    cdef cvector[float] buckets
 
     cpdef void reassign_thresholds(self)
-    cdef int __activation_succeeds(self, unsigned int vtx_idx, const cset[unsigned int]& seen_set) except -1 nogil
-    cdef int __advance_model(self, cdeque[unsigned int]& work_deque, cset[unsigned int]& seen_set) except -1 nogil
+    cdef int __advance_model(self, cdeque[unsigned int]& work_deque, cset[unsigned int]& seen_set, cvector[float]& buckets) except -1 nogil
