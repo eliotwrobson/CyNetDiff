@@ -10,6 +10,7 @@ import networkx as nx
 import pandas as pd
 from cynetdiff.utils import networkx_to_ic_model
 from tqdm import trange
+import pooch
 
 DiffusionGraphT = t.Union[nx.Graph, nx.DiGraph]
 SeedSetT = set[int]
