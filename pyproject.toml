@@ -31,6 +31,7 @@ documentation = "https://eliotwrobson.github.io/CyNetDiff/"
 [tool.poetry.dependencies]
 python = ">=3.9"
 
+# TODO change the group name to "examples"
 [tool.poetry.group.benchmark]
 optional = true
 
@@ -41,7 +42,7 @@ networkx = "^3.2.1"
 pandas = ">=2.0.0"
 tqdm = "^4.66.2"
 pooch = "^1.8.1"
-jupyter = "^7.1.2"
+notebook = "^7.1.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.2"
