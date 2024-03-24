@@ -8,9 +8,10 @@ import ndlib.models.epidemics as ep
 import ndlib.models.ModelConfig as mc
 import networkx as nx
 import pandas as pd
+import pooch
+from cynetdiff.models import DiffusionModel
 from cynetdiff.utils import networkx_to_ic_model
 from tqdm import trange
-import pooch
 
 DiffusionGraphT = t.Union[nx.Graph, nx.DiGraph]
 SeedSetT = set[int]
@@ -129,6 +130,45 @@ def diffuse_ndlib(graph: DiffusionGraphT, seeds: SeedSetT, num_samples: int) -> 
         total_infected += curr_iter_count[2]
 
     return total_infected / num_samples
+
+
+def compute_marginal_gain(
+    model: DiffusionModel, new_node: int, seeds: set[int], num_trials: int = 1_000
+) -> float:
+    """
+    Compute the marginal gain in the spread of influence by adding a new node to the set of seed nodes,
+    by summing the differences of spreads for each trial and then taking the average.
+
+    Parameters:
+    - model: The model used for simulating the spread of influence.
+    - new_node: The new node to consider adding to the set of seed nodes.
+    - seeds: The current set of seed nodes.
+    - num_trials: The number of trials to average the spread of influence over.
+
+    Returns:
+    - The average marginal gain in the spread of influence by adding the new node.
+    """
+    original_spread = 0
+    new_spread = 0
+
+    model.set_seeds(seeds)
+
+    for _ in range(num_trials):
+        model.reset_model()
+        model.advance_until_completion()
+        original_spread += model.get_num_activated_nodes()
+
+    new_seeds = seeds.union({new_node})
+    model.set_seeds(new_seeds)
+
+    for _ in range(num_trials):
+        model.reset_model()
+        model.advance_until_completion()
+        new_spread += model.get_num_activated_nodes()
+
+    avg_marginal_gain = (new_spread - original_spread) / num_trials
+
+    return avg_marginal_gain
 
 
 def time_diffusion(
