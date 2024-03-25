@@ -2,6 +2,7 @@ import random
 import time
 import typing as t
 import warnings
+from collections import defaultdict
 from functools import wraps
 
 import ndlib.models.epidemics as ep
@@ -194,12 +195,14 @@ def diffusion_get_frequencies(
     model = networkx_to_ic_model(graph)
     model.set_seeds(seeds)
 
-    total_activated = 0.0
+    activated_nodes_dict = defaultdict(lambda: 0)
 
     for _ in trange(num_trials):
         model.reset_model()
         model.advance_until_completion()
-        # TODO add function to get all nodes activated
-        total_activated += model.get_num_activated_nodes()
+        activated_nodes = model.get_activated_nodes()
 
-    return dict()
+        for node in activated_nodes:
+            activated_nodes_dict[node] += 1
+
+    return dict(activated_nodes_dict)
