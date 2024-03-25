@@ -181,3 +181,23 @@ def simple_benchmark(
 
     if "cynetdiff" in backends_to_run:
         print("CyNetDiff avg activated:", avg_cynetdiff)
+
+
+@timing
+def diffusion_get_frequencies(
+    graph: DiffusionGraphT, seeds: t.Set[int], num_trials: int = 1_000
+) -> t.Dict[int, int]:
+    """
+    Get the frequency dict from the network diffusion.
+    """
+
+    model = networkx_to_ic_model(graph)
+    model.set_seeds(seeds)
+
+    total_activated = 0.0
+
+    for _ in trange(num_trials):
+        model.reset_model()
+        model.advance_until_completion()
+        # TODO add function to get all nodes activated
+        total_activated += model.get_num_activated_nodes()
