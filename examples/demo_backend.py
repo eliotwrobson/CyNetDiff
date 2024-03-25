@@ -5,9 +5,12 @@ import warnings
 from collections import defaultdict
 from functools import wraps
 
+import matplotlib.pyplot as plt
 import ndlib.models.epidemics as ep
 import ndlib.models.ModelConfig as mc
 import networkx as nx
+import numpy as np
+from coloraide import Color
 from cynetdiff.utils import networkx_to_ic_model
 from tqdm.notebook import trange
 
@@ -24,7 +27,9 @@ def timing(f: t.Callable) -> t.Callable:
         ts = time.perf_counter()
         result = f(*args, **kw)
         te = time.perf_counter()
-        print("func:%r args:[%r, %r] took: %2.4f sec" % (f.__name__, args, kw, te - ts))
+        # print("func:%r args:[%r, %r] took: %2.4f sec" % (f.__name__, args, kw, te - ts))
+        print("func:%r took: %2.4f sec" % (f.__name__, te - ts))
+
         return result
 
     return wrap
@@ -195,7 +200,7 @@ def diffusion_get_frequencies(
     model = networkx_to_ic_model(graph)
     model.set_seeds(seeds)
 
-    activated_nodes_dict = defaultdict(lambda: 0)
+    activated_nodes_dict: t.DefaultDict[int, int] = defaultdict(lambda: 0)
 
     for _ in trange(num_trials):
         model.reset_model()
@@ -206,3 +211,173 @@ def diffusion_get_frequencies(
             activated_nodes_dict[node] += 1
 
     return dict(activated_nodes_dict)
+
+
+def plot_num_nodes_activated(
+    model_data_tuples: t.List[t.Tuple[str, DiffusionGraphT, t.Set[int]]],
+    *,
+    num_trials: int = 1_000,
+    plot_iqr: bool = False,
+) -> None:
+    """
+    Create a plot of number of nodes infected for CyNetDiff models across multiple trials.
+    If plot_iqr is True, plots the interquartile range and horizontal lines.
+    """
+
+    # Generate distinct colors for each graph using Coloraide
+    colors = [Color.random("srgb") for _ in model_data_tuples]
+
+    # Generate distinct lighter-colors for each graph for IQR plotting
+    light_colors = []
+    for color_str in colors:
+        color = Color(color_str, "srgb")
+        # I think this sets the transparency.
+        color[3] = 0.5
+        light_colors.append(color)
+
+    max_length = 0
+    all_graphs_data: t.List[t.Tuple[str, t.List[t.List[int]]]] = []
+
+    # Get all the data for graphs
+    for model_name, graph, seeds in model_data_tuples:
+        model = networkx_to_ic_model(graph)
+        model.set_seeds(seeds)
+
+        all_trials_infected_nodes: t.List[t.List[int]] = []
+
+        for _ in range(num_trials):
+            model.reset_model()
+
+            infected_nodes_over_time: t.List[int] = []
+            previous_activated = -1
+            current_activated = 0
+
+            while previous_activated != current_activated:
+                previous_activated = current_activated
+                model.advance_model()
+                current_activated = model.get_num_activated_nodes()
+                number_infected = current_activated
+                infected_nodes_over_time.append(number_infected)
+
+            all_trials_infected_nodes.append(infected_nodes_over_time)
+            max_length = max(max_length, len(infected_nodes_over_time))
+
+        all_graphs_data.append((model_name, all_trials_infected_nodes))
+
+    # Pad all data
+    padded_all_graphs_data: t.List[t.Tuple[str, t.List[t.List[int]]]] = []
+    for model_name, graph_data in all_graphs_data:
+        padded_trials = [
+            trial + [trial[-1]] * (max_length - len(trial)) for trial in graph_data
+        ]
+        padded_all_graphs_data.append((model_name, padded_trials))
+
+    # Graph Data
+    for idx, (model_name, graph_data) in enumerate(padded_all_graphs_data):
+        mean_infected = np.mean(graph_data, axis=0)
+
+        if plot_iqr:
+            iqr_values = [
+                np.percentile(
+                    [trial[i] if i < len(trial) else trial[-1] for trial in graph_data],
+                    [25, 75],
+                )
+                for i in range(max_length)
+            ]
+            lower_quartile, upper_quartile = zip(*iqr_values)
+
+            for y in mean_infected:
+                plt.axhline(y=y, color=colors[idx], linestyle="--", alpha=0.2)
+
+            plt.fill_between(
+                range(max_length),
+                lower_quartile,
+                upper_quartile,
+                color=light_colors[idx],
+                alpha=0.3,
+            )
+
+        plt.plot(mean_infected, label=f"{model_name} Mean Infected", color=colors[idx])
+
+    plt.xlabel("Iteration")
+    plt.ylabel("Number of Activated Nodes")
+    plt.title("Diffusion Process Over Time")
+    plt.legend()
+    plt.show()
+
+
+"""
+Other plotting function that we implemented but didn't wind up using.
+
+def create_plot_for_delta_nodes_infected(
+    graph1: nx.Graph,
+    graph2: nx.Graph = None,
+    graph3: nx.Graph = None,
+    graph4: nx.Graph = None,
+    plot_iqr: bool = False,
+):
+
+    Create a plot of the delta of nodes infected for a CyNetDiff model across multiple trials for up to four graphs.
+    If plot_iqr is True, plots the interquartile range and horizontal lines.
+
+    graphs = [g for g in [graph1, graph2, graph3, graph4] if g is not None]
+    for graph in graphs:
+        model = networkx_to_ic_model(graph)
+        seeds = set(random.sample(list(graph.nodes()), 100))
+        model.set_seeds(seeds)
+        num_trials = 1
+
+        all_trials_delta_nodes = []
+        max_length = 0
+
+        for _ in range(num_trials):
+            model.reset_model()
+
+            delta_nodes_over_time = []
+            previous_activated = -1
+            current_activated = 0
+
+            while previous_activated != current_activated:
+                previous_activated = current_activated
+                model.advance_model()
+                current_activated = model.get_num_activated_nodes()
+                delta_nodes_over_time.append(current_activated - previous_activated)
+
+            max_length = max(max_length, len(delta_nodes_over_time))
+            all_trials_delta_nodes.append(delta_nodes_over_time)
+
+        padded_trials = [
+            trial + [0] * (max_length - len(trial)) for trial in all_trials_delta_nodes
+        ]
+
+        median_delta = np.median(padded_trials, axis=0)
+
+        if plot_iqr:
+            iqr_values = [
+                np.percentile(
+                    [trial[i] if i < len(trial) else 0 for trial in padded_trials],
+                    [25, 75],
+                )
+                for i in range(max_length)
+            ]
+            lower_quartile, upper_quartile = zip(*iqr_values)
+
+            for y in median_delta:
+                plt.axhline(y=y, color="gray", linestyle="--", alpha=0.2)
+
+            plt.fill_between(
+                range(len(lower_quartile)),
+                lower_quartile,
+                upper_quartile,
+                color="#7daec7",
+                alpha=0.3,
+            )
+
+        plt.plot(median_delta, label="Median Delta Nodes", color="#3f83a6")
+
+    plt.xlabel("Iteration")
+    plt.ylabel("Delta Nodes Infected")
+    plt.title("Diffusion Process Over Time")
+    plt.legend()
+    plt.show()
+"""
