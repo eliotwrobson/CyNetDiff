@@ -201,3 +201,5 @@ def diffusion_get_frequencies(
         model.advance_until_completion()
         # TODO add function to get all nodes activated
         total_activated += model.get_num_activated_nodes()
+
+    return dict()
