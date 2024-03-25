@@ -1,3 +1,9 @@
+#! /usr/bin/env python3
+# -*- coding: utf-8 -*-
+from __future__ import annotations
+
+import gzip
+import heapq
 import random
 import time
 import typing as t
@@ -10,9 +16,11 @@ import ndlib.models.epidemics as ep
 import ndlib.models.ModelConfig as mc
 import networkx as nx
 import numpy as np
+import pooch
 from coloraide import Color
+from cynetdiff.models import DiffusionModel
 from cynetdiff.utils import networkx_to_ic_model
-from tqdm.notebook import trange
+from tqdm.notebook import tqdm, trange
 
 DiffusionGraphT = t.Union[nx.Graph, nx.DiGraph]
 SeedSetT = set[int]
@@ -381,3 +389,256 @@ def create_plot_for_delta_nodes_infected(
     plt.legend()
     plt.show()
 """
+
+_T = t.TypeVar("_T")
+
+
+class Singleton(type, t.Generic[_T]):
+    """
+    Singleton metaclass, adapted from here:
+    https://stackoverflow.com/a/75308084/2923069
+    """
+
+    _instances: t.Dict[Singleton[_T], _T] = {}
+
+    def __call__(cls, *args: t.Any, **kwargs: t.Any) -> _T:
+        if cls not in cls._instances:
+            cls._instances[cls] = super().__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+
+class GraphDownloader(metaclass=Singleton):
+    """
+    Registry for all the example data stored on Sariel's site, with corresponding hashes.
+    See: https://sarielhp.org/p/24/frechet_ve/examples/
+    """
+
+    __slots__ = ("__graphs", "__file_fetcher", "__registry")
+
+    __graphs: t.Dict[str, DiffusionGraphT]
+    __file_fetcher: pooch.Pooch
+    __registry: t.Dict[str, str]
+
+    def __init__(self) -> None:
+        self.__registry = {
+            "facebook_combined.txt.gz": "125e84db872eeba443d270c70315c256b0af43a502fcfe51f50621166ad035d7",
+            "twitter_combined.txt.gz": "d9f99b0e6a53b9204b8c215f41b3c10fb99a1e1e783858c012b06d0d3d4bd129",
+            "wiki-Vote.txt.gz": "7d3e53626e14b8b09fb3b396bece9d481ad606bd64ceab066349ff57d4ada7fc",
+            "soc-Epinions1.txt.gz": "69a2dab71fa5e3a0715487599fc16ca17ddc847379325a6c765bbad6e3e36938",
+        }
+
+        self.__file_fetcher = pooch.create(
+            # Use the default cache folder for the operating system
+            path=pooch.os_cache("snap_graphs"),
+            base_url="http://snap.stanford.edu/data/",
+            # The registry specifies the files that can be fetched
+            registry=self.__registry,
+        )
+
+        self.__graphs = {}
+
+    def list_graphs(self) -> t.List[str]:
+        """
+        Get list of graphs that can be returned by this downloader.
+        """
+
+        return list(self.__registry.keys())
+
+    def get_graph(self, name: str) -> DiffusionGraphT:
+        """
+        Get the graph named "name" from this registry.
+        """
+
+        if name not in self.__registry:
+            raise ValueError(f'File with name "{name}" not found in registry.')
+
+        if name not in self.__graphs:
+            graph_data_file = self.__file_fetcher.fetch(name, progressbar=True)
+
+            with gzip.open(graph_data_file, "r") as file:
+                new_graph = nx.read_edgelist(
+                    file,
+                    create_using=nx.Graph(),
+                    nodetype=int,
+                )
+
+            self.__graphs[name] = new_graph
+
+        # Return a copy so that in-place operations don't mess up the cached graphs.
+        return self.__graphs[name].copy()
+
+
+# Celf algorithm
+
+
+def compute_marginal_gain(
+    cynetdiff_model: DiffusionModel,
+    ndlib_model: t.Any,
+    graph: DiffusionGraphT,
+    new_node: int,
+    seeds: set[int],
+    num_trials: int,
+    method: str,
+) -> float:
+    """
+    Compute the marginal gain in the spread of influence by adding a new node to the set of seed nodes,
+    by summing the differences of spreads for each trial and then taking the average.
+
+    Parameters:
+    - model: The model used for simulating the spread of influence.
+    - new_node: The new node to consider adding to the set of seed nodes.
+    - seeds: The current set of seed nodes.
+    - num_trials: The number of trials to average the spread of influence over.
+
+    Returns:
+    - The average marginal gain in the spread of influence by adding the new node.
+    """
+    original_spread = 0
+    new_spread = 0
+
+    if method == "cynetdiff":
+        cynetdiff_model.set_seeds(seeds)
+
+        for _ in range(num_trials):
+            cynetdiff_model.reset_model()
+            cynetdiff_model.advance_until_completion()
+            original_spread += cynetdiff_model.get_num_activated_nodes()
+
+        new_seeds = seeds.union({new_node})
+        cynetdiff_model.set_seeds(new_seeds)
+
+        for _ in range(num_trials):
+            cynetdiff_model.reset_model()
+            cynetdiff_model.advance_until_completion()
+            new_spread += cynetdiff_model.get_num_activated_nodes()
+
+        return (new_spread - original_spread) / num_trials
+
+    elif method == "ndlib":
+        total_activated_old = 0.0
+        total_activated_new = 0.0
+
+        for _ in range(num_trials):
+            ndlib_model.reset(seeds)
+            prev_iter_count = ndlib_model.iteration()["node_count"]
+            curr_iter_count = ndlib_model.iteration()["node_count"]
+
+            while prev_iter_count != curr_iter_count:
+                prev_iter_count = curr_iter_count
+                curr_iter_count = ndlib_model.iteration()["node_count"]
+
+            total_activated_old += curr_iter_count[2]
+
+        new_seeds = seeds.union({new_node})
+
+        for _ in range(num_trials):
+            ndlib_model.reset(new_seeds)
+            prev_iter_count = ndlib_model.iteration()["node_count"]
+            curr_iter_count = ndlib_model.iteration()["node_count"]
+
+            while prev_iter_count != curr_iter_count:
+                prev_iter_count = curr_iter_count
+                curr_iter_count = ndlib_model.iteration()["node_count"]
+
+            total_activated_new += curr_iter_count[2]
+
+        return (total_activated_new - total_activated_old) / num_trials
+
+    elif method == "python":
+        old_val = diffuse_python(graph, seeds, num_trials)
+        new_val = diffuse_python(graph, seeds.union({new_node}), num_trials)
+
+        return (new_val - old_val) / num_trials
+
+    else:
+        raise ValueError(f'Invalid method "{method}"')
+
+
+@timing
+def celf(
+    graph: DiffusionGraphT, k: int, method: str, num_trials: int = 1_000
+) -> t.Tuple[t.Set[int], t.List[float]]:
+    """
+    Input: graph object, number of seed nodes
+    Output: optimal seed set, resulting spread, time for each iteration
+    Code adapted from this blog post:
+    https://hautahi.com/im_greedycelf
+    """
+
+    # Make cynetdiff model
+    cynetdiff_model = networkx_to_ic_model(graph)
+
+    # NDLib Model
+    ndlib_model = ep.IndependentCascadesModel(graph)
+
+    config = mc.Configuration()
+
+    # Assume that thresholds were already set.
+    for u, v, data in graph.edges(data=True):
+        config.add_edge_configuration("threshold", (u, v), data["activation_prob"])
+
+        # Don't randomly infect anyone to start, just use given seeds.
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        config.add_model_parameter("fraction_infected", 0.0)
+        ndlib_model.set_initial_status(config)
+
+    # Prepare graph
+    dir_graph = graph
+    if not dir_graph.is_directed():
+        dir_graph = dir_graph.to_directed()
+
+    # Run the CELF algorithm
+    marg_gain = []
+
+    # First, compute all marginal gains
+    print("Computing initial marginal gains.")
+    for node in tqdm(list(dir_graph.nodes())):
+        marg_gain.append(
+            (
+                -compute_marginal_gain(
+                    cynetdiff_model,
+                    ndlib_model,
+                    dir_graph,
+                    node,
+                    set(),
+                    num_trials,
+                    method,
+                ),
+                node,
+            )
+        )
+
+    heapq.heapify(marg_gain)
+
+    max_mg, selected_node = heapq.heappop(marg_gain)
+    S = {selected_node}
+    spread = -max_mg
+    spreads = [spread]
+
+    print("Performing greedy selection.")
+    for _ in trange(k - 1):
+        while True:
+            current_mg, current_node = heapq.heappop(marg_gain)
+            print(current_mg, current_node)
+            new_mg_neg = -compute_marginal_gain(
+                cynetdiff_model,
+                ndlib_model,
+                dir_graph,
+                current_node,
+                S,
+                num_trials,
+                method,
+            )
+
+            if new_mg_neg > current_mg:
+                heapq.heappush(marg_gain, (new_mg_neg, current_node))
+                break
+            else:
+                heapq.heappush(marg_gain, (current_mg, current_node))
+
+        spread += -new_mg_neg
+        S.add(current_node)
+        spreads.append(spread)
+
+    return S, spreads

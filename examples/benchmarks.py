@@ -9,7 +9,6 @@ import ndlib.models.ModelConfig as mc
 import networkx as nx
 import pandas as pd
 import pooch
-from cynetdiff.models import DiffusionModel
 from cynetdiff.utils import networkx_to_ic_model
 from tqdm import trange
 
@@ -130,89 +129,6 @@ def diffuse_ndlib(graph: DiffusionGraphT, seeds: SeedSetT, num_samples: int) -> 
         total_infected += curr_iter_count[2]
 
     return total_infected / num_samples
-
-
-def compute_marginal_gain(
-    cynetdiff_model: DiffusionModel,
-    ndlib_model: t.Any,
-    graph: DiffusionGraphT,
-    new_node: int,
-    seeds: set[int],
-    num_trials: int,
-    method: str,
-) -> float:
-    """
-    Compute the marginal gain in the spread of influence by adding a new node to the set of seed nodes,
-    by summing the differences of spreads for each trial and then taking the average.
-
-    Parameters:
-    - model: The model used for simulating the spread of influence.
-    - new_node: The new node to consider adding to the set of seed nodes.
-    - seeds: The current set of seed nodes.
-    - num_trials: The number of trials to average the spread of influence over.
-
-    Returns:
-    - The average marginal gain in the spread of influence by adding the new node.
-    """
-    original_spread = 0
-    new_spread = 0
-
-    if method == "cynetdiff":
-        cynetdiff_model.set_seeds(seeds)
-
-        for _ in range(num_trials):
-            cynetdiff_model.reset_model()
-            cynetdiff_model.advance_until_completion()
-            original_spread += cynetdiff_model.get_num_activated_nodes()
-
-        new_seeds = seeds.union({new_node})
-        cynetdiff_model.set_seeds(new_seeds)
-
-        for _ in range(num_trials):
-            cynetdiff_model.reset_model()
-            cynetdiff_model.advance_until_completion()
-            new_spread += cynetdiff_model.get_num_activated_nodes()
-
-        return (new_spread - original_spread) / num_trials
-
-    elif method == "ndlib":
-        total_activated_old = 0.0
-        total_activated_new = 0.0
-
-        for _ in range(num_trials):
-            ndlib_model.reset(seeds)
-            prev_iter_count = ndlib_model.iteration()["node_count"]
-            curr_iter_count = ndlib_model.iteration()["node_count"]
-
-            while prev_iter_count != curr_iter_count:
-                prev_iter_count = curr_iter_count
-                curr_iter_count = ndlib_model.iteration()["node_count"]
-
-            total_activated_old += curr_iter_count[2]
-
-        new_seeds = seeds.union({new_node})
-
-        for _ in range(num_trials):
-            ndlib_model.reset(new_seeds)
-            prev_iter_count = ndlib_model.iteration()["node_count"]
-            curr_iter_count = ndlib_model.iteration()["node_count"]
-
-            while prev_iter_count != curr_iter_count:
-                prev_iter_count = curr_iter_count
-                curr_iter_count = ndlib_model.iteration()["node_count"]
-
-            total_activated_new += curr_iter_count[2]
-
-        return (total_activated_new - total_activated_old) / num_trials
-
-    elif method == "python":
-        old_val = diffuse_python(graph, seeds, num_trials)
-        new_val = diffuse_python(graph, seeds.union({new_node}), num_trials)
-
-        return (new_val - old_val) / num_trials
-
-    else:
-        raise ValueError(f'Invalid method "{method}"')
 
 
 def time_diffusion(

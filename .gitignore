@@ -114,3 +114,5 @@ venv
 *.html
 
 speed/
+
+get_graph_hashes.py
