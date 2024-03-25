@@ -24,6 +24,7 @@ from tqdm.notebook import tqdm, trange
 
 DiffusionGraphT = t.Union[nx.Graph, nx.DiGraph]
 SeedSetT = set[int]
+MethodsT = t.Literal["cynetdiff", "ndlib", "python"]
 
 # Timing decorator
 # from https://stackoverflow.com/a/27737385
@@ -81,7 +82,6 @@ def independent_cascade(G: DiffusionGraphT, seeds: SeedSetT) -> list[list[int]]:
     return res
 
 
-@timing
 def diffuse_python(
     graph: DiffusionGraphT,
     seeds: SeedSetT,
@@ -165,7 +165,7 @@ def simple_benchmark(
     *,
     num_seeds: int = 10,
     num_trials: int = 1_000,
-    backends_to_run: t.List[t.Literal["cynetdiff", "ndlib", "python"]] = [
+    backends_to_run: t.List[MethodsT] = [
         "cynetdiff",
         "ndlib",
         "python",
@@ -189,7 +189,7 @@ def simple_benchmark(
 
     if "python" in backends_to_run:
         print("Starting diffusion with pure Python.")
-        avg_python = diffuse_python(graph, seeds, num_trials)
+        avg_python = timing(diffuse_python)(graph, seeds, num_trials)
 
     if "cynetdiff" in backends_to_run:
         print("Starting diffusion with CyNetDiff.")
@@ -486,7 +486,7 @@ def compute_marginal_gain(
     new_node: int,
     seeds: set[int],
     num_trials: int,
-    method: str,
+    method: MethodsT,
 ) -> float:
     """
     Compute the marginal gain in the spread of influence by adding a new node to the set of seed nodes,
@@ -566,7 +566,7 @@ def compute_marginal_gain(
 
 @timing
 def celf(
-    graph: DiffusionGraphT, k: int, method: str, num_trials: int = 1_000
+    graph: DiffusionGraphT, k: int, method: MethodsT, num_trials: int = 1_000
 ) -> t.Tuple[t.Set[int], t.List[float]]:
     """
     Input: graph object, number of seed nodes
@@ -575,6 +575,7 @@ def celf(
     https://hautahi.com/im_greedycelf
     """
 
+    print(f"Starting CELF algorithm with {method} backend.")
     # Make cynetdiff model
     cynetdiff_model = networkx_to_ic_model(graph)
 
@@ -630,7 +631,6 @@ def celf(
     for _ in trange(k - 1):
         while True:
             current_mg, current_node = heapq.heappop(marg_gain)
-            print(current_mg, current_node)
             new_mg_neg = -compute_marginal_gain(
                 cynetdiff_model,
                 ndlib_model,
