@@ -246,7 +246,7 @@ def plot_num_nodes_activated(
     # Generate distinct lighter-colors for each graph for IQR plotting
     light_colors = []
     for color_str in colors:
-        color = Color(color_str, "srgb")
+        color = Color(color_str)
         # I think this sets the transparency.
         color[3] = 0.5
         light_colors.append(color)
