@@ -82,13 +82,21 @@ def independent_cascade(G: DiffusionGraphT, seeds: SeedSetT) -> list[list[int]]:
 
 
 @timing
-def diffuse_python(graph: DiffusionGraphT, seeds: SeedSetT, num_samples: int) -> float:
+def diffuse_python(
+    graph: DiffusionGraphT,
+    seeds: SeedSetT,
+    num_samples: int,
+    *,
+    progress_bar: bool = True,
+) -> float:
     if not graph.is_directed():
         graph = graph.to_directed()
 
+    range_obj = trange if progress_bar else range
+
     res = 0.0
     seeds = seeds
-    for _ in trange(num_samples):
+    for _ in range_obj(num_samples):  # type: ignore
         res += float(sum(len(level) for level in independent_cascade(graph, seeds)))
 
     return res / num_samples
@@ -545,8 +553,10 @@ def compute_marginal_gain(
         return (total_activated_new - total_activated_old) / num_trials
 
     elif method == "python":
-        old_val = diffuse_python(graph, seeds, num_trials)
-        new_val = diffuse_python(graph, seeds.union({new_node}), num_trials)
+        old_val = diffuse_python(graph, seeds, num_trials, progress_bar=False)
+        new_val = diffuse_python(
+            graph, seeds.union({new_node}), num_trials, progress_bar=False
+        )
 
         return (new_val - old_val) / num_trials
 
