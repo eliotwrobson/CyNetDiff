@@ -652,3 +652,30 @@ def celf(
         spreads.append(spread)
 
     return S, spreads
+
+
+def draw_graph(
+    graph: DiffusionGraphT,
+    frequencies: t.Optional[t.Dict[int, int]] = None,
+    *,
+    layout_prog: str = "fdp",
+) -> None:
+    A = nx.nx_agraph.to_agraph(graph)  # convert to a graphviz graph
+    A.node_attr["width"] = 0.5
+    A.node_attr["shape"] = "circle"
+
+    if frequencies is not None:
+        heat_iterpolator = Color.interpolate(["blue", "red"], space="srgb")
+
+        max_freq = max(frequencies.values())
+        for node in graph.nodes():
+            freq = frequencies.get(node, 0)
+            viz_node = A.get_node(node)
+            viz_node.attr["fillcolor"] = heat_iterpolator(freq / max_freq).to_string(
+                hex=True
+            )
+            viz_node.attr["style"] = "filled"
+            viz_node.attr["fontcolor"] = "white"
+
+    A.layout(prog=layout_prog)
+    return A
