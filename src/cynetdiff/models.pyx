@@ -25,6 +25,9 @@ cdef class DiffusionModel:
     def get_newly_activated_nodes(self):
         raise NotImplementedError
 
+    def get_activated_nodes(self):
+        raise NotImplementedError
+
     cpdef void advance_model(self):
         # Function used to advance the model one time step.
         raise NotImplementedError
@@ -34,7 +37,6 @@ cdef class DiffusionModel:
 
     cpdef void advance_until_completion(self):
         raise NotImplementedError
-
 
 # IC Model
 cdef class IndependentCascadeModel(DiffusionModel):
@@ -76,6 +78,9 @@ cdef class IndependentCascadeModel(DiffusionModel):
     def get_newly_activated_nodes(self):
         for node in self.work_deque:
             yield node
+
+    def get_activated_nodes(self):
+        return set(self.seen_set)
 
     def get_num_activated_nodes(self):
         return self.seen_set.size()
@@ -207,6 +212,9 @@ cdef class LinearThresholdModel(DiffusionModel):
     def get_newly_activated_nodes(self):
         for node in self.work_deque:
             yield node
+
+    def get_activated_nodes(self):
+        return set(self.seen_set)
 
     def get_num_activated_nodes(self):
         return self.seen_set.size()

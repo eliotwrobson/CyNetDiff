@@ -56,6 +56,16 @@ class DiffusionModel:
             Total number of activated nodes.
         """
 
+    def get_activated_nodes(self) -> t.Set[int]:
+        """
+        Returns all activated nodes.
+
+        Returns
+        ----------
+        set[int]
+            The activated nodes.
+        """
+
 class IndependentCascadeModel(DiffusionModel):
     """
     A Diffusion Model representing the Independent Cascade process. This class is a

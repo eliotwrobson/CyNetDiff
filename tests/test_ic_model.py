@@ -185,6 +185,7 @@ def test_model_basic(directed: bool) -> None:
     seeds = set(random.sample(list(graph.nodes), k))
     model.set_seeds(seeds)
     assert set(model.get_newly_activated_nodes()) == seeds
+    assert model.get_activated_nodes() == seeds
 
     model.advance_until_completion()
     assert k <= model.get_num_activated_nodes() <= n
@@ -238,6 +239,7 @@ def test_specific_model(
         model = networkx_to_ic_model(test_graph, _include_succcess_prob=True)
 
     model.set_seeds(seeds)
+    seen_set = set()
 
     # Run twice to check that the reset works
     for _ in range(2):
@@ -246,8 +248,11 @@ def test_specific_model(
 
         for node_level in activated_nodes_levels:
             assert set(node_level) == set(model.get_newly_activated_nodes())
+            seen_set |= set(node_level)
+
             model.advance_model()
 
+        assert seen_set == model.get_activated_nodes()
         model.reset_model()
 
 

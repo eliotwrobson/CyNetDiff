@@ -197,6 +197,7 @@ def test_specific_model(directed: bool, nondefault_influence: bool) -> None:
     model = networkx_to_lt_model(test_graph)
 
     model.set_seeds(seeds)
+    seen_set = set()
 
     # Run twice to check that the reset works
     for _ in range(2):
@@ -208,7 +209,10 @@ def test_specific_model(directed: bool, nondefault_influence: bool) -> None:
             node_set = sorted(node_level)
 
             assert model_set == node_set
+            seen_set |= set(node_level)
             model.advance_model()
+
+        assert seen_set == model.get_activated_nodes()
 
         model.reset_model()
 
