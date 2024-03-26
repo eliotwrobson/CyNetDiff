@@ -1,6 +1,7 @@
 # CyNetDiff
-[![tests](https://github.com/eliotwrobson/CyNetDiff/actions/workflows/tests.yml/badge.svg)](https://github.com/eliotwrobson/CyNetDiff/actions/workflows/tests.yml)
 ![PyPI - Version](https://img.shields.io/pypi/v/cynetdiff)
+[![tests](https://github.com/eliotwrobson/CyNetDiff/actions/workflows/tests.yml/badge.svg)](https://github.com/eliotwrobson/CyNetDiff/actions/workflows/tests.yml)
+[![docs](https://github.com/eliotwrobson/CyNetDiff/actions/workflows/docs.yml/badge.svg)](https://github.com/eliotwrobson/CyNetDiff/actions/workflows/docs.yml)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/cynetdiff)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
