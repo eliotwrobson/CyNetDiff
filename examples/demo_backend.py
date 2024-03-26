@@ -313,7 +313,7 @@ def plot_num_nodes_activated(
                 alpha=0.3,
             )
 
-        plt.plot(mean_infected, label=f"{model_name} Mean Infected", color=colors[idx])
+        plt.plot(mean_infected, label=f"{model_name} Mean Activated", color=colors[idx])
 
     plt.xlabel("Iteration")
     plt.ylabel("Number of Activated Nodes")
