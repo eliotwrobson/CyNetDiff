@@ -147,7 +147,7 @@ def get_graphs() -> list[tuple[str, DiffusionGraphT]]:
     # TODO parameterize these benchmarks with
     # https://networkx.org/documentation/stable/reference/generators.html#module-networkx.generators.random_graphs
 
-    n_values = [1_000, 15_000]
+    n_values = [2_000, 10_000]
     frac_values = [0.002, 0.007]
 
     res = []
@@ -173,7 +173,7 @@ def get_graphs() -> list[tuple[str, DiffusionGraphT]]:
 
 
 def main() -> None:
-    seed_values = [1, 2, 5, 10, 20, 50, 100]
+    seed_values = [1, 5, 10, 20, 50, 100]
     num_samples_values = [1_000]
     diffusion_functions = [diffuse_CyNetDiff, diffuse_python, diffuse_ndlib]
     weighting_schemes = ["Trivalency", "Uniform", "Weighted Cascade"]
