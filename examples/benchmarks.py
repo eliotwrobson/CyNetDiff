@@ -9,7 +9,11 @@ import ndlib.models.ModelConfig as mc
 import networkx as nx
 import pandas as pd
 import pooch
-from cynetdiff.utils import networkx_to_ic_model
+from cynetdiff.utils import (
+    networkx_to_ic_model,
+    set_activation_random_sample,
+    set_activation_weighted_cascade,
+)
 from tqdm import trange
 
 DiffusionGraphT = t.Union[nx.Graph, nx.DiGraph]
@@ -17,7 +21,7 @@ SeedSetT = set[int]
 DiffusionFuncT = t.Callable[[DiffusionGraphT, SeedSetT, int], float]
 
 
-def networkx_from_edgelist() -> nx.Graph:
+def get_facebook_graph() -> nx.Graph:
     # Data from: https://snap.stanford.edu/data/index.html#socnets
 
     graph_data_file = pooch.retrieve(
@@ -33,10 +37,7 @@ def networkx_from_edgelist() -> nx.Graph:
             nodetype=int,
         )
 
-    assert fb_network is not None
-    # print("Nodes: ", fb_network.number_of_nodes())
-    # print("Edges: ", fb_network.number_of_edges())
-    # TODO get other graph data using pooch instead of downloading all that crap.
+    return fb_network
 
 
 def independent_cascade(G: DiffusionGraphT, seeds: SeedSetT) -> list[list[int]]:
@@ -80,7 +81,7 @@ def diffuse_python(graph: DiffusionGraphT, seeds: SeedSetT, num_samples: int) ->
 
     res = 0.0
     seeds = seeds
-    for _ in range(num_samples):
+    for _ in trange(num_samples):
         res += float(sum(len(level) for level in independent_cascade(graph, seeds)))
 
     return res / num_samples
@@ -146,16 +147,13 @@ def get_graphs() -> list[tuple[str, DiffusionGraphT]]:
     # TODO parameterize these benchmarks with
     # https://networkx.org/documentation/stable/reference/generators.html#module-networkx.generators.random_graphs
 
-    n_values = [100, 15_000]
+    n_values = [1_000, 15_000]
     frac_values = [0.002, 0.007]
-    threshold_values = [0.1, 0.2]
 
     res = []
 
-    for n, frac, threshold in it.product(n_values, frac_values, threshold_values):
+    for n, frac in it.product(n_values, frac_values):
         graph = nx.fast_gnp_random_graph(n, frac)
-
-        nx.set_edge_attributes(graph, threshold, "activation_prob")
 
         name = f"Gnp, n = {n}, p = {frac}"
 
@@ -163,38 +161,64 @@ def get_graphs() -> list[tuple[str, DiffusionGraphT]]:
 
     k_vals = [4, 10]
 
-    for n, k, frac, threshold in it.product(
-        n_values, k_vals, frac_values, threshold_values
-    ):
+    for n, k, frac in it.product(n_values, k_vals, frac_values):
         graph = nx.watts_strogatz_graph(n, k, frac)
-        nx.set_edge_attributes(graph, threshold, "activation_prob")
+
         name = f"Watts–Strogatz small-world graph, n = {n}, k = {k}, p = {frac}"
         res.append((name, graph))
+
+    res.append(("Facebook graph", get_facebook_graph()))
 
     return res
 
 
 def main() -> None:
-    networkx_from_edgelist()
-
-    seed_values = [1, 2, 5, 10, 20]
-    num_samples_values = [10, 200]
+    seed_values = [1, 2, 5, 10, 20, 50, 100]
+    num_samples_values = [1_000]
     diffusion_functions = [diffuse_CyNetDiff, diffuse_python, diffuse_ndlib]
+    weighting_schemes = ["Trivalency", "Uniform", "Weighted Cascade"]
 
     underlying_graphs = get_graphs()
 
     results = []
 
-    for (graph_name, graph), num_seeds, num_samples in it.product(
-        underlying_graphs, seed_values, num_samples_values
-    ):
-        seeds = set(random.sample(list(graph.nodes()), num_seeds))
+    workloads = list(
+        it.product(
+            underlying_graphs, seed_values, num_samples_values, weighting_schemes
+        )
+    )
 
+    print(f"Running {len(workloads)} benchmarks.")
+    i = 0
+
+    for (graph_name, graph), num_seeds, num_samples, scheme in workloads:
+        i += 1
+        print(f"Starting benchmark {i}/{len(workloads)}")
+        if scheme == "Trivalency":
+            graph = graph.copy()
+            set_activation_random_sample(graph, {0.1, 0.01, 0.001})
+        elif scheme == "Uniform":
+            graph = graph.copy()
+            set_activation_random_sample(graph, {0.1})
+        elif scheme == "Weighted Cascade":
+            graph = graph.to_directed()
+            set_activation_weighted_cascade(graph)
+
+        seeds = set(random.sample(list(graph.nodes()), num_seeds))
+        res_dict = {
+            "graph name": graph_name,
+            "nodes": graph.number_of_nodes(),
+            "edges": graph.number_of_edges(),
+            "num seeds": num_seeds,
+            "num samples": num_samples,
+            "weighting scheme": scheme,
+        }
+        min_time_taken = float("inf")
         for func in diffusion_functions:
             # Print the parameters before running
             print(
-                f"Running {func.__name__} on {graph_name} with {graph.number_of_nodes()} nodes, "
-                f"{graph.number_of_edges()} edges, {num_seeds} seeds, {num_samples} samples."
+                f"Running {func.__name__} on {graph_name} with {graph.number_of_nodes():,d} nodes, "
+                f"{graph.number_of_edges():,d} edges, {num_seeds} seeds, {num_samples} samples."
             )
 
             model_name, diffused, time_taken = time_diffusion(
@@ -205,22 +229,19 @@ def main() -> None:
             print(
                 f"Completed {model_name}: Diffused = {diffused}, Time = {time_taken:.4f} seconds\n"
             )
+            min_time_taken = min(min_time_taken, time_taken)
+            res_dict[func.__name__] = time_taken
 
-            results.append(
-                {
-                    "graph name": graph_name,
-                    "nodes": graph.number_of_nodes(),
-                    "edges": graph.number_of_edges(),
-                    "num seeds": num_seeds,
-                    "num samples": num_samples,
-                    "model": model_name,
-                    "diffused": diffused,
-                    "time": time_taken,
-                }
-            )
+        for func in diffusion_functions:
+            name = func.__name__
+            time_taken = res_dict[name]
+            res_dict[f"{name} normalized"] = time_taken / min_time_taken
+
+        results.append(res_dict)
 
     df = pd.DataFrame(results)
     print(df)
+    df.to_csv("benchmark_results.csv")
 
 
 if __name__ == "__main__":

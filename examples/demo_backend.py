@@ -177,10 +177,10 @@ def simple_benchmark(
     """
 
     # Number of seed nodes
-    print(f"Number of randomly chosen seed nodes: {num_seeds:_}")
-    print(f"Graph nodes: {graph.number_of_nodes():_}")
-    print(f"Graph edges: {graph.number_of_edges():_}")
-    print(f"Number of trials: {num_trials:_}")
+    print(f"Number of randomly chosen seed nodes: {num_seeds:,d}")
+    print(f"Graph nodes: {graph.number_of_nodes():,d}")
+    print(f"Graph edges: {graph.number_of_edges():,d}")
+    print(f"Number of trials: {num_trials:,d}")
     seeds = random.sample(list(graph.nodes()), num_seeds)
 
     if "ndlib" in backends_to_run:
