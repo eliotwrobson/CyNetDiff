@@ -196,13 +196,13 @@ def simple_benchmark(
         avg_cynetdiff = diffuse_CyNetDiff(graph, seeds, num_trials)
 
     if "ndlib" in backends_to_run:
-        print("NDlib avg activated:", avg_ndlib)
+        print("NDlib computed influence:", avg_ndlib)
 
     if "python" in backends_to_run:
-        print("Pure Python avg activated:", avg_python)
+        print("Pure Python computed influence:", avg_python)
 
     if "cynetdiff" in backends_to_run:
-        print("CyNetDiff avg activated:", avg_cynetdiff)
+        print("CyNetDiff computed influence:", avg_cynetdiff)
 
 
 @timing
@@ -313,10 +313,10 @@ def plot_num_nodes_activated(
                 alpha=0.3,
             )
 
-        plt.plot(mean_infected, label=f"{model_name} Mean Activated", color=colors[idx])
+        plt.plot(mean_infected, label=f"{model_name} Influence", color=colors[idx])
 
     plt.xlabel("Iteration")
-    plt.ylabel("Number of Activated Nodes")
+    plt.ylabel("Influence")
     plt.title("Diffusion Process Over Time")
     plt.legend()
     plt.show()
