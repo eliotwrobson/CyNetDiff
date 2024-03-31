@@ -501,16 +501,18 @@ def compute_marginal_gain(
     Returns:
     - The average marginal gain in the spread of influence by adding the new node.
     """
-    original_spread = 0
-    new_spread = 0
 
     if method == "cynetdiff":
-        cynetdiff_model.set_seeds(seeds)
+        original_spread = 0
+        new_spread = 0
+        # If no seeds at the beginning, original spread is always just zero.
+        if len(seeds) > 0:
+            cynetdiff_model.set_seeds(seeds)
 
-        for _ in range(num_trials):
-            cynetdiff_model.reset_model()
-            cynetdiff_model.advance_until_completion()
-            original_spread += cynetdiff_model.get_num_activated_nodes()
+            for _ in range(num_trials):
+                cynetdiff_model.reset_model()
+                cynetdiff_model.advance_until_completion()
+                original_spread += cynetdiff_model.get_num_activated_nodes()
 
         new_seeds = seeds.union({new_node})
         cynetdiff_model.set_seeds(new_seeds)
@@ -526,16 +528,17 @@ def compute_marginal_gain(
         total_activated_old = 0.0
         total_activated_new = 0.0
 
-        for _ in range(num_trials):
-            ndlib_model.reset(seeds)
-            prev_iter_count = ndlib_model.iteration()["node_count"]
-            curr_iter_count = ndlib_model.iteration()["node_count"]
-
-            while prev_iter_count != curr_iter_count:
-                prev_iter_count = curr_iter_count
+        if len(seeds) > 0:
+            for _ in range(num_trials):
+                ndlib_model.reset(seeds)
+                prev_iter_count = ndlib_model.iteration()["node_count"]
                 curr_iter_count = ndlib_model.iteration()["node_count"]
 
-            total_activated_old += curr_iter_count[2]
+                while prev_iter_count != curr_iter_count:
+                    prev_iter_count = curr_iter_count
+                    curr_iter_count = ndlib_model.iteration()["node_count"]
+
+                total_activated_old += curr_iter_count[2]
 
         new_seeds = seeds.union({new_node})
 
@@ -553,7 +556,11 @@ def compute_marginal_gain(
         return (total_activated_new - total_activated_old) / num_trials
 
     elif method == "python":
-        old_val = diffuse_python(graph, seeds, num_trials, progress_bar=False)
+        old_val = 0
+
+        if len(seeds) > 0:
+            old_val = diffuse_python(graph, seeds, num_trials, progress_bar=False)
+
         new_val = diffuse_python(
             graph, seeds.union({new_node}), num_trials, progress_bar=False
         )
