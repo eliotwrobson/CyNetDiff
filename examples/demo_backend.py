@@ -556,7 +556,7 @@ def compute_marginal_gain(
         return (total_activated_new - total_activated_old) / num_trials
 
     elif method == "python":
-        old_val = 0
+        old_val = 0.0
 
         if len(seeds) > 0:
             old_val = diffuse_python(graph, seeds, num_trials, progress_bar=False)
