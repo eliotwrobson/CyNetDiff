@@ -264,7 +264,7 @@ def plot_num_nodes_activated(
         for _ in range(num_trials):
             model.reset_model()
 
-            infected_nodes_over_time: t.List[int] = []
+            infected_nodes_over_time: t.List[int] = [model.get_num_activated_nodes()]
             previous_activated = -1
             current_activated = 0
 
@@ -292,6 +292,8 @@ def plot_num_nodes_activated(
     for idx, (model_name, graph_data) in enumerate(padded_all_graphs_data):
         mean_infected = np.mean(graph_data, axis=0)
 
+        # print(model_name, idx, mean_infected)
+
         if plot_iqr:
             iqr_values = [
                 np.percentile(
@@ -315,8 +317,8 @@ def plot_num_nodes_activated(
 
         plt.plot(mean_infected, label=f"{model_name} Influence", color=colors[idx])
 
-    plt.xlabel("Iteration")
-    plt.ylabel("Influence")
+    plt.xlabel("Model Iteration")
+    plt.ylabel("Activated Nodes")
     plt.title("Diffusion Process Over Time")
     plt.legend()
     plt.show()
@@ -649,7 +651,6 @@ def celf(
             )
 
             if new_mg_neg > current_mg:
-                heapq.heappush(marg_gain, (new_mg_neg, current_node))
                 break
             else:
                 heapq.heappush(marg_gain, (current_mg, current_node))
