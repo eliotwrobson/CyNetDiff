@@ -567,7 +567,7 @@ def compute_marginal_gain(
             graph, seeds.union({new_node}), num_trials, progress_bar=False
         )
 
-        return (new_val - old_val) / num_trials
+        return new_val - old_val
 
     else:
         raise ValueError(f'Invalid method "{method}"')

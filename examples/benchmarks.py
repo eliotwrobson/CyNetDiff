@@ -126,7 +126,7 @@ def diffuse_ndlib(graph: DiffusionGraphT, seeds: SeedSetT, num_samples: int) -> 
         while prev_iter_count != curr_iter_count:
             prev_iter_count = curr_iter_count
             curr_iter_count = model.iteration()["node_count"]
-        # print(curr_iter_count[2])
+
         total_infected += curr_iter_count[2]
 
     return total_infected / num_samples
