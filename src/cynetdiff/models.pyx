@@ -65,7 +65,11 @@ cdef class IndependentCascadeModel(DiffusionModel):
 
     def set_seeds(self, seeds):
         self.original_seeds.clear()
+        n = len(self.starts)
+
         for seed in seeds:
+            if not (isinstance(seed, int) and 0 <= seed < n):
+                raise ValueError(f"Invalid seed node: {seed}. Must be in the range [0, {n-1}]")
             self.original_seeds.insert(seed)
 
         self.reset_model()
@@ -80,7 +84,8 @@ cdef class IndependentCascadeModel(DiffusionModel):
             yield node
 
     def get_activated_nodes(self):
-        return set(self.seen_set)
+        for node in self.seen_set:
+            yield node
 
     def get_num_activated_nodes(self):
         return self.seen_set.size()
@@ -194,7 +199,11 @@ cdef class LinearThresholdModel(DiffusionModel):
 
     def set_seeds(self, seeds):
         self.original_seeds.clear()
+        n = len(self.starts)
+
         for seed in seeds:
+            if not (isinstance(seed, int) and 0 <= seed < n):
+                raise ValueError(f"Invalid seed node: {seed}. Must be in the range [0, {n-1}]")
             self.original_seeds.insert(seed)
 
         self.reset_model()
@@ -214,7 +223,8 @@ cdef class LinearThresholdModel(DiffusionModel):
             yield node
 
     def get_activated_nodes(self):
-        return set(self.seen_set)
+        for node in self.seen_set:
+            yield node
 
     def get_num_activated_nodes(self):
         return self.seen_set.size()

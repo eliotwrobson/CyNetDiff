@@ -185,7 +185,7 @@ def test_model_basic(directed: bool) -> None:
     seeds = set(random.sample(list(graph.nodes), k))
     model.set_seeds(seeds)
     assert set(model.get_newly_activated_nodes()) == seeds
-    assert model.get_activated_nodes() == seeds
+    assert set(model.get_activated_nodes()) == seeds
 
     model.advance_until_completion()
     assert k <= model.get_num_activated_nodes() <= n
@@ -252,7 +252,7 @@ def test_specific_model(
 
             model.advance_model()
 
-        assert seen_set == model.get_activated_nodes()
+        assert seen_set == set(model.get_activated_nodes())
         model.reset_model()
 
 
@@ -275,3 +275,21 @@ def test_basic_2(directed: bool) -> None:
     model.advance_until_completion()
 
     assert num_seen == model.get_num_activated_nodes()
+
+
+def test_invalid_seed_error() -> None:
+    n = 1000
+    p = 0.01
+    test_graph = generate_random_graph_from_seed(n, p, False)
+
+    model = networkx_to_ic_model(test_graph)
+
+    with pytest.raises(ValueError):
+        model.set_seeds({-1})  # Insert a seed not in the graph
+
+    with pytest.raises(ValueError):
+        model.set_seeds({0, 1, 4, n})  # Insert a seed not in the graph
+
+    with pytest.raises(ValueError):
+        model.set_seeds({0.1})  # Insert a seed not in the graph
+        model.advance_until_completion()

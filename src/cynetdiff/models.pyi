@@ -38,12 +38,18 @@ class DiffusionModel:
 
     def set_seeds(self, seeds: t.Iterable[int]) -> None:
         """
-        Sets the initial active nodes (seeds) for the diffusion process.
+        Sets the initial active nodes (seeds) for the diffusion process. Must
+        be valid nodes in the graph.
 
         Parameters
         ----------
         seeds : Iterable[int]
             Seeds to set as initially active.
+
+        Raises
+        ------
+        ValueError
+            If a node in the seed set is invalid (not in the graph).
         """
 
     def get_num_activated_nodes(self) -> int:
@@ -56,14 +62,14 @@ class DiffusionModel:
             Total number of activated nodes.
         """
 
-    def get_activated_nodes(self) -> t.Set[int]:
+    def get_activated_nodes(self) -> t.Generator[int, None, None]:
         """
-        Returns all activated nodes.
+        Yields all activated nodes.
 
-        Returns
+        Yields
         ----------
-        set[int]
-            The activated nodes.
+        int
+            All of the currently activated nodes.
         """
 
 class IndependentCascadeModel(DiffusionModel):

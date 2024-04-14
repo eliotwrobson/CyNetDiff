@@ -212,7 +212,7 @@ def test_specific_model(directed: bool, nondefault_influence: bool) -> None:
             seen_set |= set(node_level)
             model.advance_model()
 
-        assert seen_set == model.get_activated_nodes()
+        assert seen_set == set(model.get_activated_nodes())
 
         model.reset_model()
 
@@ -225,3 +225,21 @@ def test_specific_model(directed: bool, nondefault_influence: bool) -> None:
     # TODO this test passes with high-enough probability. Refactor to avoid a possible
     # random failure,
     assert total_num != model.get_num_activated_nodes()
+
+
+def test_invalid_seed_error() -> None:
+    n = 1000
+    p = 0.01
+    test_graph = generate_random_graph_from_seed(n, p, False, True)
+
+    model = networkx_to_lt_model(test_graph)
+
+    with pytest.raises(ValueError):
+        model.set_seeds({-1})  # Insert a seed not in the graph
+
+    with pytest.raises(ValueError):
+        model.set_seeds({0, 1, 4, n})  # Insert a seed not in the graph
+
+    with pytest.raises(ValueError):
+        model.set_seeds({0.1})  # Insert a seed not in the graph
+        model.advance_until_completion()
