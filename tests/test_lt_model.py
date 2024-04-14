@@ -241,5 +241,5 @@ def test_invalid_seed_error() -> None:
         model.set_seeds({0, 1, 4, n})  # Insert a seed not in the graph
 
     with pytest.raises(ValueError):
-        model.set_seeds({0.1})  # Insert a seed not in the graph
+        model.set_seeds({0.1})  # type: ignore[arg-type]
         model.advance_until_completion()
