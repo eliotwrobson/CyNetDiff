@@ -57,3 +57,7 @@ the API is still relatively undocumented, not yet fully featured, and
 could still change.
 
 All feedback is greatly appreciated!
+
+## Contributing
+
+Contributions are always welcome! Take a look at the [contributing guide](./CONTRIBUTING.md).
