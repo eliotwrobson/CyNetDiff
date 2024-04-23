@@ -6,6 +6,10 @@ authors = ["Eliot W. Robson <eliot.robson24@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 packages = [{ include = "cynetdiff", from = "src" }]
+maintainers = [
+    "Eliot W. Robson <eliot.robson24@gmail.com>",
+    "Abhishek K. Umrawal <aumrawal@illinois.edu>",
+]
 
 #TODO version classifiers may not be needed.
 classifiers = [
