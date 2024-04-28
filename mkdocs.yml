@@ -113,7 +113,8 @@ nav:
       - CONTRIBUTING.md
       - CODE_OF_CONDUCT.md
   - Examples:
-      - examples/examples.md
+      - examples/activated.md
+      - examples/celf.md
   - API:
       - api/index.md
       - Utilities: api/utils.md

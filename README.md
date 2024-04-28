@@ -20,7 +20,7 @@ pip install cynetdiff
 ```
 *Note:* The installation includes a build step that requires having a C++ complier installed.
 
-### Usage
+### Basic Usage
 We can run models over graphs we define, using pre-defined weighting schemes. Here is a simple
 example:
 ```python
@@ -70,8 +70,7 @@ avg = total / n_sim
 ## Project Status
 
 This project is still considered in an alpha stage of development. As such,
-the API is still relatively undocumented, not yet fully featured, and
-could still change.
+the API could still change to facilitate easier community adoption.
 
 All feedback is greatly appreciated!
 
