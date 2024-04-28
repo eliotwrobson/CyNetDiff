@@ -59,4 +59,4 @@ All feedback is greatly appreciated!
 
 ## Contributing
 
-Contributions are always welcome! Take a look at the [contributing guide](contributing.md).
+Contributions are always welcome! Take a look at the [contributing guide](CONTRIBUTING.md).

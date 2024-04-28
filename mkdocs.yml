@@ -111,8 +111,8 @@ copyright: Copyright &copy; 2024 Eliot Robson, Abhishek K. Umrawal
 nav:
   - Introduction:
       - index.md
-      - contributing.md
-      - code_of_conduct.md
+      - CONTRIBUTING.md
+      - CODE_OF_CONDUCT.md
   - Examples:
       - examples/examples.md
   - API:
