@@ -22,7 +22,7 @@ pip install cynetdiff
 
 ### Usage
 We can run models over graphs we define, using pre-defined weighting schemes. Here is a simple
-example
+example:
 ```python
 import random
 import networkx as nx
@@ -42,11 +42,29 @@ seeds = random.sample(nodes, k)
 model = networkx_to_ic_model(graph, activation_prob=0.2)
 model.set_seeds(seeds)
 
-# Run the diffusion process
+# Run a single diffusion process until completion
 model.advance_until_completion()
 
 # Get the number of nodes activated
 model.get_num_activated_nodes()
+```
+
+The output from the last line is the number of nodes activated in a single
+simulation of the model. To get the average number of activated nodes
+across `n_sim = 1_000` simulations, we can replace the last line in the
+above with the following:
+
+```python
+n_sim = 1_000
+total = 0.0
+
+for _ in range(n_sim):
+    # Resetting the model doesn't change the initial seed set used.
+    model.reset_model()
+    model.advance_until_completion()
+    total += model.get_num_activated_nodes()
+
+avg = total / n_sim
 ```
 
 ## Project Status
