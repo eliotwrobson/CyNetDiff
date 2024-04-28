@@ -112,6 +112,7 @@ nav:
   - Introduction:
       - index.md
       - contributing.md
+      - code_of_conduct.md
   - Examples:
       - examples/examples.md
   - API:

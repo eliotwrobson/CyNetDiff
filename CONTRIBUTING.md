@@ -3,7 +3,7 @@
 ## Code of Conduct
 
 When interacting with other users and maintainers, please be sure to abide by
-the [Code of Conduct](./CODE_OF_CONDUCT.md).
+the [Code of Conduct](code_of_conduct.md).
 
 ## Submitting an issue
 
