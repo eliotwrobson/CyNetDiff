@@ -16,13 +16,14 @@ the seed set which has the highest marginal gain. This is repeated until the bud
 ## Computing Marginal Gains
 
 To implement this, we first need a specialized function to compute the marginal gain of adding a node to a
-given seed set. `CyNetDiff` allows us to accomplish this task very quickly:
+given seed set. In this example, we focus on the independent cascade model.
+`CyNetDiff` allows us to accomplish this task very quickly:
 
 ```python
-from cynetdiff.models import DiffusionModel
+from cynetdiff.models import IndependentCascadeModel
 
 def compute_marginal_gain(
-    model: DiffusionModel,
+    model: IndependentCascadeModel,
     new_node: int,
     seeds: set[int],
     num_trials: int = 1_000,
