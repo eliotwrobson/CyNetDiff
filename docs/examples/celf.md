@@ -165,7 +165,7 @@ The `celf` function also works with the Linear Threshold diffusion model:
 for n1, n2, d in graph.edges(data=True):
     d.clear()
 
-# Next, create the model using the default weighting scheme.
+# Next, create the new linear threshold model using the default weighting scheme.
 celf_lt_model = networkx_to_lt_model(celf_graph)
 
 num_seeds = 20
