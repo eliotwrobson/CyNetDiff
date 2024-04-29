@@ -148,11 +148,11 @@ from cynetdiff.utils import networkx_to_ic_model, set_activation_random_sample
 
 n = 5_000
 # Randomly generate the graph
-celf_graph = nx.random_regular_graph(7, n).to_directed()
+ic_graph = nx.random_regular_graph(7, n).to_directed()
 # Set activation probabilites
-set_activation_random_sample(celf_graph, {0.1, 0.01, 0.001})
+set_activation_random_sample(ic_graph, {0.1, 0.01, 0.001})
 # Create corresponding model
-celf_ic_model = networkx_to_ic_model(celf_graph)
+celf_ic_model = networkx_to_ic_model(ic_graph)
 
 num_seeds = 20
 # Get best seed set returned by the algorithm
@@ -165,12 +165,12 @@ The `celf` function also works with the Linear Threshold diffusion model:
 ```python
 from cynetdiff.utils import networkx_to_lt_model
 
-# First, remove the old edge data
-for n1, n2, d in celf_graph.edges(data=True):
-    d.clear()
+n = 5_00
+# Randomly generate the graph
+lt_graph = nx.random_regular_graph(7, n).to_directed()
 
-# Next, create the new linear threshold model using the default weighting scheme.
-celf_lt_model = networkx_to_lt_model(celf_graph)
+# Set weighting scheme
+celf_lt_model = networkx_to_lt_model(lt_graph)
 
 num_seeds = 20
 # Get best seed set returned by the algorithm
