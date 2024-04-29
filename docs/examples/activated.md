@@ -14,7 +14,8 @@ from cynetdiff.utils import networkx_to_ic_model
 # Randomly generate the graph
 n = 1_000
 p = 0.05
-graph = nx.fast_gnp_random_graph(n, p)
+k = 10
+graph = small_world_graph = nx.watts_strogatz_graph(n, k, p)
 
 # Randomly choose seed nodes
 k = 10
@@ -67,7 +68,9 @@ each node has been activated in. To get the top `l = 50` activated nodes,
 we can run the following:
 
 ```python
-nodes_sorted_by_activation_frequency = sorted(times_seen.items(), key=lambda node, freq: freq)
+nodes_sorted_by_activation_frequency = sorted(
+    times_seen.items(), key=lambda pair: -pair[1]
+)
 l = 50
-nodes_sorted_by_activation_frequency[:l]
+print(nodes_sorted_by_activation_frequency[:l])
 ```
