@@ -3,8 +3,8 @@
 ## Motivation and Starter Code
 
 Instead of just the number of activated nodes, suppose that we want
-to get the nodes themselves. We start with the same code as the basic
-example from the reademe:
+to get the nodes themselves. We start with similar code as the basic
+example from the README:
 
 ```python
 import random
@@ -30,7 +30,7 @@ model.set_seeds(seeds)
 ## Obtaining the activated nodes
 
 Next, we run the model until completion and can view the
-nodes that were activated.
+nodes that were activated:
 
 ```python
 model.advance_until_completion()
