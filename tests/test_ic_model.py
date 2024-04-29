@@ -14,6 +14,12 @@ from cynetdiff.utils import (
 Graph = t.Union[nx.Graph, nx.DiGraph]
 
 
+#    Code below adapted from code by
+#    Hung-Hsuan Chen <hhchen@psu.edu>
+#    All rights reserved.
+#    BSD license.
+
+
 def independent_cascade(
     G: Graph,
     seeds: t.Iterable[int],
@@ -293,3 +299,15 @@ def test_invalid_seed_error() -> None:
     with pytest.raises(ValueError):
         model.set_seeds({0.1})  # type: ignore[arg-type]
         model.advance_until_completion()
+
+
+def test_duplicate_arguments() -> None:
+    n = 1000
+    p = 0.01
+    test_graph = generate_random_graph_from_seed(n, p, False)
+
+    for _, _, data in test_graph.edges(data=True):
+        data["activation_prob"] = random.random()
+
+    with pytest.raises(ValueError):
+        networkx_to_ic_model(test_graph, activation_prob=0.1)

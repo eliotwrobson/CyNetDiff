@@ -154,8 +154,7 @@ cdef class LinearThresholdModel(DiffusionModel):
             array.array starts,
             array.array edges,
             *,
-            array.array influence = None,
-            array.array thresholds = None
+            array.array influence = None
         ):
 
         cdef unsigned int i
@@ -187,16 +186,6 @@ cdef class LinearThresholdModel(DiffusionModel):
 
             self.influence = influence_arr
 
-
-        # Setting activation threshold at each node if provided
-        if thresholds is not None:
-            # If provided, copy from user code
-            assert n == len(thresholds)
-
-            # Make a copy to avoid destroying memory on resets.
-            for i in range(n):
-                self.thresholds[i] = thresholds[i]
-
     def set_seeds(self, seeds):
         self.original_seeds.clear()
         n = len(self.starts)
@@ -208,15 +197,21 @@ cdef class LinearThresholdModel(DiffusionModel):
 
         self.reset_model()
 
-    # TODO figure out if we want to refactor this.
-    cpdef void reassign_thresholds(self):
-        self.thresholds.clear()
+    cpdef void _assign_thresholds(self, array.array node_thresholds):
+        # If provided, copy from user code
+        cdef unsigned int n = len(self.starts)
+        assert n == len(node_thresholds)
+
+        # Make a copy to avoid destroying memory on resets.
+        for i in range(n):
+            self.thresholds[i] = node_thresholds[i]
 
     cpdef void reset_model(self):
         self.work_deque.assign(self.original_seeds.begin(), self.original_seeds.end())
         self.seen_set.clear()
         self.seen_set.insert(self.original_seeds.begin(), self.original_seeds.end())
         self.buckets.clear()
+        self.thresholds.clear()
 
     def get_newly_activated_nodes(self):
         for node in self.work_deque:
@@ -278,6 +273,8 @@ cdef class LinearThresholdModel(DiffusionModel):
 
                     if thresholds.count(child) == 0:
                         thresholds[child] = next_rand()
+                        while thresholds[child] == 0.0:
+                            thresholds[child] = next_rand()
 
                     threshold = thresholds[child]
 

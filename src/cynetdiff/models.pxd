@@ -40,7 +40,9 @@ cdef class LinearThresholdModel(DiffusionModel):
     cdef cmap[unsigned int, float] thresholds
     cdef cmap[unsigned int, float] buckets
 
-    cpdef void reassign_thresholds(self)
+    # Mostly for testing
+    cpdef void _assign_thresholds(self, array.array node_thresholds)
+
     cdef int __advance_model(
         self,
         cdeque[unsigned int]& work_deque,

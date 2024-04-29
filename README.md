@@ -20,9 +20,9 @@ pip install cynetdiff
 ```
 *Note:* The installation includes a build step that requires having a C++ complier installed.
 
-### Usage
+### Basic Usage
 We can run models over graphs we define, using pre-defined weighting schemes. Here is a simple
-example
+example:
 ```python
 import random
 import networkx as nx
@@ -42,21 +42,41 @@ seeds = random.sample(nodes, k)
 model = networkx_to_ic_model(graph, activation_prob=0.2)
 model.set_seeds(seeds)
 
-# Run the diffusion process
+# Run a single diffusion process until completion
 model.advance_until_completion()
 
 # Get the number of nodes activated
 model.get_num_activated_nodes()
 ```
 
+The output from the last line is the number of nodes activated in a single
+simulation of the model. To get the average number of activated nodes
+across `n_sim = 1_000` simulations, we can replace the last line in the
+above with the following:
+
+```python
+n_sim = 1_000
+total = 0.0
+
+for _ in range(n_sim):
+    # Resetting the model doesn't change the initial seed set used.
+    model.reset_model()
+    model.advance_until_completion()
+    total += model.get_num_activated_nodes()
+
+avg = total / n_sim
+```
+
+### Advanced Usage
+See the [documentation](https://eliotwrobson.github.io/CyNetDiff/examples/activated/).
+
 ## Project Status
 
 This project is still considered in an alpha stage of development. As such,
-the API is still relatively undocumented, not yet fully featured, and
-could still change.
+the API could still change to facilitate easier community adoption.
 
 All feedback is greatly appreciated!
 
 ## Contributing
 
-Contributions are always welcome! Take a look at the [contributing guide](./CONTRIBUTING.md).
+Contributions are always welcome! Take a look at the [contributing guide](CONTRIBUTING.md).

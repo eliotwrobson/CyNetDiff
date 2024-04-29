@@ -88,6 +88,8 @@ def networkx_to_ic_model(
     """
     Converts a NetworkX graph into an Independent Cascade model. Includes activation
     probability values if they are defined on each edge under the key `"activation_prob"`.
+    Activation probability should only be set on either edges or through the function
+    argument, not both.
 
     Parameters
     ----------
@@ -119,7 +121,13 @@ def networkx_to_ic_model(
         success_prob = array.array("f")
 
     if next(iter(graph.edges.data("activation_prob", None)))[2] is not None:
-        assert activation_prob is None  # Don't have both things set.
+        # Don't have both things set.
+        if activation_prob is not None:
+            raise ValueError(
+                "Activation probability set on both graph data and function argument, "
+                "only one should be set."
+            )
+
         activation_probs = array.array("f")
 
     curr_start = 0
@@ -165,8 +173,7 @@ def networkx_to_ic_model(
 def networkx_to_lt_model(graph: Graph) -> LinearThresholdModel:
     """
     Converts a NetworkX graph into a Linear Threshold model. Includes influence
-    values if they are defined on each edge under the key `"influence"`. Includes
-    threshold values if they are defined on each node under the key `"threshold"`.
+    values if they are defined on each edge under the key `"influence"`.
 
     Parameters
     ----------
@@ -179,23 +186,19 @@ def networkx_to_lt_model(graph: Graph) -> LinearThresholdModel:
         An instance of LinearThresholdModel using the given graph.
     """
 
-    node_list = list(enumerate(graph.nodes(data=True)))
-    node_mapping = {node: i for i, (node, _) in node_list}
+    node_list = list(enumerate(graph.nodes()))
+    node_mapping = {node: i for i, node in node_list}
 
     starts = array.array("I")
     edges = array.array("I")
 
-    thresholds = None
     influence = None
 
     if next(iter(graph.edges.data("influence", None)))[2] is not None:
         influence = array.array("f")
 
-    if next(iter(graph.nodes.data("threshold", None)))[1] is not None:
-        thresholds = array.array("f")
-
     curr_successor = 0
-    for _, (node, data) in node_list:
+    for _, node in node_list:
         # First, add to out neighbors
         starts.append(curr_successor)
         for successor in graph.successors(node):
@@ -222,14 +225,10 @@ def networkx_to_lt_model(graph: Graph) -> LinearThresholdModel:
                     "must be less than 1.0."
                 )
 
-        if thresholds is not None:
-            threshold = data["threshold"]
-            assert 0.0 <= threshold <= 1.0
-            thresholds.append(threshold)
-
-    return LinearThresholdModel(
+    model = LinearThresholdModel(
         starts,
         edges,
-        thresholds=thresholds,
         influence=influence,
     )
+
+    return model
