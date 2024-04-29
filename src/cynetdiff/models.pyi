@@ -125,10 +125,6 @@ class LinearThresholdModel(DiffusionModel):
         An array of influence values for each edge. Array elements must be
         `float`s in [`0.0`,`1.0`]. If not set, the inverse of the in-degree of a node
         is used for the influence.
-    thresholds : array.array, optional
-        An array of activation thresholds for each node. Array elements must be
-        `float`s in [`0.0`,`1.0`]. If not set, defaults to setting thresholds
-        uniformly at random in the range.
     """
 
     def __init__(
@@ -137,10 +133,10 @@ class LinearThresholdModel(DiffusionModel):
         edges: array.array,
         *,
         influence: t.Optional[array.array] = None,
-        thresholds: t.Optional[array.array] = None,
     ) -> None: ...
-    def reassign_thresholds(self) -> None:
+    def _assign_thresholds(self, node_thresholds: array.array) -> None:
         """
-        Randomly assign new thresholds by choosing them from uniformly
-        the range [`0.0`, `1.0`]. Usually done before re-running the model.
+        Assigns activation thresholds from the given array. Should mainly be used for
+        testing.
         """
+        ...

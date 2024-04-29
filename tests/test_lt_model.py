@@ -1,3 +1,4 @@
+import array
 import copy
 import random
 import typing as t
@@ -176,6 +177,17 @@ def generate_random_graph_from_seed(
     return graph
 
 
+def get_thresholds(graph: nx.DiGraph) -> array.array:
+    thresholds = array.array("f")
+
+    for _, data in graph.nodes(data=True):
+        threshold = data["threshold"]
+        assert 0.0 <= threshold <= 1.0
+        thresholds.append(threshold)
+
+    return thresholds
+
+
 # Start of actual test code
 
 
@@ -199,32 +211,28 @@ def test_specific_model(directed: bool, nondefault_influence: bool) -> None:
     model.set_seeds(seeds)
     seen_set = set()
 
-    # Run twice to check that the reset works
-    for _ in range(2):
-        assert model.get_num_activated_nodes() == len(seeds)
-        assert len(sorted(model.get_newly_activated_nodes())) == len(seeds)
+    assert model.get_num_activated_nodes() == len(seeds)
+    assert len(sorted(model.get_newly_activated_nodes())) == len(seeds)
 
-        for node_level in activated_nodes_levels:
-            model_set = sorted(model.get_newly_activated_nodes())
-            node_set = sorted(node_level)
+    model._assign_thresholds(get_thresholds(test_graph))
 
-            assert model_set == node_set
-            seen_set |= set(node_level)
-            model.advance_model()
+    for node_level in activated_nodes_levels:
+        model_set = sorted(model.get_newly_activated_nodes())
+        node_set = sorted(node_level)
 
-        assert seen_set == set(model.get_activated_nodes())
+        assert model_set == node_set
+        seen_set |= set(node_level)
+        model.advance_model()
 
-        model.reset_model()
+    assert seen_set == set(model.get_activated_nodes())
 
-    total_num = sum(map(len, activated_nodes_levels))
-
-    # Reassigning the threshold should change the total number of activated nodes
-    model.reassign_thresholds()
+    # Resetting should change the total number of activated nodes
+    model.reset_model()
     model.advance_until_completion()
 
     # TODO this test passes with high-enough probability. Refactor to avoid a possible
     # random failure,
-    assert total_num != model.get_num_activated_nodes()
+    assert seen_set != set(model.get_activated_nodes())
 
 
 def test_invalid_seed_error() -> None:
