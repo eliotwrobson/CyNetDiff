@@ -11,7 +11,6 @@ from cynetdiff.utils import networkx_to_lt_model
 #    Hung-Hsuan Chen <hhchen@psu.edu>
 #    All rights reserved.
 #    BSD license.
-#    NetworkX:http://networkx.lanl.gov/.
 
 
 def linear_threshold(

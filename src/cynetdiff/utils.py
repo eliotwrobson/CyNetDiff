@@ -88,6 +88,8 @@ def networkx_to_ic_model(
     """
     Converts a NetworkX graph into an Independent Cascade model. Includes activation
     probability values if they are defined on each edge under the key `"activation_prob"`.
+    Activation probability should only be set on either edges or through the function
+    argument, not both.
 
     Parameters
     ----------
@@ -119,7 +121,13 @@ def networkx_to_ic_model(
         success_prob = array.array("f")
 
     if next(iter(graph.edges.data("activation_prob", None)))[2] is not None:
-        assert activation_prob is None  # Don't have both things set.
+        # Don't have both things set.
+        if activation_prob is not None:
+            raise ValueError(
+                "Activation probability set on both graph data and function argument, "
+                "only one should be set."
+            )
+
         activation_probs = array.array("f")
 
     curr_start = 0

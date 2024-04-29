@@ -20,10 +20,10 @@ given seed set. In this example, we focus on the independent cascade model.
 `CyNetDiff` allows us to accomplish this task very quickly:
 
 ```python
-from cynetdiff.models import IndependentCascadeModel
+from cynetdiff.models import DiffusionModel
 
 def compute_marginal_gain(
-    model: IndependentCascadeModel,
+    model: DiffusionModel,
     new_node: int,
     seeds: set[int],
     num_trials: int = 1_000,
@@ -150,9 +150,25 @@ celf_graph = nx.random_regular_graph(7, 5_000).to_directed()
 # Set activation probabilites
 set_activation_random_sample(celf_graph, {0.1, 0.01, 0.001})
 # Create corresponding model
-celf_model = networkx_to_ic_model(celf_graph)
+celf_ic_model = networkx_to_ic_model(celf_graph)
 
 num_seeds = 20
 # Get best seed set returned by the algorithm
-celf_seeds, marg_gains = celf(celf_model, num_seeds)
+celf_ic_seeds, ic_marg_gains = celf(celf_ic_model, num_seeds)
+```
+
+## Trying Different Models
+The `celf` function also works with the Linear Threshold diffusion model:
+
+```python
+# First, remove the old edge data
+for n1, n2, d in graph.edges(data=True):
+    d.clear()
+
+# Next, create the model using the default weighting scheme.
+celf_lt_model = networkx_to_lt_model(celf_graph)
+
+num_seeds = 20
+# Get best seed set returned by the algorithm
+celf_lt_seeds, lt_marg_gains = celf(celf_lt_model, num_seeds)
 ```
