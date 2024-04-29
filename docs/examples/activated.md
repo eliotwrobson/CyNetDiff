@@ -1,4 +1,6 @@
-# Manipulating activated nodes
+# Observing Activated Nodes
+
+## Motivation and Starter Code
 
 Instead of just the number of activated nodes, suppose that we want
 to get the nodes themselves. We start with the same code as the basic
@@ -24,6 +26,8 @@ model = networkx_to_ic_model(graph, activation_prob=0.2)
 model.set_seeds(seeds)
 ```
 
+## Obtaining the activated nodes
+
 Next, we run the model until completion and can view the
 nodes that were activated.
 
@@ -31,6 +35,8 @@ nodes that were activated.
 model.advance_until_completion()
 activated_nodes = set(model.get_activated_nodes())
 ```
+
+## Counting the number of activations
 
 This functionality is useful in cases where we are
 interested in how often particular nodes are activated.
@@ -53,6 +59,8 @@ for _ in range(n_sim):
         # Increment seen counter for each node
         times_seen[activated_node] += 1
 ```
+
+## Getting the most frequently activated nodes
 
 The `times_seen` dictionary now contains the number of simulations
 each node has been activated in. To get the top `l = 50` activated nodes,

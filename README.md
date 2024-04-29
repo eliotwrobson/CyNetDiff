@@ -67,6 +67,9 @@ for _ in range(n_sim):
 avg = total / n_sim
 ```
 
+### Advanced Usage
+See the [documentation](https://eliotwrobson.github.io/CyNetDiff/examples/activated/)
+
 ## Project Status
 
 This project is still considered in an alpha stage of development. As such,
