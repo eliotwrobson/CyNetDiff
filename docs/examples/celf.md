@@ -20,12 +20,13 @@ given seed set. In this example, we focus on the independent cascade model.
 `CyNetDiff` allows us to accomplish this task very quickly:
 
 ```python
+import typing as t
 from cynetdiff.models import DiffusionModel
 
 def compute_marginal_gain(
     model: DiffusionModel,
     new_node: int,
-    seeds: set[int],
+    seeds_list: t.List[int],
     num_trials: int = 1_000,
 ) -> float:
     """
@@ -41,7 +42,7 @@ def compute_marginal_gain(
     Returns:
     - The average marginal gain in the spread of influence by adding the new node.
     """
-
+    seeds = set(seeds_list)
     original_spread = 0
     new_spread = 0
     # If no seeds at the beginning, original spread is always just zero.
@@ -72,11 +73,11 @@ With this function, implementing the rest of the algorithm is straightforward.
 
 ```python
 from tqdm import tqdm, trange
-from cynetdiff.utils import networkx_to_ic_model
+import heapq
 
 
 def celf(
-    model: DiffusionModel, k: int, num_trials: int = 1_000
+    model: DiffusionModel, n: int, k: int, num_trials: int = 1_000
 ) -> t.Tuple[t.Set[int], t.List[float]]:
     """
     Input: graph object, number of seed nodes
@@ -90,7 +91,7 @@ def celf(
 
     print("Computing marginal gains.")
     # First, compute all marginal gains
-    for node in tqdm(list(dir_graph.nodes())):
+    for node in trange(n):
         marg_gain.append(
             (
                 -compute_marginal_gain(
@@ -145,8 +146,9 @@ to set our activation probabilities:
 import networkx as nx
 from cynetdiff.utils import networkx_to_ic_model, set_activation_random_sample
 
+n = 5_000
 # Randomly generate the graph
-celf_graph = nx.random_regular_graph(7, 5_000).to_directed()
+celf_graph = nx.random_regular_graph(7, n).to_directed()
 # Set activation probabilites
 set_activation_random_sample(celf_graph, {0.1, 0.01, 0.001})
 # Create corresponding model
@@ -154,15 +156,17 @@ celf_ic_model = networkx_to_ic_model(celf_graph)
 
 num_seeds = 20
 # Get best seed set returned by the algorithm
-celf_ic_seeds, ic_marg_gains = celf(celf_ic_model, num_seeds)
+celf_ic_seeds, ic_marg_gains = celf(celf_ic_model, n, num_seeds)
 ```
 
 ## Trying Different Models
 The `celf` function also works with the Linear Threshold diffusion model:
 
 ```python
+from cynetdiff.utils import networkx_to_lt_model
+
 # First, remove the old edge data
-for n1, n2, d in graph.edges(data=True):
+for n1, n2, d in celf_graph.edges(data=True):
     d.clear()
 
 # Next, create the new linear threshold model using the default weighting scheme.
@@ -170,5 +174,5 @@ celf_lt_model = networkx_to_lt_model(celf_graph)
 
 num_seeds = 20
 # Get best seed set returned by the algorithm
-celf_lt_seeds, lt_marg_gains = celf(celf_lt_model, num_seeds)
+celf_lt_seeds, lt_marg_gains = celf(celf_lt_model, n, num_seeds)
 ```
