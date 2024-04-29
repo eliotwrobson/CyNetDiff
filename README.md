@@ -68,7 +68,7 @@ avg = total / n_sim
 ```
 
 ### Advanced Usage
-See the [documentation](https://eliotwrobson.github.io/CyNetDiff/examples/activated/)
+See the [documentation](https://eliotwrobson.github.io/CyNetDiff/examples/activated/).
 
 ## Project Status
 
