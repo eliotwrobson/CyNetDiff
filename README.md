@@ -1,5 +1,5 @@
 # CyNetDiff
-![PyPI - Version](https://img.shields.io/pypi/v/cynetdiff)
+[![PyPI version](https://badge.fury.io/py/cynetdiff.svg)](https://badge.fury.io/py/cynetdiff)
 [![tests](https://github.com/eliotwrobson/CyNetDiff/actions/workflows/tests.yml/badge.svg)](https://github.com/eliotwrobson/CyNetDiff/actions/workflows/tests.yml)
 [![docs](https://github.com/eliotwrobson/CyNetDiff/actions/workflows/docs.yml/badge.svg)](https://github.com/eliotwrobson/CyNetDiff/actions/workflows/docs.yml)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/cynetdiff)
