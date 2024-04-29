@@ -273,6 +273,8 @@ cdef class LinearThresholdModel(DiffusionModel):
 
                     if thresholds.count(child) == 0:
                         thresholds[child] = next_rand()
+                        while thresholds[child] == 0.0:
+                            thresholds[child] = next_rand()
 
                     threshold = thresholds[child]
 

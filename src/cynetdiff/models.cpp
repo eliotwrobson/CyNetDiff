@@ -1971,7 +1971,7 @@ static int __pyx_f_9cynetdiff_6models_23IndependentCascadeModel__IndependentCasc
 
 
 /* "cynetdiff/models.pyx":150
- * 
+ * from libc.stdio cimport printf
  * # LT Model
  * cdef class LinearThresholdModel(DiffusionModel):             # <<<<<<<<<<<<<<
  *     # Functions that interface with the Python side of things
@@ -23008,7 +23008,7 @@ static int __pyx_f_9cynetdiff_6models_23IndependentCascadeModel__IndependentCasc
  *                     work_deque.push_back(child)
  *                     seen_set.insert(child)             # <<<<<<<<<<<<<<
  * 
- * 
+ * from libc.stdio cimport printf
  */
         try {
           __pyx_v_seen_set.insert(__pyx_v_child);
@@ -25795,7 +25795,7 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
  * 
  *                     if thresholds.count(child) == 0:             # <<<<<<<<<<<<<<
  *                         thresholds[child] = next_rand()
- * 
+ *                         while thresholds[child] == 0.0:
  */
         __pyx_t_5 = (__pyx_v_thresholds.count(__pyx_v_child) == 0);
         if (__pyx_t_5) {
@@ -25804,23 +25804,45 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
  * 
  *                     if thresholds.count(child) == 0:
  *                         thresholds[child] = next_rand()             # <<<<<<<<<<<<<<
- * 
- *                     threshold = thresholds[child]
+ *                         while thresholds[child] == 0.0:
+ *                             thresholds[child] = next_rand()
  */
           __pyx_t_13 = __pyx_f_9cynetdiff_6models_next_rand(); if (unlikely(__pyx_t_13 == ((double)-1) && __Pyx_ErrOccurredWithGIL())) __PYX_ERR(0, 275, __pyx_L1_error)
           (__pyx_v_thresholds[__pyx_v_child]) = __pyx_t_13;
+
+          /* "cynetdiff/models.pyx":276
+ *                     if thresholds.count(child) == 0:
+ *                         thresholds[child] = next_rand()
+ *                         while thresholds[child] == 0.0:             # <<<<<<<<<<<<<<
+ *                             thresholds[child] = next_rand()
+ * 
+ */
+          while (1) {
+            __pyx_t_5 = ((__pyx_v_thresholds[__pyx_v_child]) == 0.0);
+            if (!__pyx_t_5) break;
+
+            /* "cynetdiff/models.pyx":277
+ *                         thresholds[child] = next_rand()
+ *                         while thresholds[child] == 0.0:
+ *                             thresholds[child] = next_rand()             # <<<<<<<<<<<<<<
+ * 
+ *                     threshold = thresholds[child]
+ */
+            __pyx_t_13 = __pyx_f_9cynetdiff_6models_next_rand(); if (unlikely(__pyx_t_13 == ((double)-1) && __Pyx_ErrOccurredWithGIL())) __PYX_ERR(0, 277, __pyx_L1_error)
+            (__pyx_v_thresholds[__pyx_v_child]) = __pyx_t_13;
+          }
 
           /* "cynetdiff/models.pyx":274
  *                         buckets[child] = 0.0
  * 
  *                     if thresholds.count(child) == 0:             # <<<<<<<<<<<<<<
  *                         thresholds[child] = next_rand()
- * 
+ *                         while thresholds[child] == 0.0:
  */
         }
 
-        /* "cynetdiff/models.pyx":277
- *                         thresholds[child] = next_rand()
+        /* "cynetdiff/models.pyx":279
+ *                             thresholds[child] = next_rand()
  * 
  *                     threshold = thresholds[child]             # <<<<<<<<<<<<<<
  * 
@@ -25828,7 +25850,7 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
  */
         __pyx_v_threshold = (__pyx_v_thresholds[__pyx_v_child]);
 
-        /* "cynetdiff/models.pyx":280
+        /* "cynetdiff/models.pyx":282
  * 
  *                     # Function is written so that each edge is traversed _once_
  *                     assert buckets[child] < threshold             # <<<<<<<<<<<<<<
@@ -25845,10 +25867,10 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
                 #endif
                 /*try:*/ {
                   __Pyx_Raise(__pyx_builtin_AssertionError, 0, 0, 0);
-                  __PYX_ERR(0, 280, __pyx_L14_error)
+                  __PYX_ERR(0, 282, __pyx_L16_error)
                 }
                 /*finally:*/ {
-                  __pyx_L14_error: {
+                  __pyx_L16_error: {
                     #ifdef WITH_THREAD
                     __Pyx_PyGILState_Release(__pyx_gilstate_save);
                     #endif
@@ -25859,10 +25881,10 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
           }
         }
         #else
-        if ((1)); else __PYX_ERR(0, 280, __pyx_L1_error)
+        if ((1)); else __PYX_ERR(0, 282, __pyx_L1_error)
         #endif
 
-        /* "cynetdiff/models.pyx":282
+        /* "cynetdiff/models.pyx":284
  *                     assert buckets[child] < threshold
  * 
  *                     buckets[child] += self.influence[edge_idx]             # <<<<<<<<<<<<<<
@@ -25870,17 +25892,17 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
  *                     # Skip if we don't have enough influence yet.
  */
         __pyx_t_14 = __pyx_v_child;
-        if (unlikely(!__pyx_v_self->influence.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 282, __pyx_L1_error)}
+        if (unlikely(!__pyx_v_self->influence.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 284, __pyx_L1_error)}
         __pyx_t_12 = __pyx_v_edge_idx;
         __pyx_t_7 = -1;
         if (unlikely(__pyx_t_12 >= (size_t)__pyx_v_self->influence.shape[0])) __pyx_t_7 = 0;
         if (unlikely(__pyx_t_7 != -1)) {
           __Pyx_RaiseBufferIndexErrorNogil(__pyx_t_7);
-          __PYX_ERR(0, 282, __pyx_L1_error)
+          __PYX_ERR(0, 284, __pyx_L1_error)
         }
         (__pyx_v_buckets[__pyx_t_14]) = ((__pyx_v_buckets[__pyx_t_14]) + (*((float *) ( /* dim=0 */ (__pyx_v_self->influence.data + __pyx_t_12 * __pyx_v_self->influence.strides[0]) ))));
 
-        /* "cynetdiff/models.pyx":285
+        /* "cynetdiff/models.pyx":287
  * 
  *                     # Skip if we don't have enough influence yet.
  *                     if buckets[child] < threshold:             # <<<<<<<<<<<<<<
@@ -25890,7 +25912,7 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
         __pyx_t_5 = ((__pyx_v_buckets[__pyx_v_child]) < __pyx_v_threshold);
         if (__pyx_t_5) {
 
-          /* "cynetdiff/models.pyx":286
+          /* "cynetdiff/models.pyx":288
  *                     # Skip if we don't have enough influence yet.
  *                     if buckets[child] < threshold:
  *                         continue             # <<<<<<<<<<<<<<
@@ -25899,7 +25921,7 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
  */
           goto __pyx_L6_continue;
 
-          /* "cynetdiff/models.pyx":285
+          /* "cynetdiff/models.pyx":287
  * 
  *                     # Skip if we don't have enough influence yet.
  *                     if buckets[child] < threshold:             # <<<<<<<<<<<<<<
@@ -25908,7 +25930,7 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
  */
         }
 
-        /* "cynetdiff/models.pyx":288
+        /* "cynetdiff/models.pyx":290
  *                         continue
  * 
  *                     work_deque.push_back(child)             # <<<<<<<<<<<<<<
@@ -25924,10 +25946,10 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
           #ifdef WITH_THREAD
           __Pyx_PyGILState_Release(__pyx_gilstate_save);
           #endif
-          __PYX_ERR(0, 288, __pyx_L1_error)
+          __PYX_ERR(0, 290, __pyx_L1_error)
         }
 
-        /* "cynetdiff/models.pyx":289
+        /* "cynetdiff/models.pyx":291
  * 
  *                     work_deque.push_back(child)
  *                     seen_set.insert(child)             # <<<<<<<<<<<<<<
@@ -25942,7 +25964,7 @@ static int __pyx_f_9cynetdiff_6models_20LinearThresholdModel__LinearThresholdMod
           #ifdef WITH_THREAD
           __Pyx_PyGILState_Release(__pyx_gilstate_save);
           #endif
-          __PYX_ERR(0, 289, __pyx_L1_error)
+          __PYX_ERR(0, 291, __pyx_L1_error)
         }
 
         /* "cynetdiff/models.pyx":267
