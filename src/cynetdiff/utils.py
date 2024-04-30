@@ -232,3 +232,56 @@ def networkx_to_lt_model(graph: Graph) -> LinearThresholdModel:
     )
 
     return model
+
+
+def check_csr_array(starts: array.array, edges: array.array) -> None:
+    """
+    Asserts that the graph represented by `starts` and `edges` is in
+    valid compressed sparse row (CSR) format.
+
+    Parameters
+    ----------
+    starts : array.array
+        An array of start indices for each node's edges in the edge array. Type
+        of array elements must be `unsigned int`.
+    edges : array.array
+        An array of edges represented as integer indices of nodes. Type
+        of array elements must be `unsigned int`.
+
+    Raises
+    ------
+    ValueError
+        If the input parameters are not in valid CSR format.
+    """
+
+    if starts.typecode != "I":
+        raise ValueError(
+            f'starts array must have typecode "I" not "{starts.typecode}".'
+        )
+
+    if edges.typecode != "I":
+        raise ValueError(f'edges array must have typecode "I" not "{edges.typecode}".')
+
+    n = len(starts)
+    m = len(edges)
+
+    for edge_link in edges:
+        if not (0 <= edge_link < n):
+            raise ValueError(
+                f'Value in edges "{edge_link}" must ben in the range [0,{n-1}].'
+            )
+
+    prev_node_start = 0
+
+    if starts and starts[0] != 0:
+        raise ValueError("Indices in starts must start at 0.")
+
+    for node_start in starts:
+        if not (0 <= node_start <= m):
+            raise ValueError(
+                f"Value in starts '{node_start}' must be in the range [0,{m}]."
+            )
+        if node_start < prev_node_start:
+            raise ValueError("Values stored in starts must be in increasing order.")
+
+        prev_node_start = node_start
