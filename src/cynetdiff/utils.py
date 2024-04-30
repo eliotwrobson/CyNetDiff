@@ -146,6 +146,8 @@ def networkx_to_ic_model(
                 assert 0.0 <= act_prob <= 1.0
                 activation_probs.append(act_prob)
 
+    check_csr_array(starts, edges)
+
     # Can always set threshold, as it gets ignored if edge probabilities are set.
     if activation_prob is not None:
         return IndependentCascadeModel(
@@ -225,6 +227,8 @@ def networkx_to_lt_model(graph: Graph) -> LinearThresholdModel:
                     "must be less than 1.0."
                 )
 
+    check_csr_array(starts, edges)
+
     model = LinearThresholdModel(
         starts,
         edges,
@@ -237,7 +241,8 @@ def networkx_to_lt_model(graph: Graph) -> LinearThresholdModel:
 def check_csr_array(starts: array.array, edges: array.array) -> None:
     """
     Asserts that the graph represented by `starts` and `edges` is in
-    valid compressed sparse row (CSR) format.
+    valid compressed sparse row (CSR) format. Useful for debugging,
+    before the manual construction of a model.
 
     Parameters
     ----------
@@ -254,6 +259,7 @@ def check_csr_array(starts: array.array, edges: array.array) -> None:
         If the input parameters are not in valid CSR format.
     """
 
+    # Check typecodes
     if starts.typecode != "I":
         raise ValueError(
             f'starts array must have typecode "I" not "{starts.typecode}".'
@@ -265,12 +271,14 @@ def check_csr_array(starts: array.array, edges: array.array) -> None:
     n = len(starts)
     m = len(edges)
 
+    # Boundscheck edges
     for edge_link in edges:
         if not (0 <= edge_link < n):
             raise ValueError(
                 f'Value in edges "{edge_link}" must ben in the range [0,{n-1}].'
             )
 
+    # Boundscheck nodes
     prev_node_start = 0
 
     if starts and starts[0] != 0:
@@ -285,3 +293,17 @@ def check_csr_array(starts: array.array, edges: array.array) -> None:
             raise ValueError("Values stored in starts must be in increasing order.")
 
         prev_node_start = node_start
+
+    # Check for self-loops or multi-edges
+    for node, node_start in enumerate(starts):
+        node_end = m if node == n - 1 else starts[node + 1]
+        neighbors = set()
+
+        for neighbor_idx in range(node_start, node_end):
+            neighbor = edges[neighbor_idx]
+            if neighbor == node:
+                raise ValueError(f'Node "{node}" has a self loop at edge "{neighbor}".')
+            elif neighbor in neighbors:
+                raise ValueError(f'Node "{node}" has multi-edges to node "{neighbor}".')
+
+            neighbors.add(neighbor)

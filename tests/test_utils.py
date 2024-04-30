@@ -35,6 +35,7 @@ def test_check_csr_array_no_exception() -> None:
         ([0, 0, 0], [5]),  # Out of bounds edge
         ([4, 0, 0], [1]),  # Out of bounds node array
         ([0], [0]),  # No self loops
+        ([0, 0], [0, 0]),  # No multi-edges
     ],
 )
 def test_check_csr_array(starts: list[int], edges: list[int]) -> None:
