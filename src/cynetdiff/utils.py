@@ -146,7 +146,7 @@ def networkx_to_ic_model(
                 assert 0.0 <= act_prob <= 1.0
                 activation_probs.append(act_prob)
 
-    check_csr_array(starts, edges)
+    check_csr_arrays(starts, edges)
 
     # Can always set threshold, as it gets ignored if edge probabilities are set.
     if activation_prob is not None:
@@ -227,7 +227,7 @@ def networkx_to_lt_model(graph: Graph) -> LinearThresholdModel:
                     "must be less than 1.0."
                 )
 
-    check_csr_array(starts, edges)
+    check_csr_arrays(starts, edges)
 
     model = LinearThresholdModel(
         starts,
@@ -238,7 +238,7 @@ def networkx_to_lt_model(graph: Graph) -> LinearThresholdModel:
     return model
 
 
-def check_csr_array(starts: array.array, edges: array.array) -> None:
+def check_csr_arrays(starts: array.array, edges: array.array) -> None:
     """
     Asserts that the graph represented by `starts` and `edges` is in
     valid compressed sparse row (CSR) format. Useful for debugging,

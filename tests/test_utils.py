@@ -2,7 +2,7 @@ import array
 
 import networkx as nx
 import pytest
-from cynetdiff.utils import check_csr_array
+from cynetdiff.utils import check_csr_arrays
 
 
 def test_check_csr_array_no_exception() -> None:
@@ -21,9 +21,9 @@ def test_check_csr_array_no_exception() -> None:
             curr_start += 1
             edges.append(node_mapping[neighbor])
 
-    check_csr_array(starts, edges)
+    check_csr_arrays(starts, edges)
 
-    check_csr_array(array.array("I", [0, 0, 1]), array.array("I", [2]))
+    check_csr_arrays(array.array("I", [0, 0, 1]), array.array("I", [2]))
 
 
 @pytest.mark.parametrize(
@@ -41,4 +41,4 @@ def test_check_csr_array_no_exception() -> None:
 def test_check_csr_array(starts: list[int], edges: list[int]) -> None:
     typecode = "I"
     with pytest.raises(ValueError):
-        check_csr_array(array.array(typecode, starts), array.array(typecode, edges))
+        check_csr_arrays(array.array(typecode, starts), array.array(typecode, edges))
