@@ -15,7 +15,7 @@ from cynetdiff.utils import networkx_to_ic_model
 n = 1_000
 p = 0.05
 k = 10
-graph = small_world_graph = nx.watts_strogatz_graph(n, k, p)
+graph = nx.watts_strogatz_graph(n, k, p)
 
 # Randomly choose seed nodes
 k = 10
