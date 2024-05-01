@@ -90,7 +90,7 @@ def diffuse_python(graph: DiffusionGraphT, seeds: SeedSetT, num_samples: int) ->
 def diffuse_CyNetDiff(
     graph: DiffusionGraphT, seeds: SeedSetT, num_samples: int
 ) -> float:
-    model = networkx_to_ic_model(graph)
+    model, _ = networkx_to_ic_model(graph)
     model.set_seeds(seeds)
 
     total_activated = 0.0

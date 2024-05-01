@@ -182,7 +182,7 @@ def test_model_basic(directed: bool) -> None:
     p = 0.01
     # Just trying the main functions with no set thresholds
     graph = generate_random_graph_from_seed(n, p, directed)
-    model = networkx_to_ic_model(graph)
+    model, _ = networkx_to_ic_model(graph)
 
     # Didn't set the seeds
     model.advance_until_completion()
@@ -238,11 +238,11 @@ def test_specific_model(
 
     # Set up the model
     if set_act_prob_fn is None:
-        model = networkx_to_ic_model(
+        model, _ = networkx_to_ic_model(
             test_graph, activation_prob=indep_cascade_prob, _include_succcess_prob=True
         )
     else:
-        model = networkx_to_ic_model(test_graph, _include_succcess_prob=True)
+        model, _ = networkx_to_ic_model(test_graph, _include_succcess_prob=True)
 
     model.set_seeds(seeds)
     seen_set = set()
@@ -276,7 +276,7 @@ def test_basic_2(directed: bool) -> None:
     num_seen = sum(len(level) for level in activated_nodes_levels)
 
     # Set up the model
-    model = networkx_to_ic_model(test_graph, _include_succcess_prob=True)
+    model, _ = networkx_to_ic_model(test_graph, _include_succcess_prob=True)
     model.set_seeds(seeds)
     model.advance_until_completion()
 
@@ -288,7 +288,7 @@ def test_invalid_seed_error() -> None:
     p = 0.01
     test_graph = generate_random_graph_from_seed(n, p, False)
 
-    model = networkx_to_ic_model(test_graph)
+    model, _ = networkx_to_ic_model(test_graph)
 
     with pytest.raises(ValueError):
         model.set_seeds({-1})  # Insert a seed not in the graph

@@ -205,7 +205,7 @@ def test_specific_model(directed: bool, nondefault_influence: bool) -> None:
 
     activated_nodes_levels = linear_threshold(test_graph, seeds)
 
-    model = networkx_to_lt_model(test_graph)
+    model, _ = networkx_to_lt_model(test_graph)
 
     model.set_seeds(seeds)
     seen_set = set()
@@ -239,7 +239,7 @@ def test_invalid_seed_error() -> None:
     p = 0.01
     test_graph = generate_random_graph_from_seed(n, p, False, True)
 
-    model = networkx_to_lt_model(test_graph)
+    model, _ = networkx_to_lt_model(test_graph)
 
     with pytest.raises(ValueError):
         model.set_seeds({-1})  # Insert a seed not in the graph

@@ -152,7 +152,7 @@ ic_graph = nx.random_regular_graph(7, n).to_directed()
 # Set activation probabilites
 set_activation_random_sample(ic_graph, {0.1, 0.01, 0.001})
 # Create corresponding model
-celf_ic_model = networkx_to_ic_model(ic_graph)
+celf_ic_model, _ = networkx_to_ic_model(ic_graph)
 
 num_seeds = 20
 # Get best seed set returned by the algorithm
@@ -170,7 +170,7 @@ n = 5_00
 lt_graph = nx.random_regular_graph(7, n).to_directed()
 
 # Set weighting scheme
-celf_lt_model = networkx_to_lt_model(lt_graph)
+celf_lt_model, _ = networkx_to_lt_model(lt_graph)
 
 num_seeds = 20
 # Get best seed set returned by the algorithm

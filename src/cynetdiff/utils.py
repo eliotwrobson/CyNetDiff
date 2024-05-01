@@ -11,6 +11,7 @@ import networkx as nx
 from cynetdiff.models import IndependentCascadeModel, LinearThresholdModel
 
 Graph = t.Union[nx.Graph, nx.DiGraph]
+NodeMappingDict = t.Dict[t.Any, int]
 
 
 def set_activation_uniformly_random(
@@ -84,7 +85,7 @@ def networkx_to_ic_model(
     *,
     activation_prob: t.Optional[float] = None,
     _include_succcess_prob: bool = False,
-) -> IndependentCascadeModel:
+) -> t.Tuple[IndependentCascadeModel, NodeMappingDict]:
     """
     Converts a NetworkX graph into an Independent Cascade model. Includes activation
     probability values if they are defined on each edge under the key `"activation_prob"`.
@@ -105,8 +106,10 @@ def networkx_to_ic_model(
 
     Returns
     -------
-    IndependentCascadeModel
-        An instance of IndependentCascadeModel using the given graph.
+    tuple[IndependentCascadeModel, dict[Any, int]]
+        A tuple with the instance of IndependentCascadeModel using the given graph
+        and a dictionary mapping the nodes of the graph to their integer labels in
+        the model.
     """
 
     node_list = list(enumerate(graph.nodes()))
@@ -155,7 +158,7 @@ def networkx_to_ic_model(
             edges,
             activation_prob=activation_prob,
             _edge_probabilities=success_prob,
-        )
+        ), node_mapping
 
     elif activation_probs is not None:
         return IndependentCascadeModel(
@@ -163,16 +166,18 @@ def networkx_to_ic_model(
             edges,
             activation_probs=activation_probs,
             _edge_probabilities=success_prob,
-        )
+        ), node_mapping
     else:
         return IndependentCascadeModel(
             starts,
             edges,
             _edge_probabilities=success_prob,
-        )
+        ), node_mapping
 
 
-def networkx_to_lt_model(graph: Graph) -> LinearThresholdModel:
+def networkx_to_lt_model(
+    graph: Graph,
+) -> t.Tuple[LinearThresholdModel, NodeMappingDict]:
     """
     Converts a NetworkX graph into a Linear Threshold model. Includes influence
     values if they are defined on each edge under the key `"influence"`.
@@ -184,8 +189,10 @@ def networkx_to_lt_model(graph: Graph) -> LinearThresholdModel:
 
     Returns
     -------
-    LinearThresholdModel
-        An instance of LinearThresholdModel using the given graph.
+    tuple[LinearThresholdModel, dict[Any, int]]
+        A tuple with the instance of LinearThresholdModel using the given graph
+        and a dictionary mapping the nodes of the graph to their integer labels in
+        the model.
     """
 
     node_list = list(enumerate(graph.nodes()))
@@ -235,7 +242,7 @@ def networkx_to_lt_model(graph: Graph) -> LinearThresholdModel:
         influence=influence,
     )
 
-    return model
+    return model, node_mapping
 
 
 def check_csr_arrays(starts: array.array, edges: array.array) -> None:

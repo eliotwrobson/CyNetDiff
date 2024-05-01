@@ -68,7 +68,7 @@ of the diffusion model, and can be manually advanced by repeated function calls.
 
 ```python
 from cynetdiff.utils import networkx_to_ic_model
-model = networkx_to_ic_model(graph)
+model, _ = networkx_to_ic_model(graph)
 ```
 
 By default, the activation probabilities are all set to a default of `0.1`. There are a number of different
@@ -90,7 +90,7 @@ from cynetdiff.utils import set_activation_random_sample, networkx_to_ic_model
 # Setting weights is done in-place.
 set_activation_random_sample(small_world_graph, {0.1, 0.01, 0.001})
 # Make sure to set the weights before creating the model.
-model = networkx_to_ic_model(small_world_graph)
+model, _ = networkx_to_ic_model(small_world_graph)
 ```
 
 Custom weights can be set under the `"activation_prob"` data key on each edge in the starting `NetworkX` graph.
@@ -110,7 +110,7 @@ To create a linear threshold model from an `NetworkX` graph `graph`, simply run
 
 ```python
 from cynetdiff.utils import networkx_to_lt_model
-model = networkx_to_lt_model(graph)
+model, _ = networkx_to_lt_model(graph)
 ```
 
 By default, the graph is made directed if it is not, and influences are set to the inverse of the in-degree,

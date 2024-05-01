@@ -23,7 +23,7 @@ nodes = list(graph.nodes)
 seeds = random.sample(nodes, k)
 
 # Set the activation probability uniformly and set seeds
-model = networkx_to_ic_model(graph, activation_prob=0.2)
+model, _ = networkx_to_ic_model(graph, activation_prob=0.2)
 model.set_seeds(seeds)
 ```
 
