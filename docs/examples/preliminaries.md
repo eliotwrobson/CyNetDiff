@@ -106,7 +106,7 @@ $$
 $$
 In words, this occurs if the influence of $u$'s active in-neighbors is at least $\theta_u$.
 
-To create a linear threshold model from an `NetworkX` graph `graph`, simply run
+To create a linear threshold model from an `NetworkX` graph `graph`, simply run:
 
 ```python
 from cynetdiff.utils import networkx_to_lt_model
