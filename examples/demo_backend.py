@@ -144,7 +144,7 @@ def diffuse_ndlib(graph: DiffusionGraphT, seeds: SeedSetT, num_samples: int) -> 
 def diffuse_CyNetDiff(
     graph: DiffusionGraphT, seeds: SeedSetT, num_samples: int
 ) -> float:
-    model = networkx_to_ic_model(graph)
+    model, _ = networkx_to_ic_model(graph)
     model.set_seeds(seeds)
 
     total_activated = 0.0
@@ -213,7 +213,7 @@ def diffusion_get_frequencies(
     Get the frequency dict from the network diffusion.
     """
 
-    model = networkx_to_ic_model(graph)
+    model, _ = networkx_to_ic_model(graph)
     model.set_seeds(seeds)
 
     activated_nodes_dict: t.DefaultDict[int, int] = defaultdict(lambda: 0)
@@ -256,7 +256,7 @@ def plot_num_nodes_activated(
 
     # Get all the data for graphs
     for model_name, graph, seeds in model_data_tuples:
-        model = networkx_to_ic_model(graph)
+        model, _ = networkx_to_ic_model(graph)
         model.set_seeds(seeds)
 
         all_trials_infected_nodes: t.List[t.List[int]] = []
@@ -340,7 +340,7 @@ def create_plot_for_delta_nodes_infected(
 
     graphs = [g for g in [graph1, graph2, graph3, graph4] if g is not None]
     for graph in graphs:
-        model = networkx_to_ic_model(graph)
+        model, _ = networkx_to_ic_model(graph)
         seeds = set(random.sample(list(graph.nodes()), 100))
         model.set_seeds(seeds)
         num_trials = 1
@@ -586,7 +586,7 @@ def celf(
 
     print(f"Starting CELF algorithm with {method} backend.")
     # Make cynetdiff model
-    cynetdiff_model = networkx_to_ic_model(graph)
+    cynetdiff_model, _ = networkx_to_ic_model(graph)
 
     # NDLib Model
     ndlib_model = ep.IndependentCascadesModel(graph)

@@ -15,7 +15,7 @@ from cynetdiff.utils import networkx_to_ic_model
 n = 1_000
 p = 0.05
 k = 10
-graph = small_world_graph = nx.watts_strogatz_graph(n, k, p)
+graph = nx.watts_strogatz_graph(n, k, p)
 
 # Randomly choose seed nodes
 k = 10
@@ -23,7 +23,7 @@ nodes = list(graph.nodes)
 seeds = random.sample(nodes, k)
 
 # Set the activation probability uniformly and set seeds
-model = networkx_to_ic_model(graph, activation_prob=0.2)
+model, _ = networkx_to_ic_model(graph, activation_prob=0.2)
 model.set_seeds(seeds)
 ```
 

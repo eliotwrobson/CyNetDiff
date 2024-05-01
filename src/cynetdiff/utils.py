@@ -11,6 +11,7 @@ import networkx as nx
 from cynetdiff.models import IndependentCascadeModel, LinearThresholdModel
 
 Graph = t.Union[nx.Graph, nx.DiGraph]
+NodeMappingDict = t.Dict[t.Any, int]
 
 
 def set_activation_uniformly_random(
@@ -84,7 +85,7 @@ def networkx_to_ic_model(
     *,
     activation_prob: t.Optional[float] = None,
     _include_succcess_prob: bool = False,
-) -> IndependentCascadeModel:
+) -> t.Tuple[IndependentCascadeModel, NodeMappingDict]:
     """
     Converts a NetworkX graph into an Independent Cascade model. Includes activation
     probability values if they are defined on each edge under the key `"activation_prob"`.
@@ -105,8 +106,10 @@ def networkx_to_ic_model(
 
     Returns
     -------
-    IndependentCascadeModel
-        An instance of IndependentCascadeModel using the given graph.
+    tuple[IndependentCascadeModel, dict[Any, int]]
+        A tuple with the instance of IndependentCascadeModel using the given graph
+        and a dictionary mapping the nodes of the graph to their integer labels in
+        the model.
     """
 
     node_list = list(enumerate(graph.nodes()))
@@ -146,6 +149,8 @@ def networkx_to_ic_model(
                 assert 0.0 <= act_prob <= 1.0
                 activation_probs.append(act_prob)
 
+    check_csr_arrays(starts, edges)
+
     # Can always set threshold, as it gets ignored if edge probabilities are set.
     if activation_prob is not None:
         return IndependentCascadeModel(
@@ -153,7 +158,7 @@ def networkx_to_ic_model(
             edges,
             activation_prob=activation_prob,
             _edge_probabilities=success_prob,
-        )
+        ), node_mapping
 
     elif activation_probs is not None:
         return IndependentCascadeModel(
@@ -161,16 +166,18 @@ def networkx_to_ic_model(
             edges,
             activation_probs=activation_probs,
             _edge_probabilities=success_prob,
-        )
+        ), node_mapping
     else:
         return IndependentCascadeModel(
             starts,
             edges,
             _edge_probabilities=success_prob,
-        )
+        ), node_mapping
 
 
-def networkx_to_lt_model(graph: Graph) -> LinearThresholdModel:
+def networkx_to_lt_model(
+    graph: Graph,
+) -> t.Tuple[LinearThresholdModel, NodeMappingDict]:
     """
     Converts a NetworkX graph into a Linear Threshold model. Includes influence
     values if they are defined on each edge under the key `"influence"`.
@@ -182,8 +189,10 @@ def networkx_to_lt_model(graph: Graph) -> LinearThresholdModel:
 
     Returns
     -------
-    LinearThresholdModel
-        An instance of LinearThresholdModel using the given graph.
+    tuple[LinearThresholdModel, dict[Any, int]]
+        A tuple with the instance of LinearThresholdModel using the given graph
+        and a dictionary mapping the nodes of the graph to their integer labels in
+        the model.
     """
 
     node_list = list(enumerate(graph.nodes()))
@@ -225,10 +234,83 @@ def networkx_to_lt_model(graph: Graph) -> LinearThresholdModel:
                     "must be less than 1.0."
                 )
 
+    check_csr_arrays(starts, edges)
+
     model = LinearThresholdModel(
         starts,
         edges,
         influence=influence,
     )
 
-    return model
+    return model, node_mapping
+
+
+def check_csr_arrays(starts: array.array, edges: array.array) -> None:
+    """
+    Asserts that the graph represented by `starts` and `edges` is in
+    valid compressed sparse row (CSR) format. Useful for debugging,
+    before the manual construction of a model.
+
+    Parameters
+    ----------
+    starts : array.array
+        An array of start indices for each node's edges in the edge array. Type
+        of array elements must be `unsigned int`.
+    edges : array.array
+        An array of edges represented as integer indices of nodes. Type
+        of array elements must be `unsigned int`.
+
+    Raises
+    ------
+    ValueError
+        If the input parameters are not in valid CSR format.
+    """
+
+    # Check typecodes
+    if starts.typecode != "I":
+        raise ValueError(
+            f'starts array must have typecode "I" not "{starts.typecode}".'
+        )
+
+    if edges.typecode != "I":
+        raise ValueError(f'edges array must have typecode "I" not "{edges.typecode}".')
+
+    n = len(starts)
+    m = len(edges)
+
+    # Boundscheck edges
+    for edge_link in edges:
+        if not (0 <= edge_link < n):
+            raise ValueError(
+                f'Value in edges "{edge_link}" must ben in the range [0,{n-1}].'
+            )
+
+    # Boundscheck nodes
+    prev_node_start = 0
+
+    if starts and starts[0] != 0:
+        raise ValueError("Indices in starts must start at 0.")
+
+    for node_start in starts:
+        if not (0 <= node_start <= m):
+            raise ValueError(
+                f"Value in starts '{node_start}' must be in the range [0,{m}]."
+            )
+        if node_start < prev_node_start:
+            raise ValueError("Values stored in starts must be in increasing order.")
+
+        prev_node_start = node_start
+
+    # Check for self-loops or multi-edges
+    for node, node_start in enumerate(starts):
+        node_end = m if node == n - 1 else starts[node + 1]
+        neighbors = set()
+
+        for neighbor_idx in range(node_start, node_end):
+            neighbor = edges[neighbor_idx]
+            if neighbor == node:
+                raise ValueError(f'Node "{node}" has a self loop at edge "{neighbor}".')
+            elif neighbor in neighbors:
+                raise ValueError(f'Node "{node}" has multi-edges to node "{neighbor}".')
+
+            neighbors.add(neighbor)
