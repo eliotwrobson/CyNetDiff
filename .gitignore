@@ -112,6 +112,8 @@ venv
 
 # Cython
 *.html
+*.cpp
+*.c
 
 speed/
 
