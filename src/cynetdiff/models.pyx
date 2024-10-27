@@ -6,6 +6,7 @@ from libcpp.algorithm cimport fill
 from libcpp.vector cimport vector as cvector
 from libcpp.unordered_map cimport unordered_map as cmap
 
+cimport cython
 
 # Next, utility functions
 # TODO move these to a separate file later
@@ -90,6 +91,8 @@ cdef class IndependentCascadeModel(DiffusionModel):
     def get_num_activated_nodes(self):
         return self.seen_set.size()
 
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
     cdef inline int _activation_succeeds(self, unsigned int edge_idx) except -1 nogil:
         cdef float activation_prob
 
@@ -118,6 +121,8 @@ cdef class IndependentCascadeModel(DiffusionModel):
 
     # Internal-only function to advance,
     # returns an int to allow for exceptions
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
     cdef int _advance_model(
         self,
         cdeque[unsigned int]& work_deque,
@@ -160,9 +165,6 @@ cdef class LinearThresholdModel(DiffusionModel):
         *,
         float[:] influence = None
     ):
-
-        cdef unsigned int i
-
         self.starts = starts
         self.edges = edges
 
@@ -243,6 +245,8 @@ cdef class LinearThresholdModel(DiffusionModel):
             self.work_deque, self.seen_set, self.thresholds, self.buckets
         )
 
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
     cdef int _advance_model(
         self,
         cdeque[unsigned int]& work_deque,
