@@ -34,5 +34,8 @@ jobs:
       - name: Run ruff
         run: poetry run ruff check .
 
+      - name: Run Cython lint
+        run: poetry run cython-lint .
+
       - name: Run mypy
         run: poetry run mypy .
