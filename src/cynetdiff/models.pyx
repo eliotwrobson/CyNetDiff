@@ -7,7 +7,6 @@ from libcpp.vector cimport vector as cvector
 from libcpp.unordered_map cimport unordered_map as cmap
 
 import array
-import random
 
 # Next, utility functions
 # TODO move these to a separate file later
@@ -42,14 +41,14 @@ cdef class DiffusionModel:
 cdef class IndependentCascadeModel(DiffusionModel):
     # Functions that interface with the Python side of things
     def __cinit__(
-            self,
-            array.array starts,
-            array.array edges,
-            *,
-            double activation_prob = 0.1,
-            array.array activation_probs = None,
-            array.array _edge_probabilities = None
-        ):
+        self,
+        array.array starts,
+        array.array edges,
+        *,
+        double activation_prob = 0.1,
+        array.array activation_probs = None,
+        array.array _edge_probabilities = None
+    ):
 
         self.starts = starts
         self.edges = edges
@@ -69,7 +68,9 @@ cdef class IndependentCascadeModel(DiffusionModel):
 
         for seed in seeds:
             if not (isinstance(seed, int) and 0 <= seed < n):
-                raise ValueError(f"Invalid seed node: {seed}. Must be in the range [0, {n-1}]")
+                raise ValueError(
+                    f"Invalid seed node: {seed}. Must be in the range [0, {n-1}]"
+                )
             self.original_seeds.insert(seed)
 
         self.reset_model()
@@ -118,7 +119,11 @@ cdef class IndependentCascadeModel(DiffusionModel):
 
     # Internal-only function to advance,
     # returns an int to allow for exceptions
-    cdef int __advance_model(self, cdeque[unsigned int]& work_deque, cset[unsigned int]& seen_set) except -1 nogil:
+    cdef int __advance_model(
+        self,
+        cdeque[unsigned int]& work_deque,
+        cset[unsigned int]& seen_set
+    ) except -1 nogil:
         cdef unsigned int q = work_deque.size()
 
         # Working variables
@@ -150,12 +155,12 @@ cdef class IndependentCascadeModel(DiffusionModel):
 cdef class LinearThresholdModel(DiffusionModel):
     # Functions that interface with the Python side of things
     def __cinit__(
-            self,
-            array.array starts,
-            array.array edges,
-            *,
-            array.array influence = None
-        ):
+        self,
+        array.array starts,
+        array.array edges,
+        *,
+        array.array influence = None
+    ):
 
         cdef unsigned int i
 
@@ -192,7 +197,9 @@ cdef class LinearThresholdModel(DiffusionModel):
 
         for seed in seeds:
             if not (isinstance(seed, int) and 0 <= seed < n):
-                raise ValueError(f"Invalid seed node: {seed}. Must be in the range [0, {n-1}]")
+                raise ValueError(
+                    f"Invalid seed node: {seed}. Must be in the range [0, {n-1}]"
+                )
             self.original_seeds.insert(seed)
 
         self.reset_model()
@@ -227,10 +234,14 @@ cdef class LinearThresholdModel(DiffusionModel):
     # Functions that actually advance the model
     cpdef void advance_until_completion(self):
         while self.work_deque.size() > 0:
-            self.__advance_model(self.work_deque, self.seen_set, self.thresholds, self.buckets)
+            self.__advance_model(
+                self.work_deque, self.seen_set, self.thresholds, self.buckets
+            )
 
     cpdef void advance_model(self):
-        self.__advance_model(self.work_deque, self.seen_set, self.thresholds, self.buckets)
+        self.__advance_model(
+            self.work_deque, self.seen_set, self.thresholds, self.buckets
+        )
 
     cdef int __advance_model(
         self,

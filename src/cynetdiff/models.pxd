@@ -25,7 +25,11 @@ cdef class IndependentCascadeModel(DiffusionModel):
     cdef cset[unsigned int] original_seeds
 
     cdef int __activation_succeeds(self, unsigned int edge_idx) except -1 nogil
-    cdef int __advance_model(self, cdeque[unsigned int]& work_deque, cset[unsigned int]& seen_set) except -1 nogil
+    cdef int __advance_model(
+        self,
+        cdeque[unsigned int]& work_deque,
+        cset[unsigned int]& seen_set
+    ) except -1 nogil
 
 cdef class LinearThresholdModel(DiffusionModel):
     # Core model parameters
