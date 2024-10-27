@@ -6,7 +6,6 @@ from libcpp.algorithm cimport fill
 from libcpp.vector cimport vector as cvector
 from libcpp.unordered_map cimport unordered_map as cmap
 
-import array
 
 # Next, utility functions
 # TODO move these to a separate file later
@@ -42,12 +41,12 @@ cdef class IndependentCascadeModel(DiffusionModel):
     # Functions that interface with the Python side of things
     def __cinit__(
         self,
-        array.array starts,
-        array.array edges,
+        unsigned int[:] starts not None,
+        unsigned int[:] edges not None,
         *,
         double activation_prob = 0.1,
-        array.array activation_probs = None,
-        array.array _edge_probabilities = None
+        float[:] activation_probs = None,
+        float[:] _edge_probabilities = None
     ):
 
         self.starts = starts
@@ -91,7 +90,7 @@ cdef class IndependentCascadeModel(DiffusionModel):
     def get_num_activated_nodes(self):
         return self.seen_set.size()
 
-    cdef inline int __activation_succeeds(self, unsigned int edge_idx) except -1 nogil:
+    cdef inline int _activation_succeeds(self, unsigned int edge_idx) except -1 nogil:
         cdef float activation_prob
 
         if self.activation_probs is not None:
@@ -112,14 +111,14 @@ cdef class IndependentCascadeModel(DiffusionModel):
     # Functions that actually advance the model
     cpdef void advance_until_completion(self):
         while self.work_deque.size() > 0:
-            self.__advance_model(self.work_deque, self.seen_set)
+            self._advance_model(self.work_deque, self.seen_set)
 
     cpdef void advance_model(self):
-        self.__advance_model(self.work_deque, self.seen_set)
+        self._advance_model(self.work_deque, self.seen_set)
 
     # Internal-only function to advance,
     # returns an int to allow for exceptions
-    cdef int __advance_model(
+    cdef int _advance_model(
         self,
         cdeque[unsigned int]& work_deque,
         cset[unsigned int]& seen_set
@@ -140,7 +139,7 @@ cdef class IndependentCascadeModel(DiffusionModel):
                 range_end = self.starts[node + 1]
 
             for i in range(self.starts[node], range_end):
-                if self.__activation_succeeds(i) == 0:
+                if self._activation_succeeds(i) == 0:
                     continue
 
                 child = self.edges[i]
@@ -156,10 +155,10 @@ cdef class LinearThresholdModel(DiffusionModel):
     # Functions that interface with the Python side of things
     def __cinit__(
         self,
-        array.array starts,
-        array.array edges,
+        unsigned int[:] starts not None,
+        unsigned int[:] edges not None
         *,
-        array.array influence = None
+        float[:] influence = None
     ):
 
         cdef unsigned int i
@@ -181,13 +180,14 @@ cdef class LinearThresholdModel(DiffusionModel):
             in_degrees.resize(n)
             fill(in_degrees.begin(), in_degrees.end(), 0)
 
-            for i in range(m):
-                in_degrees[self.edges[i]] += 1
+            for out_node in self.edges:
+                in_degrees[out_node] += 1
 
             influence_arr = array.array("f")
-
-            for i in range(m):
-                influence_arr.append(1.0 / in_degrees[self.edges[i]])
+            influence_arr.extend(
+                1.0 / in_degrees[out_node]
+                for out_node in self.edges
+            )
 
             self.influence = influence_arr
 
@@ -204,7 +204,7 @@ cdef class LinearThresholdModel(DiffusionModel):
 
         self.reset_model()
 
-    cpdef void _assign_thresholds(self, array.array node_thresholds):
+    cpdef void _assign_thresholds(self, float[:] node_thresholds):
         # If provided, copy from user code
         cdef unsigned int n = len(self.starts)
         assert n == len(node_thresholds)
@@ -234,16 +234,16 @@ cdef class LinearThresholdModel(DiffusionModel):
     # Functions that actually advance the model
     cpdef void advance_until_completion(self):
         while self.work_deque.size() > 0:
-            self.__advance_model(
+            self._advance_model(
                 self.work_deque, self.seen_set, self.thresholds, self.buckets
             )
 
     cpdef void advance_model(self):
-        self.__advance_model(
+        self._advance_model(
             self.work_deque, self.seen_set, self.thresholds, self.buckets
         )
 
-    cdef int __advance_model(
+    cdef int _advance_model(
         self,
         cdeque[unsigned int]& work_deque,
         cset[unsigned int]& seen_set,
