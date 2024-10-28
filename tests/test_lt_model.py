@@ -1,10 +1,12 @@
 import array
 import copy
+import math
 import random
 import typing as t
 
 import networkx as nx
 import pytest
+
 from cynetdiff.utils import networkx_to_lt_model
 
 #    Code below adapted from code by
@@ -179,7 +181,7 @@ def generate_random_graph_from_seed(
 def get_thresholds(graph: nx.DiGraph) -> array.array:
     thresholds = array.array("f")
 
-    for _, data in graph.nodes(data=True):
+    for _, data in sorted(graph.nodes(data=True)):
         threshold = data["threshold"]
         assert 0.0 <= threshold <= 1.0
         thresholds.append(threshold)
@@ -250,3 +252,57 @@ def test_invalid_seed_error() -> None:
     with pytest.raises(ValueError):
         model.set_seeds({0.1})  # type: ignore[arg-type]
         model.advance_until_completion()
+
+
+@pytest.mark.parametrize("directed", [True, False])
+@pytest.mark.parametrize("nondefault_influence", [True, False])
+@pytest.mark.parametrize("seed", [12345, 505050])
+def test_marginal_gain(directed: bool, nondefault_influence: bool, seed: int) -> None:
+    """
+    Test the marginal gain function under a couple of parameter settings.
+    """
+
+    n = 500
+    p = 0.01
+    k = 10
+    test_graph = generate_random_graph_from_seed(
+        n, p, directed, nondefault_influence, seed
+    )
+
+    nodes = list(test_graph.nodes)
+    seeds = random.sample(nodes, k)
+
+    # Set up the model
+    model, _ = networkx_to_lt_model(test_graph)
+    node_thresholds = get_thresholds(test_graph)
+
+    result = model.compute_marginal_gain(
+        seeds, None, 1, _node_thresholds=node_thresholds
+    )
+    total_activated = float(
+        sum(len(level) for level in linear_threshold(test_graph, seeds))
+    )
+
+    assert math.isclose(result, total_activated)
+
+    set_so_far: t.List[int] = []
+
+    for seed in seeds:
+        without_new_seed_total = float(
+            sum(len(level) for level in linear_threshold(test_graph, set_so_far))
+        )
+
+        with_new_seed_total = float(
+            sum(
+                len(level)
+                for level in linear_threshold(test_graph, set_so_far + [seed])
+            )
+        )
+
+        marg_gain = with_new_seed_total - without_new_seed_total
+        result = model.compute_marginal_gain(
+            set_so_far, seed, 1, _node_thresholds=node_thresholds
+        )
+
+        assert math.isclose(result, marg_gain)
+        set_so_far.append(seed)

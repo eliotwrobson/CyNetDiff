@@ -72,14 +72,6 @@ class DiffusionModel:
             All of the currently activated nodes.
         """
 
-    def compute_marginal_gain(
-        self, seed_set: t.Iterable[int], new_seed: t.Optional[int], num_trials: int
-    ) -> float:
-        """
-        Computes the marginal gain of adding new_seed on top of seed_set. Averages over the given number
-        of trials. If new_seed is None, just gives the average influence of the seed set.
-        """
-
 class IndependentCascadeModel(DiffusionModel):
     """
     A Diffusion Model representing the Independent Cascade process. This class is a
@@ -115,6 +107,15 @@ class IndependentCascadeModel(DiffusionModel):
         _edge_probabilities: t.Optional[array.array] = None,
     ) -> None: ...
 
+    # TODO finish adding docs.
+    def compute_marginal_gain(
+        self, seed_set: t.Iterable[int], new_seed: t.Optional[int], num_trials: int
+    ) -> float:
+        """
+        Computes the marginal gain of adding new_seed on top of seed_set. Averages over the given number
+        of trials. If new_seed is None, just gives the average influence of the seed set.
+        """
+
 class LinearThresholdModel(DiffusionModel):
     """
     A Diffusion Model representing the Linear Threshold process. This class is a
@@ -148,3 +149,31 @@ class LinearThresholdModel(DiffusionModel):
         testing.
         """
         ...
+
+    # TODO finish adding docs.
+    def compute_marginal_gain(
+        self,
+        seed_set: t.Iterable[int],
+        new_seed: t.Optional[int],
+        num_trials: int,
+        *,
+        _node_thresholds: t.Optional[array.array] = None,
+    ) -> float:
+        """
+        Computes the marginal gain of adding new_seed on top of seed_set. Averages over the given number
+        of trials. If new_seed is None, just gives the average influence of the seed set.
+
+        Parameters
+        ----------
+        seed_set : Iterable[int]
+            An iterable representing the current seed set. Can be empty.
+        new_seed : int
+            New seed set to compute marginal gain on.
+        num_trials : int
+            Number of randomized trials to run.
+
+        Returns
+        ----------
+        float
+            Average marginal gain in profit over all trials.
+        """

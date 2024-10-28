@@ -6,12 +6,6 @@ cdef class DiffusionModel:
     cpdef void advance_model(self)
     cpdef void reset_model(self)
     cpdef void advance_until_completion(self)
-    cpdef float _compute_marginal_gain(
-        self,
-        cset[unsigned int]& original_seeds,
-        unsigned int new_seed,
-        unsigned int num_trials
-    )
 
 cdef class IndependentCascadeModel(DiffusionModel):
     cdef readonly unsigned int[:] starts
@@ -36,6 +30,13 @@ cdef class IndependentCascadeModel(DiffusionModel):
         cset[unsigned int]& seen_set
     ) except -1 nogil
 
+    cdef float _compute_marginal_gain(
+        self,
+        cset[unsigned int]& original_seeds,
+        unsigned int new_seed,
+        unsigned int num_trials
+    )
+
 cdef class LinearThresholdModel(DiffusionModel):
     # Core model parameters
     cdef readonly unsigned int[:] starts
@@ -50,7 +51,7 @@ cdef class LinearThresholdModel(DiffusionModel):
     cdef cmap[unsigned int, float] buckets
 
     # Mostly for testing
-    cpdef void _assign_thresholds(self, float[:] node_thresholds)
+    cpdef void _assign_thresholds(self, float[:] _node_thresholds)
 
     cdef int _advance_model(
         self,
@@ -59,3 +60,11 @@ cdef class LinearThresholdModel(DiffusionModel):
         cmap[unsigned int, float]& thresholds,
         cmap[unsigned int, float]& buckets,
     ) except -1 nogil
+
+    cdef float _compute_marginal_gain(
+        self,
+        cset[unsigned int]& original_seeds,
+        unsigned int new_seed,
+        unsigned int num_trials,
+        float[:] _node_thresholds
+    )

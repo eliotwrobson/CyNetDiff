@@ -37,43 +37,6 @@ cdef class DiffusionModel:
     cpdef void advance_until_completion(self):
         raise NotImplementedError
 
-    def compute_marginal_gain(self, seed_set, new_seed, num_trials):
-        cdef cset[unsigned int] original_seeds
-        n = len(self.starts)
-
-        for seed in seed_set:
-            if not (isinstance(seed, int) and 0 <= seed < n):
-                raise ValueError(
-                    f"Invalid seed node: {seed}. Must be in the range [0, {n-1}]"
-                )
-            elif seed == new_seed:
-                raise ValueError(
-                    f"new_seed should not be contained within the seed set."
-                )
-            original_seeds.insert(seed)
-
-        if new_seed is None:
-            new_seed = n
-            # Special value to compute marginal gain differently.
-        else:
-            if not (isinstance(new_seed, int) and 0 <= new_seed < n):
-                raise ValueError(
-                    f"Invalid new_seed: {new_seed}. Must be in the range [0, {n-1}]"
-                )
-
-
-        return self._compute_marginal_gain(
-            original_seeds, new_seed, num_trials
-        )
-
-    cpdef float _compute_marginal_gain(
-        self,
-        cset[unsigned int]& original_seeds,
-        unsigned int new_seed,
-        unsigned int num_trials
-    ):
-        raise NotImplementedError
-
 # IC Model
 cdef class IndependentCascadeModel(DiffusionModel):
     # Functions that interface with the Python side of things
@@ -128,7 +91,36 @@ cdef class IndependentCascadeModel(DiffusionModel):
     def get_num_activated_nodes(self):
         return self.seen_set.size()
 
-    cpdef float _compute_marginal_gain(
+    def compute_marginal_gain(self, seed_set, new_seed, num_trials):
+        cdef cset[unsigned int] original_seeds
+        n = len(self.starts)
+
+        for seed in seed_set:
+            if not (isinstance(seed, int) and 0 <= seed < n):
+                raise ValueError(
+                    f"Invalid seed node: {seed}. Must be in the range [0, {n-1}]"
+                )
+            elif seed == new_seed:
+                raise ValueError(
+                    f"new_seed should not be contained within the seed set."
+                )
+            original_seeds.insert(seed)
+
+        if new_seed is None:
+            new_seed = n
+            # Special value to compute marginal gain differently.
+        else:
+            if not (isinstance(new_seed, int) and 0 <= new_seed < n):
+                raise ValueError(
+                    f"Invalid new_seed: {new_seed}. Must be in the range [0, {n-1}]"
+                )
+
+
+        return self._compute_marginal_gain(
+            original_seeds, new_seed, num_trials
+        )
+
+    cdef float _compute_marginal_gain(
         self,
         cset[unsigned int]& original_seeds,
         unsigned int new_seed,
@@ -281,14 +273,14 @@ cdef class LinearThresholdModel(DiffusionModel):
 
         self.reset_model()
 
-    cpdef void _assign_thresholds(self, float[:] node_thresholds):
+    cpdef void _assign_thresholds(self, float[:] _node_thresholds):
         # If provided, copy from user code
         cdef unsigned int n = len(self.starts)
-        assert n == len(node_thresholds)
+        assert n == len(_node_thresholds)
 
         # Make a copy to avoid destroying memory on resets.
         for i in range(n):
-            self.thresholds[i] = node_thresholds[i]
+            self.thresholds[i] = _node_thresholds[i]
 
     cpdef void reset_model(self):
         self.work_deque.assign(self.original_seeds.begin(), self.original_seeds.end())
@@ -307,6 +299,89 @@ cdef class LinearThresholdModel(DiffusionModel):
 
     def get_num_activated_nodes(self):
         return self.seen_set.size()
+
+    def compute_marginal_gain(self, seed_set, new_seed, num_trials, *, _node_thresholds=None):
+        cdef cset[unsigned int] original_seeds
+        n = len(self.starts)
+
+        for seed in seed_set:
+            if not (isinstance(seed, int) and 0 <= seed < n):
+                raise ValueError(
+                    f"Invalid seed node: {seed}. Must be in the range [0, {n-1}]"
+                )
+            elif seed == new_seed:
+                raise ValueError(
+                    f"new_seed should not be contained within the seed set."
+                )
+            original_seeds.insert(seed)
+
+        if new_seed is None:
+            new_seed = n
+            # Special value to compute marginal gain differently.
+        else:
+            if not (isinstance(new_seed, int) and 0 <= new_seed < n):
+                raise ValueError(
+                    f"Invalid new_seed: {new_seed}. Must be in the range [0, {n-1}]"
+                )
+
+        return self._compute_marginal_gain(
+            original_seeds, new_seed, num_trials, _node_thresholds
+        )
+
+    cdef float _compute_marginal_gain(
+        self,
+        cset[unsigned int]& original_seeds,
+        unsigned int new_seed,
+        unsigned int num_trials,
+        float[:] _node_thresholds
+    ):
+        cdef cdeque[unsigned int] work_deque
+        cdef cset[unsigned int] seen_set
+        cdef cmap[unsigned int, float] thresholds
+        cdef cmap[unsigned int, float] buckets
+
+
+        cdef float result = 0.0
+        cdef prev_size
+        cdef unsigned int n = len(self.starts)
+
+        # Copy initial thresholds if provided
+        if _node_thresholds is not None:
+            assert n == len(_node_thresholds)
+
+            # Make a copy to avoid destroying memory on resets.
+            for i in range(n):
+                thresholds[i] = _node_thresholds[i]
+
+
+        for _ in range(num_trials):
+            work_deque.assign(original_seeds.begin(), original_seeds.end())
+            seen_set.clear()
+            seen_set.insert(original_seeds.begin(), original_seeds.end())
+            buckets.clear()
+
+            while work_deque.size() > 0:
+                self._advance_model(work_deque, seen_set, thresholds, buckets)
+
+            if new_seed == n:
+                result += seen_set.size()
+
+            # No marginal gain unless we're activating a new node
+            elif seen_set.find(new_seed) == seen_set.end():
+                prev_size = seen_set.size()
+
+                work_deque.push_back(new_seed)
+                seen_set.insert(new_seed)
+
+                while work_deque.size() > 0:
+                    self._advance_model(work_deque, seen_set,  thresholds, buckets)
+
+                result += seen_set.size() - prev_size
+
+            # Clear thresholds at the end to allow seeding.
+            thresholds.clear()
+
+        return result / num_trials
 
     # Functions that actually advance the model
     cpdef void advance_until_completion(self):
