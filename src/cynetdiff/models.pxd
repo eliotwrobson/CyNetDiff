@@ -6,6 +6,12 @@ cdef class DiffusionModel:
     cpdef void advance_model(self)
     cpdef void reset_model(self)
     cpdef void advance_until_completion(self)
+    cpdef float _compute_marginal_gain(
+        self,
+        cset[unsigned int]& original_seeds,
+        unsigned int new_seed,
+        unsigned int num_trials
+    )
 
 cdef class IndependentCascadeModel(DiffusionModel):
     cdef readonly unsigned int[:] starts

@@ -4,6 +4,7 @@ import typing as t
 
 import networkx as nx
 import pytest
+
 from cynetdiff.utils import (
     networkx_to_ic_model,
     set_activation_random_sample,
@@ -311,3 +312,24 @@ def test_duplicate_arguments() -> None:
 
     with pytest.raises(ValueError):
         networkx_to_ic_model(test_graph, activation_prob=0.1)
+
+
+def test_marginal_gain() -> None:
+    n = 1000
+    p = 0.01
+    k = 10
+    test_graph = generate_random_graph_from_seed(n, p, True)
+
+    nodes = list(test_graph.nodes)
+    seeds = random.sample(nodes, k)
+
+    activated_nodes_levels = independent_cascade(test_graph, seeds)
+
+    # Set up the model
+    model, _ = networkx_to_ic_model(test_graph, _include_succcess_prob=True)
+
+    thing = next(iter(seeds))
+
+    result = model.compute_marginal_gain(seeds, None, 1000)
+    print(result)
+    assert False
