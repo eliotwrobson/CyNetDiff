@@ -1,4 +1,5 @@
 import copy
+import math
 import random
 import typing as t
 
@@ -166,7 +167,7 @@ def generate_random_graph_from_seed(
 ) -> t.Union[nx.Graph, nx.DiGraph]:
     graph = nx.fast_gnp_random_graph(n, p, directed=directed, seed=seed)
 
-    random.seed(12345)
+    random.seed(seed)
     for _, _, data in graph.edges(data=True):
         data["success_prob"] = random.random()
 
@@ -314,22 +315,46 @@ def test_duplicate_arguments() -> None:
         networkx_to_ic_model(test_graph, activation_prob=0.1)
 
 
-def test_marginal_gain() -> None:
+@pytest.mark.parametrize("directed", [True, False])
+@pytest.mark.parametrize("seed", [12345, 505050, 999])
+def test_marginal_gain(directed: bool, seed: int) -> None:
+    """
+    Test the marginal gain function under a couple of parameter settings.
+    """
+
     n = 1000
     p = 0.01
     k = 10
-    test_graph = generate_random_graph_from_seed(n, p, True)
+    test_graph = generate_random_graph_from_seed(n, p, directed, seed)
 
     nodes = list(test_graph.nodes)
     seeds = random.sample(nodes, k)
 
-    activated_nodes_levels = independent_cascade(test_graph, seeds)
-
     # Set up the model
     model, _ = networkx_to_ic_model(test_graph, _include_succcess_prob=True)
 
-    thing = next(iter(seeds))
-
     result = model.compute_marginal_gain(seeds, None, 1000)
-    print(result)
-    assert False
+    total_activated = float(
+        sum(len(level) for level in independent_cascade(test_graph, seeds))
+    )
+
+    assert math.isclose(result, total_activated)
+
+    set_so_far: t.List[int] = []
+
+    for seed in seeds:
+        without_new_seed_total = float(
+            sum(len(level) for level in independent_cascade(test_graph, set_so_far))
+        )
+        with_new_seed_total = float(
+            sum(
+                len(level)
+                for level in independent_cascade(test_graph, set_so_far + [seed])
+            )
+        )
+
+        marg_gain = with_new_seed_total - without_new_seed_total
+        result = model.compute_marginal_gain(set_so_far, seed, 1000)
+
+        assert math.isclose(result, marg_gain)
+        set_so_far.append(seed)
