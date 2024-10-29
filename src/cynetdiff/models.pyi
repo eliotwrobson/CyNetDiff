@@ -72,6 +72,8 @@ class DiffusionModel:
             All of the currently activated nodes.
         """
 
+    # TODO add function that computes payoffs.
+
 class IndependentCascadeModel(DiffusionModel):
     """
     A Diffusion Model representing the Independent Cascade process. This class is a
@@ -109,14 +111,13 @@ class IndependentCascadeModel(DiffusionModel):
         payoffs: t.Optional[array.array] = None,
         _edge_probabilities: t.Optional[array.array] = None,
     ) -> None: ...
-
-    # TODO finish adding docs.
     def compute_marginal_gain(
         self, seed_set: t.Iterable[int], new_seed: t.Optional[int], num_trials: int
     ) -> float:
         """
         Computes the marginal gain of adding new_seed on top of seed_set. Averages over the given number
-        of trials. If new_seed is None, just gives the average influence of the seed set.
+        of trials. If new_seed is None, just gives the average influence of the seed set.  Computes
+        marginal gain using payoffs if set.
 
         Parameters
         ----------
@@ -180,7 +181,8 @@ class LinearThresholdModel(DiffusionModel):
     ) -> float:
         """
         Computes the marginal gain of adding new_seed on top of seed_set. Averages over the given number
-        of trials. If new_seed is None, just gives the average influence of the seed set.
+        of trials. If new_seed is None, just gives the average influence of the seed set. Computes
+        marginal gain using payoffs if set.
 
         Parameters
         ----------
