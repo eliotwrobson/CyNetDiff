@@ -170,7 +170,6 @@ class LinearThresholdModel(DiffusionModel):
         """
         ...
 
-    # TODO finish adding docs.
     def compute_marginal_gain(
         self,
         seed_set: t.Iterable[int],

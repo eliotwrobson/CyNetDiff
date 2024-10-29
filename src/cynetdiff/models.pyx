@@ -406,10 +406,10 @@ cdef class LinearThresholdModel(DiffusionModel):
                 new_seen_set.insert(seen_set.begin(), seen_set.end())
 
                 work_deque.push_back(new_seed)
-                seen_set.insert(new_seed)
+                new_seen_set.insert(new_seed)
 
                 while work_deque.size() > 0:
-                    self._advance_model(work_deque, seen_set,  thresholds, buckets)
+                    self._advance_model(work_deque, new_seen_set, thresholds, buckets)
 
                 result += self._compute_payoff(new_seen_set, seen_set, self.payoffs)
 

@@ -327,20 +327,15 @@ def test_duplicate_arguments() -> None:
 def compute_graph_marginal_gain(
     graph: Graph,
     new_set_lists: t.List[t.List[int]],
-    old_set_lists: t.Optional[t.List[t.List[int]]] = None,
 ) -> float:
+    """
+    TODO put this function in a shared file.
+    """
     result = 0.0
 
     new_set = set(item for sublist in new_set_lists for item in sublist)
-    old_set = None
-
-    if old_set_lists is not None:
-        old_set = set(item for sublist in old_set_lists for item in sublist)
 
     for elem in new_set:
-        if old_set is not None and elem in old_set:
-            continue
-
         result += graph.nodes[elem].get("payoff", 1.0)
 
     return result
