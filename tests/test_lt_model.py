@@ -1,10 +1,12 @@
 import array
 import copy
+import math
 import random
 import typing as t
 
 import networkx as nx
 import pytest
+
 from cynetdiff.utils import networkx_to_lt_model
 
 #    Code below adapted from code by
@@ -149,13 +151,22 @@ def _influence_sum(G, froms, to):
 
 
 def generate_random_graph_from_seed(
-    n: int, p: float, directed: bool, include_influence: bool, seed: int = 12345
+    n: int,
+    p: float,
+    directed: bool,
+    include_influence: bool,
+    include_payoff: bool,
+    *,
+    seed: int = 12345,
 ) -> nx.DiGraph:
     graph = nx.fast_gnp_random_graph(n, p, seed=seed, directed=directed).to_directed()
 
     random.seed(seed)
     for _, data in graph.nodes(data=True):
         data["threshold"] = random.random()
+
+        if include_payoff:
+            data["payoff"] = random.uniform(1.0, 10.0)
 
     if include_influence:
         for _, _, data in graph.edges(data=True):
@@ -179,7 +190,7 @@ def generate_random_graph_from_seed(
 def get_thresholds(graph: nx.DiGraph) -> array.array:
     thresholds = array.array("f")
 
-    for _, data in graph.nodes(data=True):
+    for _, data in sorted(graph.nodes(data=True)):
         threshold = data["threshold"]
         assert 0.0 <= threshold <= 1.0
         thresholds.append(threshold)
@@ -197,7 +208,11 @@ def test_specific_model(directed: bool, nondefault_influence: bool) -> None:
     p = 0.05
     k = 10
     test_graph = generate_random_graph_from_seed(
-        n, p, directed=directed, include_influence=nondefault_influence
+        n,
+        p,
+        directed=directed,
+        include_influence=nondefault_influence,
+        include_payoff=False,
     )
 
     nodes = list(test_graph.nodes)
@@ -237,7 +252,13 @@ def test_specific_model(directed: bool, nondefault_influence: bool) -> None:
 def test_invalid_seed_error() -> None:
     n = 1000
     p = 0.01
-    test_graph = generate_random_graph_from_seed(n, p, False, True)
+    test_graph = generate_random_graph_from_seed(
+        n,
+        p,
+        False,
+        True,
+        False,
+    )
 
     model, _ = networkx_to_lt_model(test_graph)
 
@@ -250,3 +271,72 @@ def test_invalid_seed_error() -> None:
     with pytest.raises(ValueError):
         model.set_seeds({0.1})  # type: ignore[arg-type]
         model.advance_until_completion()
+
+
+def compute_graph_marginal_gain(
+    graph: nx.DiGraph,
+    new_set_lists: t.List[t.List[int]],
+) -> float:
+    result = 0.0
+
+    new_set = set(item for sublist in new_set_lists for item in sublist)
+
+    for elem in new_set:
+        result += graph.nodes[elem].get("payoff", 1.0)
+
+    return result
+
+
+@pytest.mark.parametrize("directed", [True, False])
+@pytest.mark.parametrize("nondefault_influence", [True, False])
+@pytest.mark.parametrize("include_payoffs", [True, False])
+@pytest.mark.parametrize("seed", [12345, 505050])
+def test_marginal_gain(
+    directed: bool, nondefault_influence: bool, include_payoffs: bool, seed: int
+) -> None:
+    """
+    Test the marginal gain function under a couple of parameter settings.
+    """
+
+    n = 500
+    p = 0.01
+    k = 10
+    test_graph = generate_random_graph_from_seed(
+        n, p, directed, nondefault_influence, include_payoffs, seed=seed
+    )
+
+    nodes = list(test_graph.nodes)
+    seeds = random.sample(nodes, k)
+
+    # Set up the model
+    model, _ = networkx_to_lt_model(test_graph)
+    node_thresholds = get_thresholds(test_graph)
+
+    result = model.compute_marginal_gain(
+        seeds, None, 1, _node_thresholds=node_thresholds
+    )
+    total_activated = compute_graph_marginal_gain(
+        test_graph, linear_threshold(test_graph, seeds)
+    )
+
+    assert math.isclose(result, total_activated, abs_tol=0.05)
+
+    set_so_far: t.List[int] = []
+
+    for seed in seeds:
+        without_new_seed_total = compute_graph_marginal_gain(
+            test_graph, linear_threshold(test_graph, set_so_far)
+        )
+
+        with_new_seed_total = compute_graph_marginal_gain(
+            test_graph, linear_threshold(test_graph, set_so_far + [seed])
+        )
+
+        marg_gain = with_new_seed_total - without_new_seed_total
+
+        result = model.compute_marginal_gain(
+            set_so_far, seed, 1, _node_thresholds=node_thresholds
+        )
+
+        assert math.isclose(result, marg_gain, abs_tol=0.05)
+        set_so_far.append(seed)

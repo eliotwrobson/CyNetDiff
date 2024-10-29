@@ -72,6 +72,8 @@ class DiffusionModel:
             All of the currently activated nodes.
         """
 
+    # TODO add function that computes payoffs.
+
 class IndependentCascadeModel(DiffusionModel):
     """
     A Diffusion Model representing the Independent Cascade process. This class is a
@@ -86,6 +88,8 @@ class IndependentCascadeModel(DiffusionModel):
     edges : array.array
         An array of edges represented as integer indices of nodes. Type
         of array elements must be `unsigned int`.
+    payoffs : array.array
+        An array of payoffs for each node if activated. Type of array elements must be `float`.
     activation_prob : float, optional
         Uniform activation probability for the Independent Cascade model.
         Defaults to `0.1`. Should not be set if `activation_probs` is set.
@@ -104,8 +108,31 @@ class IndependentCascadeModel(DiffusionModel):
         *,
         activation_prob: float = 0.1,
         activation_probs: t.Optional[array.array] = None,
+        payoffs: t.Optional[array.array] = None,
         _edge_probabilities: t.Optional[array.array] = None,
     ) -> None: ...
+    def compute_marginal_gain(
+        self, seed_set: t.Iterable[int], new_seed: t.Optional[int], num_trials: int
+    ) -> float:
+        """
+        Computes the marginal gain of adding new_seed on top of seed_set. Averages over the given number
+        of trials. If new_seed is None, just gives the average influence of the seed set.  Computes
+        marginal gain using payoffs if set.
+
+        Parameters
+        ----------
+        seed_set : Iterable[int]
+            An iterable representing the current seed set. Can be empty.
+        new_seed : int
+            New seed set to compute marginal gain on.
+        num_trials : int
+            Number of randomized trials to run.
+
+        Returns
+        ----------
+        float
+            Average marginal gain in profit over all trials.
+        """
 
 class LinearThresholdModel(DiffusionModel):
     """
@@ -121,6 +148,8 @@ class LinearThresholdModel(DiffusionModel):
     edges : array.array
         An array of edges represented as integer indices of nodes. Type
         of array elements must be `unsigned int`.
+    payoffs : array.array
+        An array of payoffs for each node if activated. Type of array elements must be `float`.
     influence : array.array, optional
         An array of influence values for each edge. Array elements must be
         `float`s in [`0.0`,`1.0`]. If not set, the inverse of the in-degree of a node
@@ -132,6 +161,7 @@ class LinearThresholdModel(DiffusionModel):
         starts: array.array,
         edges: array.array,
         *,
+        payoffs: t.Optional[array.array] = None,
         influence: t.Optional[array.array] = None,
     ) -> None: ...
     def _assign_thresholds(self, node_thresholds: array.array) -> None:
@@ -140,3 +170,31 @@ class LinearThresholdModel(DiffusionModel):
         testing.
         """
         ...
+
+    def compute_marginal_gain(
+        self,
+        seed_set: t.Iterable[int],
+        new_seed: t.Optional[int],
+        num_trials: int,
+        *,
+        _node_thresholds: t.Optional[array.array] = None,
+    ) -> float:
+        """
+        Computes the marginal gain of adding new_seed on top of seed_set. Averages over the given number
+        of trials. If new_seed is None, just gives the average influence of the seed set. Computes
+        marginal gain using payoffs if set.
+
+        Parameters
+        ----------
+        seed_set : Iterable[int]
+            An iterable representing the current seed set. Can be empty.
+        new_seed : int
+            New seed set to compute marginal gain on.
+        num_trials : int
+            Number of randomized trials to run.
+
+        Returns
+        ----------
+        float
+            Average marginal gain in profit over all trials.
+        """

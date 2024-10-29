@@ -1,12 +1,19 @@
-from cpython cimport array
 from libcpp.deque cimport deque as cdeque
 from libcpp.unordered_set cimport unordered_set as cset
 from libcpp.unordered_map cimport unordered_map as cmap
 
 cdef class DiffusionModel:
+    cdef readonly float[:] payoffs
+
     cpdef void advance_model(self)
     cpdef void reset_model(self)
     cpdef void advance_until_completion(self)
+    cdef float _compute_payoff(
+        self,
+        cset[unsigned int]& new_seeds,
+        cset[unsigned int]& old_seeds,
+        float[:] payoffs,
+    )
 
 cdef class IndependentCascadeModel(DiffusionModel):
     cdef readonly unsigned int[:] starts
@@ -24,8 +31,19 @@ cdef class IndependentCascadeModel(DiffusionModel):
     cdef cset[unsigned int] seen_set
     cdef cset[unsigned int] original_seeds
 
-    cdef int __activation_succeeds(self, unsigned int edge_idx) except -1 nogil
-    cdef int __advance_model(self, cdeque[unsigned int]& work_deque, cset[unsigned int]& seen_set) except -1 nogil
+    cdef int _activation_succeeds(self, unsigned int edge_idx) except -1 nogil
+    cdef int _advance_model(
+        self,
+        cdeque[unsigned int]& work_deque,
+        cset[unsigned int]& seen_set
+    ) except -1 nogil
+
+    cdef float _compute_marginal_gain(
+        self,
+        cset[unsigned int]& original_seeds,
+        unsigned int new_seed,
+        unsigned int num_trials
+    )
 
 cdef class LinearThresholdModel(DiffusionModel):
     # Core model parameters
@@ -41,12 +59,20 @@ cdef class LinearThresholdModel(DiffusionModel):
     cdef cmap[unsigned int, float] buckets
 
     # Mostly for testing
-    cpdef void _assign_thresholds(self, array.array node_thresholds)
+    cpdef void _assign_thresholds(self, float[:] _node_thresholds)
 
-    cdef int __advance_model(
+    cdef int _advance_model(
         self,
         cdeque[unsigned int]& work_deque,
         cset[unsigned int]& seen_set,
         cmap[unsigned int, float]& thresholds,
         cmap[unsigned int, float]& buckets,
     ) except -1 nogil
+
+    cdef float _compute_marginal_gain(
+        self,
+        cset[unsigned int]& original_seeds,
+        unsigned int new_seed,
+        unsigned int num_trials,
+        float[:] _node_thresholds
+    )

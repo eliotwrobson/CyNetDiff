@@ -92,6 +92,9 @@ def networkx_to_ic_model(
     Activation probability should only be set on either edges or through the function
     argument, not both.
 
+    Payoffs for each node are included if they are defined on each node under the key
+    `"payoff"`.
+
     Parameters
     ----------
     graph : nx.Graph or nx.DiGraph
@@ -112,16 +115,20 @@ def networkx_to_ic_model(
         the model.
     """
 
-    node_list = list(enumerate(graph.nodes()))
-    node_mapping = {node: i for i, node in node_list}
+    node_list = list(enumerate(graph.nodes(data=True)))
+    node_mapping = {node: i for i, (node, _) in node_list}
 
     starts = array.array("I")
     edges = array.array("I")
+    payoffs = None
     success_prob = None
     activation_probs = None
 
     if _include_succcess_prob:
         success_prob = array.array("f")
+
+    if next(iter(graph.nodes.data("payoff", None)))[1] is not None:
+        payoffs = array.array("f")
 
     if next(iter(graph.edges.data("activation_prob", None)))[2] is not None:
         # Don't have both things set.
@@ -134,8 +141,12 @@ def networkx_to_ic_model(
         activation_probs = array.array("f")
 
     curr_start = 0
-    for _, node in node_list:
+    for _, (node, data_dict) in node_list:
         starts.append(curr_start)
+
+        if payoffs is not None:
+            payoffs.append(data_dict["payoff"])
+
         for neighbor in graph.neighbors(node):
             other = node_mapping[neighbor]
             curr_start += 1
@@ -156,6 +167,7 @@ def networkx_to_ic_model(
         return IndependentCascadeModel(
             starts,
             edges,
+            payoffs=payoffs,
             activation_prob=activation_prob,
             _edge_probabilities=success_prob,
         ), node_mapping
@@ -164,6 +176,7 @@ def networkx_to_ic_model(
         return IndependentCascadeModel(
             starts,
             edges,
+            payoffs=payoffs,
             activation_probs=activation_probs,
             _edge_probabilities=success_prob,
         ), node_mapping
@@ -171,6 +184,7 @@ def networkx_to_ic_model(
         return IndependentCascadeModel(
             starts,
             edges,
+            payoffs=payoffs,
             _edge_probabilities=success_prob,
         ), node_mapping
 
@@ -181,6 +195,9 @@ def networkx_to_lt_model(
     """
     Converts a NetworkX graph into a Linear Threshold model. Includes influence
     values if they are defined on each edge under the key `"influence"`.
+
+    Payoffs for each node are included if they are defined on each node under the key
+    `"payoff"`.
 
     Parameters
     ----------
@@ -195,21 +212,29 @@ def networkx_to_lt_model(
         the model.
     """
 
-    node_list = list(enumerate(graph.nodes()))
-    node_mapping = {node: i for i, node in node_list}
+    node_list = list(enumerate(graph.nodes(data=True)))
+    node_mapping = {node: i for i, (node, _) in node_list}
 
     starts = array.array("I")
     edges = array.array("I")
 
     influence = None
+    payoffs = None
+
+    if next(iter(graph.nodes.data("payoff", None)))[1] is not None:
+        payoffs = array.array("f")
 
     if next(iter(graph.edges.data("influence", None)))[2] is not None:
         influence = array.array("f")
 
     curr_successor = 0
-    for _, node in node_list:
+    for _, (node, data_dict) in node_list:
         # First, add to out neighbors
         starts.append(curr_successor)
+
+        if payoffs is not None:
+            payoffs.append(data_dict["payoff"])
+
         for successor in graph.successors(node):
             other = node_mapping[successor]
             curr_successor += 1
@@ -239,6 +264,7 @@ def networkx_to_lt_model(
     model = LinearThresholdModel(
         starts,
         edges,
+        payoffs=payoffs,
         influence=influence,
     )
 
