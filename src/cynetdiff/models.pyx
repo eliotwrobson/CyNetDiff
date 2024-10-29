@@ -76,7 +76,6 @@ cdef class IndependentCascadeModel(DiffusionModel):
 
         self._edge_probabilities = _edge_probabilities
 
-
         if self._edge_probabilities is not None:
             assert len(self.edges) == len(self._edge_probabilities)
 
@@ -126,7 +125,7 @@ cdef class IndependentCascadeModel(DiffusionModel):
                 )
             elif seed == new_seed:
                 raise ValueError(
-                    f"new_seed should not be contained within the seed set."
+                    f"new_seed {new_seed} should not be contained within the seed set."
                 )
             original_seeds.insert(seed)
 
@@ -138,7 +137,6 @@ cdef class IndependentCascadeModel(DiffusionModel):
                 raise ValueError(
                     f"Invalid new_seed: {new_seed}. Must be in the range [0, {n-1}]"
                 )
-
 
         return self._compute_marginal_gain(
             original_seeds, new_seed, num_trials
@@ -180,10 +178,9 @@ cdef class IndependentCascadeModel(DiffusionModel):
                 while work_deque.size() > 0:
                     self._advance_model(work_deque, new_seen_set)
 
-                result += self._compute_payoff(new_seen_set, seen_set, self.payoffs) # seen_set.size() - prev_size
+                result += self._compute_payoff(new_seen_set, seen_set, self.payoffs)
 
         return result / num_trials
-
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
@@ -333,7 +330,14 @@ cdef class LinearThresholdModel(DiffusionModel):
     def get_num_activated_nodes(self):
         return self.seen_set.size()
 
-    def compute_marginal_gain(self, seed_set, new_seed, num_trials, *, _node_thresholds=None):
+    def compute_marginal_gain(
+        self,
+        seed_set,
+        new_seed,
+        num_trials,
+        *,
+        _node_thresholds=None
+    ):
         cdef cset[unsigned int] original_seeds
         n = len(self.starts)
 
@@ -344,7 +348,7 @@ cdef class LinearThresholdModel(DiffusionModel):
                 )
             elif seed == new_seed:
                 raise ValueError(
-                    f"new_seed should not be contained within the seed set."
+                    f"new_seed {new_seed} should not be contained within the seed set."
                 )
             original_seeds.insert(seed)
 
@@ -374,7 +378,6 @@ cdef class LinearThresholdModel(DiffusionModel):
         cdef cmap[unsigned int, float] thresholds
         cdef cmap[unsigned int, float] buckets
 
-
         cdef float result = 0.0
         cdef unsigned int n = len(self.starts)
 
@@ -385,7 +388,6 @@ cdef class LinearThresholdModel(DiffusionModel):
             # Make a copy to avoid destroying memory on resets.
             for i in range(n):
                 thresholds[i] = _node_thresholds[i]
-
 
         for _ in range(num_trials):
             work_deque.assign(original_seeds.begin(), original_seeds.end())
