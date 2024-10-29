@@ -163,13 +163,22 @@ def _prop_success(G, src, dest, rand_gen):
 
 
 def generate_random_graph_from_seed(
-    n: int, p: float, directed: bool, seed: int = 12345
+    n: int,
+    p: float,
+    directed: bool,
+    include_payoff: bool,
+    *,
+    seed: int = 12345,
 ) -> t.Union[nx.Graph, nx.DiGraph]:
     graph = nx.fast_gnp_random_graph(n, p, directed=directed, seed=seed)
 
     random.seed(seed)
     for _, _, data in graph.edges(data=True):
         data["success_prob"] = random.random()
+
+    if include_payoff:
+        for _, data in graph.nodes(data=True):
+            data["payoff"] = random.uniform(1.0, 10.0)
 
     return graph
 
@@ -183,7 +192,7 @@ def test_model_basic(directed: bool) -> None:
     k = 10
     p = 0.01
     # Just trying the main functions with no set thresholds
-    graph = generate_random_graph_from_seed(n, p, directed)
+    graph = generate_random_graph_from_seed(n, p, directed, False)
     model, _ = networkx_to_ic_model(graph)
 
     # Didn't set the seeds
@@ -221,7 +230,7 @@ def test_specific_model(
     p = 0.01
     k = 10
 
-    test_graph = generate_random_graph_from_seed(n, p, directed)
+    test_graph = generate_random_graph_from_seed(n, p, directed, False)
     indep_cascade_prob = 0.2
 
     if set_act_prob_fn is not None:
@@ -269,7 +278,7 @@ def test_basic_2(directed: bool) -> None:
     n = 1000
     p = 0.01
     k = 10
-    test_graph = generate_random_graph_from_seed(n, p, directed)
+    test_graph = generate_random_graph_from_seed(n, p, directed, False)
 
     nodes = list(test_graph.nodes)
     seeds = random.sample(nodes, k)
@@ -288,7 +297,7 @@ def test_basic_2(directed: bool) -> None:
 def test_invalid_seed_error() -> None:
     n = 1000
     p = 0.01
-    test_graph = generate_random_graph_from_seed(n, p, False)
+    test_graph = generate_random_graph_from_seed(n, p, False, False)
 
     model, _ = networkx_to_ic_model(test_graph)
 
@@ -306,7 +315,7 @@ def test_invalid_seed_error() -> None:
 def test_duplicate_arguments() -> None:
     n = 1000
     p = 0.01
-    test_graph = generate_random_graph_from_seed(n, p, False)
+    test_graph = generate_random_graph_from_seed(n, p, False, False)
 
     for _, _, data in test_graph.edges(data=True):
         data["activation_prob"] = random.random()
@@ -315,9 +324,32 @@ def test_duplicate_arguments() -> None:
         networkx_to_ic_model(test_graph, activation_prob=0.1)
 
 
+def compute_graph_marginal_gain(
+    graph: Graph,
+    new_set_lists: t.List[t.List[int]],
+    old_set_lists: t.Optional[t.List[t.List[int]]] = None,
+) -> float:
+    result = 0.0
+
+    new_set = set(item for sublist in new_set_lists for item in sublist)
+    old_set = None
+
+    if old_set_lists is not None:
+        old_set = set(item for sublist in old_set_lists for item in sublist)
+
+    for elem in new_set:
+        if old_set is not None and elem in old_set:
+            continue
+
+        result += graph.nodes[elem].get("payoff", 1.0)
+
+    return result
+
+
 @pytest.mark.parametrize("directed", [True, False])
+@pytest.mark.parametrize("include_payoffs", [True, False])
 @pytest.mark.parametrize("seed", [12345, 505050, 999])
-def test_marginal_gain(directed: bool, seed: int) -> None:
+def test_marginal_gain(directed: bool, include_payoffs: bool, seed: int) -> None:
     """
     Test the marginal gain function under a couple of parameter settings.
     """
@@ -325,7 +357,9 @@ def test_marginal_gain(directed: bool, seed: int) -> None:
     n = 1000
     p = 0.01
     k = 10
-    test_graph = generate_random_graph_from_seed(n, p, directed, seed)
+    test_graph = generate_random_graph_from_seed(
+        n, p, directed, include_payoffs, seed=seed
+    )
 
     nodes = list(test_graph.nodes)
     seeds = random.sample(nodes, k)
@@ -334,27 +368,25 @@ def test_marginal_gain(directed: bool, seed: int) -> None:
     model, _ = networkx_to_ic_model(test_graph, _include_succcess_prob=True)
 
     result = model.compute_marginal_gain(seeds, None, 1000)
-    total_activated = float(
-        sum(len(level) for level in independent_cascade(test_graph, seeds))
+    total_activated = compute_graph_marginal_gain(
+        test_graph, independent_cascade(test_graph, seeds)
     )
 
-    assert math.isclose(result, total_activated)
+    assert math.isclose(result, total_activated, abs_tol=0.05)
 
     set_so_far: t.List[int] = []
 
     for seed in seeds:
-        without_new_seed_total = float(
-            sum(len(level) for level in independent_cascade(test_graph, set_so_far))
+        without_new_seed_total = compute_graph_marginal_gain(
+            test_graph, independent_cascade(test_graph, set_so_far)
         )
-        with_new_seed_total = float(
-            sum(
-                len(level)
-                for level in independent_cascade(test_graph, set_so_far + [seed])
-            )
+
+        with_new_seed_total = compute_graph_marginal_gain(
+            test_graph, independent_cascade(test_graph, set_so_far + [seed])
         )
 
         marg_gain = with_new_seed_total - without_new_seed_total
         result = model.compute_marginal_gain(set_so_far, seed, 1000)
 
-        assert math.isclose(result, marg_gain)
+        assert math.isclose(result, marg_gain, abs_tol=0.05)
         set_so_far.append(seed)

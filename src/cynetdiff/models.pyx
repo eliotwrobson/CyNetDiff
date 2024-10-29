@@ -37,6 +37,23 @@ cdef class DiffusionModel:
     cpdef void advance_until_completion(self):
         raise NotImplementedError
 
+    cdef float _compute_payoff(
+        self,
+        cset[unsigned int]& new_set,
+        cset[unsigned int]& old_set,
+        float[:] payoffs,
+    ):
+        cdef float result = 0.0
+
+        if payoffs is not None:
+            for node in new_set:
+                if old_set.find(node) == old_set.end():
+                    result += payoffs[node]
+        else:
+            result += new_set.size() - old_set.size()
+
+        return result
+
 # IC Model
 cdef class IndependentCascadeModel(DiffusionModel):
     # Functions that interface with the Python side of things
@@ -47,20 +64,27 @@ cdef class IndependentCascadeModel(DiffusionModel):
         *,
         double activation_prob = 0.1,
         float[:] activation_probs = None,
+        float[:] payoffs = None,
         float[:] _edge_probabilities = None
     ):
 
         self.starts = starts
         self.edges = edges
-        self._edge_probabilities = _edge_probabilities
         self.activation_prob = activation_prob
         self.activation_probs = activation_probs
+        self.payoffs = payoffs
+
+        self._edge_probabilities = _edge_probabilities
+
 
         if self._edge_probabilities is not None:
             assert len(self.edges) == len(self._edge_probabilities)
 
         if self.activation_probs is not None:
             assert len(self.edges) == len(self.activation_probs)
+
+        if self.payoffs is not None:
+            assert len(self.starts) == len(self.payoffs)
 
     def set_seeds(self, seeds):
         self.original_seeds.clear()
@@ -128,8 +152,9 @@ cdef class IndependentCascadeModel(DiffusionModel):
     ):
         cdef cdeque[unsigned int] work_deque
         cdef cset[unsigned int] seen_set
+        cdef cset[unsigned int] new_seen_set
+
         cdef float result = 0.0
-        cdef prev_size
         cdef unsigned int n = len(self.starts)
 
         for _ in range(num_trials):
@@ -141,19 +166,21 @@ cdef class IndependentCascadeModel(DiffusionModel):
                 self._advance_model(work_deque, seen_set)
 
             if new_seed == n:
-                result += seen_set.size()
+                # Use empty new seen set to always return marginal gain.
+                result += self._compute_payoff(seen_set, new_seen_set, self.payoffs)
 
             # No marginal gain unless we're activating a new node
             elif seen_set.find(new_seed) == seen_set.end():
-                prev_size = seen_set.size()
+                new_seen_set.clear()
+                new_seen_set.insert(seen_set.begin(), seen_set.end())
 
                 work_deque.push_back(new_seed)
-                seen_set.insert(new_seed)
+                new_seen_set.insert(new_seed)
 
                 while work_deque.size() > 0:
-                    self._advance_model(work_deque, seen_set)
+                    self._advance_model(work_deque, new_seen_set)
 
-                result += seen_set.size() - prev_size
+                result += self._compute_payoff(new_seen_set, seen_set, self.payoffs) # seen_set.size() - prev_size
 
         return result / num_trials
 
@@ -230,10 +257,12 @@ cdef class LinearThresholdModel(DiffusionModel):
         unsigned int[:] starts not None,
         unsigned int[:] edges not None
         *,
-        float[:] influence = None
+        float[:] influence = None,
+        float[:] payoffs = None,
     ):
         self.starts = starts
         self.edges = edges
+        self.payoffs = payoffs
 
         cdef unsigned int n = len(self.starts)
         cdef unsigned int m = len(self.edges)
@@ -259,6 +288,10 @@ cdef class LinearThresholdModel(DiffusionModel):
             )
 
             self.influence = influence_arr
+
+        # Verify payoffs
+        if self.payoffs is not None:
+            assert len(self.starts) == len(self.payoffs)
 
     def set_seeds(self, seeds):
         self.original_seeds.clear()
@@ -337,12 +370,12 @@ cdef class LinearThresholdModel(DiffusionModel):
     ):
         cdef cdeque[unsigned int] work_deque
         cdef cset[unsigned int] seen_set
+        cdef cset[unsigned int] new_seen_set
         cdef cmap[unsigned int, float] thresholds
         cdef cmap[unsigned int, float] buckets
 
 
         cdef float result = 0.0
-        cdef prev_size
         cdef unsigned int n = len(self.starts)
 
         # Copy initial thresholds if provided
@@ -364,11 +397,13 @@ cdef class LinearThresholdModel(DiffusionModel):
                 self._advance_model(work_deque, seen_set, thresholds, buckets)
 
             if new_seed == n:
-                result += seen_set.size()
+                # Use empty new seen set to always return marginal gain.
+                result += self._compute_payoff(seen_set, new_seen_set, self.payoffs)
 
             # No marginal gain unless we're activating a new node
             elif seen_set.find(new_seed) == seen_set.end():
-                prev_size = seen_set.size()
+                new_seen_set.clear()
+                new_seen_set.insert(seen_set.begin(), seen_set.end())
 
                 work_deque.push_back(new_seed)
                 seen_set.insert(new_seed)
@@ -376,7 +411,7 @@ cdef class LinearThresholdModel(DiffusionModel):
                 while work_deque.size() > 0:
                     self._advance_model(work_deque, seen_set,  thresholds, buckets)
 
-                result += seen_set.size() - prev_size
+                result += self._compute_payoff(new_seen_set, seen_set, self.payoffs)
 
             # Clear thresholds at the end to allow seeding.
             thresholds.clear()

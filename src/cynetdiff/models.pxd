@@ -3,9 +3,17 @@ from libcpp.unordered_set cimport unordered_set as cset
 from libcpp.unordered_map cimport unordered_map as cmap
 
 cdef class DiffusionModel:
+    cdef readonly float[:] payoffs
+
     cpdef void advance_model(self)
     cpdef void reset_model(self)
     cpdef void advance_until_completion(self)
+    cdef float _compute_payoff(
+        self,
+        cset[unsigned int]& new_seeds,
+        cset[unsigned int]& old_seeds,
+        float[:] payoffs,
+    )
 
 cdef class IndependentCascadeModel(DiffusionModel):
     cdef readonly unsigned int[:] starts
