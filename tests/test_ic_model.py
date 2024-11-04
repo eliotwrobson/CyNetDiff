@@ -342,7 +342,7 @@ def compute_graph_marginal_gain(
 
 @pytest.mark.parametrize("directed", [True, False])
 @pytest.mark.parametrize("include_payoffs", [True, False])
-@pytest.mark.parametrize("seed", [12345, 505050, 999])
+@pytest.mark.parametrize("seed", [12345, 505050, 2024])
 def test_marginal_gain(directed: bool, include_payoffs: bool, seed: int) -> None:
     """
     Test the marginal gain function under a couple of parameter settings.
@@ -371,6 +371,7 @@ def test_marginal_gain(directed: bool, include_payoffs: bool, seed: int) -> None
     results: t.List[float] = model.compute_marginal_gains([], seeds, 1000)
 
     assert math.isclose(results[0], 0.0)
+    assert math.isclose(sum(results), result, abs_tol=0.05)
 
     set_so_far: t.List[int] = []
 
