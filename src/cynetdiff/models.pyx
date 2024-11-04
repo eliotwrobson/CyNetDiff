@@ -39,18 +39,17 @@ cdef class DiffusionModel:
 
     cdef float _compute_payoff(
         self,
-        cset[unsigned int]& new_set,
-        cset[unsigned int]& old_set,
+        cdeque[unsigned int]& activated_nodes,
         float[:] payoffs,
     ):
         cdef float result = 0.0
 
         if payoffs is not None:
-            for node in new_set:
-                if old_set.find(node) == old_set.end():
-                    result += payoffs[node]
+            for node in activated_nodes:
+                result += payoffs[node]
         else:
-            result += new_set.size() - old_set.size()
+            #TODO do a static cast?
+            result += activated_nodes.size()
 
         return result
 
@@ -114,46 +113,62 @@ cdef class IndependentCascadeModel(DiffusionModel):
     def get_num_activated_nodes(self):
         return self.seen_set.size()
 
-    def compute_marginal_gain(self, seed_set, new_seed, num_trials):
+    def compute_marginal_gains(self, seed_set, new_seeds, num_trials):
         cdef cset[unsigned int] original_seeds
+        cdef cvector[unsigned int] new_seeds_vec
         n = len(self.starts)
+
+        new_seeds_set = set(new_seeds)
+
+        if len(new_seeds) != len(new_seeds_set):
+            raise ValueError(
+                "New seeds set must have all unique elements."
+            )
 
         for seed in seed_set:
             if not (isinstance(seed, int) and 0 <= seed < n):
                 raise ValueError(
                     f"Invalid seed node: {seed}. Must be in the range [0, {n-1}]"
                 )
-            elif seed == new_seed:
+            elif seed in new_seeds_set:
                 raise ValueError(
-                    f"new_seed {new_seed} should not be contained within the seed set."
+                    f"New seed {new_seed} should not be contained within the seed set."
                 )
             original_seeds.insert(seed)
 
-        if new_seed is None:
-            new_seed = n
-            # Special value to compute marginal gain differently.
-        else:
+        for new_seed in new_seeds:
             if not (isinstance(new_seed, int) and 0 <= new_seed < n):
                 raise ValueError(
-                    f"Invalid new_seed: {new_seed}. Must be in the range [0, {n-1}]"
+                    f"Invalid new seed {new_seed}. Must be integer in the range [0, {n-1}]"
                 )
+            new_seeds_vec.push_back(new_seed)
 
-        return self._compute_marginal_gain(
-            original_seeds, new_seed, num_trials
+        cdef cvector[float] results = self._compute_marginal_gains(
+            original_seeds, new_seeds_vec, num_trials
         )
 
-    cdef float _compute_marginal_gain(
+        res_list = []
+
+        for res_number in results:
+            res_list.append(res_number)
+
+        return res_list
+
+    cdef cvector[float] _compute_marginal_gains(
         self,
         cset[unsigned int]& original_seeds,
-        unsigned int new_seed,
+        cvector[unsigned int]& new_seeds,
         unsigned int num_trials
     ):
         cdef cdeque[unsigned int] work_deque
         cdef cset[unsigned int] seen_set
-        cdef cset[unsigned int] new_seen_set
 
         cdef float result = 0.0
         cdef unsigned int n = len(self.starts)
+
+        cdef cvector[float] results(new_seeds.size()+1, 0.0)
+
+        cdef unsigned int new_seed
 
         for _ in range(num_trials):
             work_deque.assign(original_seeds.begin(), original_seeds.end())
@@ -161,26 +176,25 @@ cdef class IndependentCascadeModel(DiffusionModel):
             seen_set.insert(original_seeds.begin(), original_seeds.end())
 
             while work_deque.size() > 0:
+                results[0] += self._compute_payoff(work_deque, self.payoffs)
                 self._advance_model(work_deque, seen_set)
 
-            if new_seed == n:
-                # Use empty new seen set to always return marginal gain.
-                result += self._compute_payoff(seen_set, new_seen_set, self.payoffs)
+            for i in range(new_seeds.size()):
+                new_seed = new_seeds[i]
 
-            # No marginal gain unless we're activating a new node
-            elif seen_set.find(new_seed) == seen_set.end():
-                new_seen_set.clear()
-                new_seen_set.insert(seen_set.begin(), seen_set.end())
+                # No marginal gain unless we're activating a new node
+                if seen_set.find(new_seed) == seen_set.end():
+                    work_deque.push_back(new_seed)
+                    seen_set.insert(new_seed)
 
-                work_deque.push_back(new_seed)
-                new_seen_set.insert(new_seed)
+                    while work_deque.size() > 0:
+                        self._advance_model(work_deque, new_seen_set)
+                        results[i+1] += self._compute_payoff(work_deque, self.payoffs)
 
-                while work_deque.size() > 0:
-                    self._advance_model(work_deque, new_seen_set)
+        for i in range(results.size()):
+            results[i] /= num_trials
 
-                result += self._compute_payoff(new_seen_set, seen_set, self.payoffs)
-
-        return result / num_trials
+        return results
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
