@@ -166,7 +166,8 @@ cdef class IndependentCascadeModel(DiffusionModel):
         cdef float result = 0.0
         cdef unsigned int n = len(self.starts)
 
-        cdef cvector[float] results(new_seeds.size()+1, 0.0)
+        cdef cvector[float] results
+        results = cvector[float](new_seeds.size()+1, 0.0)
 
         cdef unsigned int new_seed
 
@@ -179,7 +180,7 @@ cdef class IndependentCascadeModel(DiffusionModel):
                 results[0] += self._compute_payoff(work_deque, self.payoffs)
                 self._advance_model(work_deque, seen_set)
 
-            for i in range(new_seeds.size()):
+            for i in range(1, new_seeds.size()+1):
                 new_seed = new_seeds[i]
 
                 # No marginal gain unless we're activating a new node
@@ -188,8 +189,8 @@ cdef class IndependentCascadeModel(DiffusionModel):
                     seen_set.insert(new_seed)
 
                     while work_deque.size() > 0:
-                        self._advance_model(work_deque, new_seen_set)
-                        results[i+1] += self._compute_payoff(work_deque, self.payoffs)
+                        self._advance_model(work_deque, seen_set)
+                        results[i] += self._compute_payoff(work_deque, self.payoffs)
 
         for i in range(results.size()):
             results[i] /= num_trials
