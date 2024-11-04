@@ -111,9 +111,9 @@ class IndependentCascadeModel(DiffusionModel):
         payoffs: t.Optional[array.array] = None,
         _edge_probabilities: t.Optional[array.array] = None,
     ) -> None: ...
-    def compute_marginal_gain(
-        self, seed_set: t.Iterable[int], new_seed: t.Optional[int], num_trials: int
-    ) -> float:
+    def compute_marginal_gains(
+        self, seed_set: t.Iterable[int], new_seeds: t.List[int], num_trials: int
+    ) -> t.List[float]:
         """
         Computes the marginal gain of adding new_seed on top of seed_set. Averages over the given number
         of trials. If new_seed is None, just gives the average influence of the seed set.  Computes
@@ -130,8 +130,10 @@ class IndependentCascadeModel(DiffusionModel):
 
         Returns
         ----------
-        float
-            Average marginal gain in profit over all trials.
+        List[float]
+            List containing computed marginal gains. First entry is average influence of the
+            starting seed set. Following entries are marginal gains with the addition of vertices
+            from new_seeds in order. Has length len(new_seeds)+1.
         """
 
 class LinearThresholdModel(DiffusionModel):

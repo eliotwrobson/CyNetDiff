@@ -5,7 +5,6 @@ import typing as t
 
 import networkx as nx
 import pytest
-
 from cynetdiff.utils import (
     networkx_to_ic_model,
     set_activation_random_sample,
@@ -362,16 +361,20 @@ def test_marginal_gain(directed: bool, include_payoffs: bool, seed: int) -> None
     # Set up the model
     model, _ = networkx_to_ic_model(test_graph, _include_succcess_prob=True)
 
-    result = model.compute_marginal_gain(seeds, None, 1000)
+    result = model.compute_marginal_gains(seeds, [], 1000)[0]
     total_activated = compute_graph_marginal_gain(
         test_graph, independent_cascade(test_graph, seeds)
     )
 
     assert math.isclose(result, total_activated, abs_tol=0.05)
 
+    results: t.List[float] = model.compute_marginal_gains([], seeds, 1000)
+
+    assert math.isclose(results[0], 0.0)
+
     set_so_far: t.List[int] = []
 
-    for seed in seeds:
+    for seed, result in zip(seeds, results[1:]):
         without_new_seed_total = compute_graph_marginal_gain(
             test_graph, independent_cascade(test_graph, set_so_far)
         )
@@ -381,7 +384,6 @@ def test_marginal_gain(directed: bool, include_payoffs: bool, seed: int) -> None
         )
 
         marg_gain = with_new_seed_total - without_new_seed_total
-        result = model.compute_marginal_gain(set_so_far, seed, 1000)
 
         assert math.isclose(result, marg_gain, abs_tol=0.05)
         set_so_far.append(seed)
