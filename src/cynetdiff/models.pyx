@@ -48,7 +48,6 @@ cdef class DiffusionModel:
             for node in activated_nodes:
                 result += payoffs[node]
         else:
-            #TODO do a static cast?
             result += <float>activated_nodes.size()
 
         return result
