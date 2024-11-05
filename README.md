@@ -72,9 +72,31 @@ avg = total / n_sim
 ### Advanced Usage
 See the [documentation](https://eliotwrobson.github.io/CyNetDiff/examples/activated/).
 
+## Citation
+
+If you use this code in your research, please use the following citation:
+```bibtex
+@article{DBLP:journals/pvldb/RobsonRU24,
+  author       = {Eilot W. Robson and
+                  Dhemath Reddy and
+                  Abhishek Kumar Umrawal},
+  title        = {CyNetDiff: {A} Python Library for Accelerated Implementation of Network
+                  Diffusion Models},
+  journal      = {Proc. {VLDB} Endow.},
+  volume       = {17},
+  number       = {12},
+  pages        = {4409--4412},
+  year         = {2024},
+  url          = {https://www.vldb.org/pvldb/vol17/p4409-umrawal.pdf},
+  timestamp    = {Thu, 19 Sep 2024 13:09:38 +0200},
+  biburl       = {https://dblp.org/rec/journals/pvldb/RobsonRU24.bib},
+  bibsource    = {dblp computer science bibliography, https://dblp.org}
+}
+```
+
 ## Project Status
 
-This project is still considered in an alpha stage of development. As such,
+This project is still considered in a beta stage of development. As such,
 the API could still change to facilitate easier community adoption.
 
 All feedback is greatly appreciated!

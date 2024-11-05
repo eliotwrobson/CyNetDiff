@@ -6,7 +6,6 @@ import typing as t
 
 import networkx as nx
 import pytest
-
 from cynetdiff.utils import networkx_to_lt_model
 
 #    Code below adapted from code by
@@ -312,18 +311,25 @@ def test_marginal_gain(
     model, _ = networkx_to_lt_model(test_graph)
     node_thresholds = get_thresholds(test_graph)
 
-    result = model.compute_marginal_gain(
-        seeds, None, 1, _node_thresholds=node_thresholds
-    )
+    result = model.compute_marginal_gains(
+        seeds, [], 1, _node_thresholds=node_thresholds
+    )[0]
     total_activated = compute_graph_marginal_gain(
         test_graph, linear_threshold(test_graph, seeds)
     )
 
     assert math.isclose(result, total_activated, abs_tol=0.05)
 
+    results: t.List[float] = model.compute_marginal_gains(
+        [], seeds, 1, _node_thresholds=node_thresholds
+    )
+
+    assert math.isclose(results[0], 0.0)
+    assert math.isclose(sum(results), result, abs_tol=0.05)
+
     set_so_far: t.List[int] = []
 
-    for seed in seeds:
+    for seed, result in zip(seeds, results[1:]):
         without_new_seed_total = compute_graph_marginal_gain(
             test_graph, linear_threshold(test_graph, set_so_far)
         )
@@ -333,10 +339,6 @@ def test_marginal_gain(
         )
 
         marg_gain = with_new_seed_total - without_new_seed_total
-
-        result = model.compute_marginal_gain(
-            set_so_far, seed, 1, _node_thresholds=node_thresholds
-        )
 
         assert math.isclose(result, marg_gain, abs_tol=0.05)
         set_so_far.append(seed)

@@ -1,6 +1,7 @@
 from libcpp.deque cimport deque as cdeque
 from libcpp.unordered_set cimport unordered_set as cset
 from libcpp.unordered_map cimport unordered_map as cmap
+from libcpp.vector cimport vector as cvector
 
 cdef class DiffusionModel:
     cdef readonly float[:] payoffs
@@ -10,8 +11,7 @@ cdef class DiffusionModel:
     cpdef void advance_until_completion(self)
     cdef float _compute_payoff(
         self,
-        cset[unsigned int]& new_seeds,
-        cset[unsigned int]& old_seeds,
+        cdeque[unsigned int]& activated_nodes,
         float[:] payoffs,
     )
 
@@ -32,16 +32,17 @@ cdef class IndependentCascadeModel(DiffusionModel):
     cdef cset[unsigned int] original_seeds
 
     cdef int _activation_succeeds(self, unsigned int edge_idx) except -1 nogil
+
     cdef int _advance_model(
         self,
         cdeque[unsigned int]& work_deque,
         cset[unsigned int]& seen_set
     ) except -1 nogil
 
-    cdef float _compute_marginal_gain(
+    cdef cvector[float] _compute_marginal_gains(
         self,
-        cset[unsigned int]& original_seeds,
-        unsigned int new_seed,
+        cvector[unsigned int]& original_seeds,
+        cvector[unsigned int]& new_seeds,
         unsigned int num_trials
     )
 
@@ -69,10 +70,10 @@ cdef class LinearThresholdModel(DiffusionModel):
         cmap[unsigned int, float]& buckets,
     ) except -1 nogil
 
-    cdef float _compute_marginal_gain(
+    cdef cvector[float] _compute_marginal_gains(
         self,
-        cset[unsigned int]& original_seeds,
-        unsigned int new_seed,
+        cvector[unsigned int]& original_seeds,
+        cvector[unsigned int]& new_seeds,
         unsigned int num_trials,
         float[:] _node_thresholds
     )
