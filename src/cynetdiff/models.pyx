@@ -37,6 +37,8 @@ cdef class DiffusionModel:
     cpdef void advance_until_completion(self):
         raise NotImplementedError
 
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
     cdef float _compute_payoff(
         self,
         cdeque[unsigned int]& activated_nodes,
@@ -150,7 +152,8 @@ cdef class IndependentCascadeModel(DiffusionModel):
             num for num in results
         ]
 
-
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
     cdef cvector[float] _compute_marginal_gains(
         self,
         cvector[unsigned int]& original_seeds,
@@ -160,13 +163,11 @@ cdef class IndependentCascadeModel(DiffusionModel):
         cdef cdeque[unsigned int] work_deque
         cdef cset[unsigned int] seen_set
 
-        cdef float result = 0.0
-        cdef unsigned int n = len(self.starts)
-
         cdef cvector[float] results
         results = cvector[float](new_seeds.size()+1, 0.0)
 
         cdef unsigned int new_seed
+        cdef unsigned int i
 
         for _ in range(num_trials):
             work_deque.assign(original_seeds.begin(), original_seeds.end())
@@ -190,7 +191,7 @@ cdef class IndependentCascadeModel(DiffusionModel):
                         self._advance_model(work_deque, seen_set)
 
         for i in range(results.size()):
-            results[i] /= num_trials
+            results[i] /= <float>num_trials
 
         return results
 
@@ -259,247 +260,261 @@ cdef class IndependentCascadeModel(DiffusionModel):
 
 
 # LT Model
-# cdef class LinearThresholdModel(DiffusionModel):
-#     # Functions that interface with the Python side of things
-#     def __cinit__(
-#         self,
-#         unsigned int[:] starts not None,
-#         unsigned int[:] edges not None
-#         *,
-#         float[:] influence = None,
-#         float[:] payoffs = None,
-#     ):
-#         self.starts = starts
-#         self.edges = edges
-#         self.payoffs = payoffs
+cdef class LinearThresholdModel(DiffusionModel):
+    # Functions that interface with the Python side of things
+    def __cinit__(
+        self,
+        unsigned int[:] starts not None,
+        unsigned int[:] edges not None
+        *,
+        float[:] influence = None,
+        float[:] payoffs = None,
+    ):
+        self.starts = starts
+        self.edges = edges
+        self.payoffs = payoffs
 
-#         cdef unsigned int n = len(self.starts)
-#         cdef unsigned int m = len(self.edges)
-#         cdef cvector[unsigned int] in_degrees
+        cdef unsigned int n = len(self.starts)
+        cdef unsigned int m = len(self.edges)
+        cdef cvector[unsigned int] in_degrees
 
-#         # Setting the influence sent across each edge
-#         if influence is not None:
-#             # If provided, copy from user code
-#             assert m == len(influence)
-#             self.influence = influence
-#         else:
-#             # Otherwise, default to 1/in_degree
-#             in_degrees.resize(n)
-#             fill(in_degrees.begin(), in_degrees.end(), 0)
+        # Setting the influence sent across each edge
+        if influence is not None:
+            # If provided, copy from user code
+            assert m == len(influence)
+            self.influence = influence
+        else:
+            # Otherwise, default to 1/in_degree
+            in_degrees.resize(n)
+            fill(in_degrees.begin(), in_degrees.end(), 0)
 
-#             for out_node in self.edges:
-#                 in_degrees[out_node] += 1
+            for out_node in self.edges:
+                in_degrees[out_node] += 1
 
-#             influence_arr = array.array("f")
-#             influence_arr.extend(
-#                 1.0 / in_degrees[out_node]
-#                 for out_node in self.edges
-#             )
+            influence_arr = array.array("f")
+            influence_arr.extend(
+                1.0 / in_degrees[out_node]
+                for out_node in self.edges
+            )
 
-#             self.influence = influence_arr
+            self.influence = influence_arr
 
-#         # Verify payoffs
-#         if self.payoffs is not None:
-#             assert len(self.starts) == len(self.payoffs)
+        # Verify payoffs
+        if self.payoffs is not None:
+            assert len(self.starts) == len(self.payoffs)
 
-#     def set_seeds(self, seeds):
-#         self.original_seeds.clear()
-#         n = len(self.starts)
+    def set_seeds(self, seeds):
+        self.original_seeds.clear()
+        n = len(self.starts)
 
-#         for seed in seeds:
-#             if not (isinstance(seed, int) and 0 <= seed < n):
-#                 raise ValueError(
-#                     f"Invalid seed node: {seed}. Must be in the range [0, {n-1}]"
-#                 )
-#             self.original_seeds.insert(seed)
+        for seed in seeds:
+            if not (isinstance(seed, int) and 0 <= seed < n):
+                raise ValueError(
+                    f"Invalid seed node: {seed}. Must be in the range [0, {n-1}]"
+                )
+            self.original_seeds.insert(seed)
 
-#         self.reset_model()
+        self.reset_model()
 
-#     cpdef void _assign_thresholds(self, float[:] _node_thresholds):
-#         # If provided, copy from user code
-#         cdef unsigned int n = len(self.starts)
-#         assert n == len(_node_thresholds)
+    cpdef void _assign_thresholds(self, float[:] _node_thresholds):
+        # If provided, copy from user code
+        cdef unsigned int n = len(self.starts)
+        assert n == len(_node_thresholds)
 
-#         # Make a copy to avoid destroying memory on resets.
-#         for i in range(n):
-#             self.thresholds[i] = _node_thresholds[i]
+        # Make a copy to avoid destroying memory on resets.
+        for i in range(n):
+            self.thresholds[i] = _node_thresholds[i]
 
-#     cpdef void reset_model(self):
-#         self.work_deque.assign(self.original_seeds.begin(), self.original_seeds.end())
-#         self.seen_set.clear()
-#         self.seen_set.insert(self.original_seeds.begin(), self.original_seeds.end())
-#         self.buckets.clear()
-#         self.thresholds.clear()
+    cpdef void reset_model(self):
+        self.work_deque.assign(self.original_seeds.begin(), self.original_seeds.end())
+        self.seen_set.clear()
+        self.seen_set.insert(self.original_seeds.begin(), self.original_seeds.end())
+        self.buckets.clear()
+        self.thresholds.clear()
 
-#     def get_newly_activated_nodes(self):
-#         for node in self.work_deque:
-#             yield node
+    def get_newly_activated_nodes(self):
+        for node in self.work_deque:
+            yield node
 
-#     def get_activated_nodes(self):
-#         for node in self.seen_set:
-#             yield node
+    def get_activated_nodes(self):
+        for node in self.seen_set:
+            yield node
 
-#     def get_num_activated_nodes(self):
-#         return self.seen_set.size()
+    def get_num_activated_nodes(self):
+        return self.seen_set.size()
 
-#     def compute_marginal_gain(
-#         self,
-#         seed_set,
-#         new_seed,
-#         num_trials,
-#         *,
-#         _node_thresholds=None
-#     ):
-#         cdef cset[unsigned int] original_seeds
-#         n = len(self.starts)
+    def compute_marginal_gains(
+        self,
+        seed_set,
+        new_seeds,
+        num_trials,
+        *,
+        _node_thresholds=None
+    ):
+        cdef cvector[unsigned int] original_seeds
+        cdef cvector[unsigned int] new_seeds_vec
+        n = len(self.starts)
 
-#         for seed in seed_set:
-#             if not (isinstance(seed, int) and 0 <= seed < n):
-#                 raise ValueError(
-#                     f"Invalid seed node: {seed}. Must be in the range [0, {n-1}]"
-#                 )
-#             elif seed == new_seed:
-#                 raise ValueError(
-#                     f"new_seed {new_seed} should not be contained within the seed set."
-#                 )
-#             original_seeds.insert(seed)
+        new_seeds_set = set(new_seeds)
 
-#         if new_seed is None:
-#             new_seed = n
-#             # Special value to compute marginal gain differently.
-#         else:
-#             if not (isinstance(new_seed, int) and 0 <= new_seed < n):
-#                 raise ValueError(
-#                     f"Invalid new_seed: {new_seed}. Must be in the range [0, {n-1}]"
-#                 )
+        if len(new_seeds) != len(new_seeds_set):
+            raise ValueError(
+                "New seeds set must have all unique elements."
+            )
 
-#         return self._compute_marginal_gain(
-#             original_seeds, new_seed, num_trials, _node_thresholds
-#         )
+        for seed in seed_set:
+            if not (isinstance(seed, int) and 0 <= seed < n):
+                raise ValueError(
+                    f"Invalid seed node: {seed}. Must be in the range [0, {n-1}]"
+                )
+            elif seed in new_seeds_set:
+                raise ValueError(
+                    f"New seed {seed} should not be contained within the seed set."
+                )
+            original_seeds.push_back(seed)
 
-#     cdef float _compute_marginal_gain(
-#         self,
-#         cset[unsigned int]& original_seeds,
-#         unsigned int new_seed,
-#         unsigned int num_trials,
-#         float[:] _node_thresholds
-#     ):
-#         cdef cdeque[unsigned int] work_deque
-#         cdef cset[unsigned int] seen_set
-#         cdef cset[unsigned int] new_seen_set
-#         cdef cmap[unsigned int, float] thresholds
-#         cdef cmap[unsigned int, float] buckets
+        for new_seed in new_seeds:
+            if not (isinstance(new_seed, int) and 0 <= new_seed < n):
+                raise ValueError(
+                    f"Invalid new seed {new_seed}. Must be integer in the range [0, {n-1}]"
+                )
+            new_seeds_vec.push_back(new_seed)
 
-#         cdef float result = 0.0
-#         cdef unsigned int n = len(self.starts)
+        cdef cvector[float] results = self._compute_marginal_gains(
+            original_seeds, new_seeds_vec, num_trials, _node_thresholds
+        )
 
-#         # Copy initial thresholds if provided
-#         if _node_thresholds is not None:
-#             assert n == len(_node_thresholds)
+        return [
+            num for num in results
+        ]
 
-#             # Make a copy to avoid destroying memory on resets.
-#             for i in range(n):
-#                 thresholds[i] = _node_thresholds[i]
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    cdef cvector[float] _compute_marginal_gain(
+        self,
+        cvector[unsigned int]& original_seeds,
+        cvector[unsigned int]& new_seeds,
+        unsigned int num_trials,
+        float[:] _node_thresholds
+    ):
+        cdef cdeque[unsigned int] work_deque
+        cdef cset[unsigned int] seen_set
+        cdef cmap[unsigned int, float] thresholds
+        cdef cmap[unsigned int, float] buckets
 
-#         for _ in range(num_trials):
-#             work_deque.assign(original_seeds.begin(), original_seeds.end())
-#             seen_set.clear()
-#             seen_set.insert(original_seeds.begin(), original_seeds.end())
-#             buckets.clear()
+        cdef cvector[float] results
+        results = cvector[float](new_seeds.size()+1, 0.0)
 
-#             while work_deque.size() > 0:
-#                 self._advance_model(work_deque, seen_set, thresholds, buckets)
+        cdef unsigned int n = len(self.starts)
+        cdef unsigned int new_seed
+        cdef unsigned int i
 
-#             if new_seed == n:
-#                 # Use empty new seen set to always return marginal gain.
-#                 result += self._compute_payoff(seen_set, new_seen_set, self.payoffs)
+        # Copy initial thresholds if provided
+        if _node_thresholds is not None:
+            assert n == len(_node_thresholds)
 
-#             # No marginal gain unless we're activating a new node
-#             elif seen_set.find(new_seed) == seen_set.end():
-#                 new_seen_set.clear()
-#                 new_seen_set.insert(seen_set.begin(), seen_set.end())
+            # Make a copy to avoid destroying memory on resets.
+            for i in range(n):
+                thresholds[i] = _node_thresholds[i]
 
-#                 work_deque.push_back(new_seed)
-#                 new_seen_set.insert(new_seed)
+        for _ in range(num_trials):
+            work_deque.assign(original_seeds.begin(), original_seeds.end())
+            seen_set.clear()
+            seen_set.insert(original_seeds.begin(), original_seeds.end())
+            buckets.clear()
 
-#                 while work_deque.size() > 0:
-#                     self._advance_model(work_deque, new_seen_set, thresholds, buckets)
+            while work_deque.size() > 0:
+                results[0] += self._compute_payoff(work_deque, self.payoffs)
+                self._advance_model(work_deque, seen_set, thresholds, buckets)
 
-#                 result += self._compute_payoff(new_seen_set, seen_set, self.payoffs)
+            for i in range(1, new_seeds.size()+1):
+                new_seed = new_seeds[i-1]
 
-#             # Clear thresholds at the end to allow seeding.
-#             thresholds.clear()
+                # No marginal gain unless we're activating a new node
+                if seen_set.find(new_seed) == seen_set.end():
+                    work_deque.push_back(new_seed)
+                    seen_set.insert(new_seed)
 
-#         return result / num_trials
+                    while work_deque.size() > 0:
+                        results[i] += self._compute_payoff(work_deque, self.payoffs)
+                        self._advance_model(work_deque, seen_set, thresholds, buckets)
 
-#     # Functions that actually advance the model
-#     cpdef void advance_until_completion(self):
-#         while self.work_deque.size() > 0:
-#             self._advance_model(
-#                 self.work_deque, self.seen_set, self.thresholds, self.buckets
-#             )
+                # Clear thresholds at the end to allow seeding.
+                thresholds.clear()
 
-#     cpdef void advance_model(self):
-#         self._advance_model(
-#             self.work_deque, self.seen_set, self.thresholds, self.buckets
-#         )
+        for i in range(results.size()):
+            results[i] /= <float>num_trials
 
-#     @cython.boundscheck(False)
-#     @cython.wraparound(False)
-#     cdef int _advance_model(
-#         self,
-#         cdeque[unsigned int]& work_deque,
-#         cset[unsigned int]& seen_set,
-#         cmap[unsigned int, float]& thresholds,
-#         cmap[unsigned int, float]& buckets,
-#     ) except -1 nogil:
+        return results
 
-#         # Internal-only function to advance,
-#         # returns an int to allow for exceptions
+    # Functions that actually advance the model
+    cpdef void advance_until_completion(self):
+        while self.work_deque.size() > 0:
+            self._advance_model(
+                self.work_deque, self.seen_set, self.thresholds, self.buckets
+            )
 
-#         cdef unsigned int q = work_deque.size()
+    cpdef void advance_model(self):
+        self._advance_model(
+            self.work_deque, self.seen_set, self.thresholds, self.buckets
+        )
 
-#         # Working variables
-#         cdef unsigned int node
-#         cdef unsigned int range_end
-#         cdef unsigned int child
-#         cdef unsigned int edge_idx
-#         cdef float threshold
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    cdef int _advance_model(
+        self,
+        cdeque[unsigned int]& work_deque,
+        cset[unsigned int]& seen_set,
+        cmap[unsigned int, float]& thresholds,
+        cmap[unsigned int, float]& buckets,
+    ) except -1 nogil:
 
-#         for _ in range(q):
-#             node = work_deque.front()
-#             work_deque.pop_front()
+        # Internal-only function to advance,
+        # returns an int to allow for exceptions
 
-#             range_end = len(self.edges)
-#             if node + 1 < len(self.starts):
-#                 range_end = self.starts[node + 1]
+        cdef unsigned int q = work_deque.size()
 
-#             for edge_idx in range(self.starts[node], range_end):
-#                 child = self.edges[edge_idx]
+        # Working variables
+        cdef unsigned int node
+        cdef unsigned int range_end
+        cdef unsigned int child
+        cdef unsigned int edge_idx
+        cdef float threshold
 
-#                 # Child has _not_ been activated yet
-#                 if seen_set.find(child) == seen_set.end():
-#                     child = self.edges[edge_idx]
+        for _ in range(q):
+            node = work_deque.front()
+            work_deque.pop_front()
 
-#                     # Lazy evaluation for buckets and thresholds
-#                     if buckets.count(child) == 0:
-#                         buckets[child] = 0.0
+            range_end = len(self.edges)
+            if node + 1 < len(self.starts):
+                range_end = self.starts[node + 1]
 
-#                     if thresholds.count(child) == 0:
-#                         thresholds[child] = next_rand()
-#                         while thresholds[child] == 0.0:
-#                             thresholds[child] = next_rand()
+            for edge_idx in range(self.starts[node], range_end):
+                child = self.edges[edge_idx]
 
-#                     threshold = thresholds[child]
+                # Child has _not_ been activated yet
+                if seen_set.find(child) == seen_set.end():
+                    child = self.edges[edge_idx]
 
-#                     # Function is written so that each edge is traversed _once_
-#                     assert buckets[child] < threshold
+                    # Lazy evaluation for buckets and thresholds
+                    if buckets.count(child) == 0:
+                        buckets[child] = 0.0
 
-#                     buckets[child] += self.influence[edge_idx]
+                    if thresholds.count(child) == 0:
+                        thresholds[child] = next_rand()
+                        while thresholds[child] == 0.0:
+                            thresholds[child] = next_rand()
 
-#                     # Skip if we don't have enough influence yet.
-#                     if buckets[child] < threshold:
-#                         continue
+                    threshold = thresholds[child]
 
-#                     work_deque.push_back(child)
-#                     seen_set.insert(child)
+                    # Function is written so that each edge is traversed _once_
+                    assert buckets[child] < threshold
+
+                    buckets[child] += self.influence[edge_idx]
+
+                    # Skip if we don't have enough influence yet.
+                    if buckets[child] < threshold:
+                        continue
+
+                    work_deque.push_back(child)
+                    seen_set.insert(child)

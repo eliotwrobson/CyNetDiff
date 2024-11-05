@@ -115,16 +115,15 @@ class IndependentCascadeModel(DiffusionModel):
         self, seed_set: t.Iterable[int], new_seeds: t.List[int], num_trials: int
     ) -> t.List[float]:
         """
-        Computes the marginal gain of adding new_seed on top of seed_set. Averages over the given number
-        of trials. If new_seed is None, just gives the average influence of the seed set.  Computes
-        marginal gain using payoffs if set.
+        Computes the marginal gain of adding each seed in new_seeds on top of the original seed_set.
+        Averages over num_trials number of randomized activations.
 
         Parameters
         ----------
         seed_set : Iterable[int]
             An iterable representing the current seed set. Can be empty.
-        new_seed : int
-            New seed set to compute marginal gain on.
+        new_seeds : List[int]
+            New seeds to compute marginal gains on. Can be empty.
         num_trials : int
             Number of randomized trials to run.
 
@@ -173,30 +172,31 @@ class LinearThresholdModel(DiffusionModel):
         """
         ...
 
-    def compute_marginal_gain(
+    def compute_marginal_gains(
         self,
         seed_set: t.Iterable[int],
-        new_seed: t.Optional[int],
+        new_seeds: t.List[int],
         num_trials: int,
         *,
         _node_thresholds: t.Optional[array.array] = None,
     ) -> float:
         """
-        Computes the marginal gain of adding new_seed on top of seed_set. Averages over the given number
-        of trials. If new_seed is None, just gives the average influence of the seed set. Computes
-        marginal gain using payoffs if set.
+        Computes the marginal gain of adding each seed in new_seeds on top of the original seed_set.
+        Averages over num_trials number of randomized activations.
 
         Parameters
         ----------
         seed_set : Iterable[int]
             An iterable representing the current seed set. Can be empty.
-        new_seed : int
-            New seed set to compute marginal gain on.
+        new_seeds : List[int]
+            New seeds to compute marginal gains on. Can be empty.
         num_trials : int
             Number of randomized trials to run.
 
         Returns
         ----------
-        float
-            Average marginal gain in profit over all trials.
+        List[float]
+            List containing computed marginal gains. First entry is average influence of the
+            starting seed set. Following entries are marginal gains with the addition of vertices
+            from new_seeds in order. Has length len(new_seeds)+1.
         """

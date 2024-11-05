@@ -8,9 +8,7 @@ import typing as t
 
 import networkx as nx
 
-from cynetdiff.models import IndependentCascadeModel
-
-LinearThresholdModel = int
+from cynetdiff.models import IndependentCascadeModel, LinearThresholdModel
 
 Graph = t.Union[nx.Graph, nx.DiGraph]
 NodeMappingDict = t.Dict[t.Any, int]

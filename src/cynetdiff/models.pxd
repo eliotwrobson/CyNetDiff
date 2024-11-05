@@ -46,34 +46,34 @@ cdef class IndependentCascadeModel(DiffusionModel):
         unsigned int num_trials
     )
 
-# cdef class LinearThresholdModel(DiffusionModel):
-#     # Core model parameters
-#     cdef readonly unsigned int[:] starts
-#     cdef readonly unsigned int[:] edges
-#     cdef readonly float[:] influence
+cdef class LinearThresholdModel(DiffusionModel):
+    # Core model parameters
+    cdef readonly unsigned int[:] starts
+    cdef readonly unsigned int[:] edges
+    cdef readonly float[:] influence
 
-#     # Model simulation data structures
-#     cdef cdeque[unsigned int] work_deque
-#     cdef cset[unsigned int] seen_set
-#     cdef cset[unsigned int] original_seeds
-#     cdef cmap[unsigned int, float] thresholds
-#     cdef cmap[unsigned int, float] buckets
+    # Model simulation data structures
+    cdef cdeque[unsigned int] work_deque
+    cdef cset[unsigned int] seen_set
+    cdef cset[unsigned int] original_seeds
+    cdef cmap[unsigned int, float] thresholds
+    cdef cmap[unsigned int, float] buckets
 
-#     # Mostly for testing
-#     cpdef void _assign_thresholds(self, float[:] _node_thresholds)
+    # Mostly for testing
+    cpdef void _assign_thresholds(self, float[:] _node_thresholds)
 
-#     cdef int _advance_model(
-#         self,
-#         cdeque[unsigned int]& work_deque,
-#         cset[unsigned int]& seen_set,
-#         cmap[unsigned int, float]& thresholds,
-#         cmap[unsigned int, float]& buckets,
-#     ) except -1 nogil
+    cdef int _advance_model(
+        self,
+        cdeque[unsigned int]& work_deque,
+        cset[unsigned int]& seen_set,
+        cmap[unsigned int, float]& thresholds,
+        cmap[unsigned int, float]& buckets,
+    ) except -1 nogil
 
-#     cdef float _compute_marginal_gain(
-#         self,
-#         cset[unsigned int]& original_seeds,
-#         unsigned int new_seed,
-#         unsigned int num_trials,
-#         float[:] _node_thresholds
-#     )
+    cdef cvector[float] _compute_marginal_gain(
+        self,
+        cvector[unsigned int]& original_seeds,
+        cvector[unsigned int]& new_seeds,
+        unsigned int num_trials,
+        float[:] _node_thresholds
+    )
