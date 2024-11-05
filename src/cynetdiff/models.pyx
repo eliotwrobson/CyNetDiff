@@ -140,7 +140,8 @@ cdef class IndependentCascadeModel(DiffusionModel):
         for new_seed in new_seeds:
             if not (isinstance(new_seed, int) and 0 <= new_seed < n):
                 raise ValueError(
-                    f"Invalid new seed {new_seed}. Must be integer in the range [0, {n-1}]"
+                    f"Invalid new seed {new_seed}. "
+                    f"Must be integer in the range [0, {n-1}]"
                 )
             new_seeds_vec.push_back(new_seed)
 
@@ -376,7 +377,8 @@ cdef class LinearThresholdModel(DiffusionModel):
         for new_seed in new_seeds:
             if not (isinstance(new_seed, int) and 0 <= new_seed < n):
                 raise ValueError(
-                    f"Invalid new seed {new_seed}. Must be integer in the range [0, {n-1}]"
+                    f"Invalid new seed {new_seed}. "
+                    f"Must be integer in the range [0, {n-1}]"
                 )
             new_seeds_vec.push_back(new_seed)
 
@@ -390,7 +392,7 @@ cdef class LinearThresholdModel(DiffusionModel):
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
-    cdef cvector[float] _compute_marginal_gain(
+    cdef cvector[float] _compute_marginal_gains(
         self,
         cvector[unsigned int]& original_seeds,
         cvector[unsigned int]& new_seeds,
@@ -439,8 +441,8 @@ cdef class LinearThresholdModel(DiffusionModel):
                         results[i] += self._compute_payoff(work_deque, self.payoffs)
                         self._advance_model(work_deque, seen_set, thresholds, buckets)
 
-                # Clear thresholds at the end to allow seeding.
-                thresholds.clear()
+            # Clear thresholds at the end to allow seeding.
+            thresholds.clear()
 
         for i in range(results.size()):
             results[i] /= <float>num_trials

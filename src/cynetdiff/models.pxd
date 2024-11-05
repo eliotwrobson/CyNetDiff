@@ -70,7 +70,7 @@ cdef class LinearThresholdModel(DiffusionModel):
         cmap[unsigned int, float]& buckets,
     ) except -1 nogil
 
-    cdef cvector[float] _compute_marginal_gain(
+    cdef cvector[float] _compute_marginal_gains(
         self,
         cvector[unsigned int]& original_seeds,
         cvector[unsigned int]& new_seeds,
