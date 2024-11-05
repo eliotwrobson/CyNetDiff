@@ -179,7 +179,7 @@ class LinearThresholdModel(DiffusionModel):
         num_trials: int,
         *,
         _node_thresholds: t.Optional[array.array] = None,
-    ) -> float:
+    ) -> t.List[float]:
         """
         Computes the marginal gain of adding each seed in new_seeds on top of the original seed_set.
         Averages over num_trials number of randomized activations.
