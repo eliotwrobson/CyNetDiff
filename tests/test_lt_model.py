@@ -325,7 +325,7 @@ def test_marginal_gain(
     )
 
     assert math.isclose(results[0], 0.0)
-    # assert math.isclose(sum(results), result, abs_tol=0.05)
+    assert math.isclose(sum(results), result, abs_tol=0.05)
 
     set_so_far: t.List[int] = []
 
