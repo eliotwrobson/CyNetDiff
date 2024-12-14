@@ -10,7 +10,7 @@ cimport cython
 import numpy.random as npr
 cimport numpy.random as npr
 from numpy.random.c_distributions cimport random_standard_uniform
-from cpython.pycapsule cimport PyCapsule_GetPointer, PyCapsule_IsValid
+from cpython.pycapsule cimport PyCapsule_GetPointer
 
 cdef const char *capsule_name = "BitGenerator"
 
@@ -513,7 +513,9 @@ cdef class LinearThresholdModel(DiffusionModel):
                     if thresholds.count(child) == 0:
                         thresholds[child] = random_standard_uniform(self.bitgen_state)
                         while thresholds[child] == 0.0:
-                            thresholds[child] = random_standard_uniform(self.bitgen_state)
+                            thresholds[child] = random_standard_uniform(
+                                self.bitgen_state
+                            )
 
                     threshold = thresholds[child]
                     # Function is written so that each edge is traversed _once_
