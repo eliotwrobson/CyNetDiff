@@ -4,11 +4,16 @@ Functions used to convert NetworkX graphs to usable models.
 
 import array
 import typing as t
+from collections.abc import Sequence
 
 import networkx as nx
 import numpy as np
 
-from cynetdiff.models import IndependentCascadeModel, LinearThresholdModel, RNGType
+from cynetdiff.models import IndependentCascadeModel, LinearThresholdModel
+
+SeedLike = t.Union[int, np.integer, Sequence[int], np.random.SeedSequence]
+RNGLike = t.Union[np.random.Generator, np.random.BitGenerator]
+RNGType = t.Union[SeedLike, RNGLike, None]
 
 Graph = t.Union[nx.Graph, nx.DiGraph]
 NodeMappingDict = t.Dict[t.Any, int]

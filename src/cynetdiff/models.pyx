@@ -10,7 +10,7 @@ cimport cython
 import numpy.random as npr
 cimport numpy.random as npr
 from numpy.random.c_distributions cimport random_standard_uniform
-from cpython.pycapsule cimport PyCapsule_GetPointer
+from cpython.pycapsule cimport PyCapsule_GetPointer, PyCapsule_IsValid
 
 cdef const char *capsule_name = "BitGenerator"
 
@@ -70,8 +70,9 @@ cdef class IndependentCascadeModel(DiffusionModel):
         self.activation_probs = activation_probs
         self.payoffs = payoffs
 
+        self._rng = npr.default_rng(rng)
         self.bitgen_state = <npr.bitgen_t*>PyCapsule_GetPointer(
-            npr.default_rng(rng).bit_generator.capsule,
+            self._rng.bit_generator.capsule,
             capsule_name
         )
 
@@ -277,8 +278,9 @@ cdef class LinearThresholdModel(DiffusionModel):
         self.edges = edges
         self.payoffs = payoffs
 
+        self._rng = npr.default_rng(rng)
         self.bitgen_state = <npr.bitgen_t*>PyCapsule_GetPointer(
-            npr.default_rng(rng).bit_generator.capsule,
+            self._rng.bit_generator.capsule,
             capsule_name
         )
 
@@ -508,14 +510,12 @@ cdef class LinearThresholdModel(DiffusionModel):
                     # Lazy evaluation for buckets and thresholds
                     if buckets.count(child) == 0:
                         buckets[child] = 0.0
-
                     if thresholds.count(child) == 0:
                         thresholds[child] = random_standard_uniform(self.bitgen_state)
                         while thresholds[child] == 0.0:
                             thresholds[child] = random_standard_uniform(self.bitgen_state)
 
                     threshold = thresholds[child]
-
                     # Function is written so that each edge is traversed _once_
                     assert buckets[child] < threshold
 

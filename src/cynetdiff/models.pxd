@@ -6,6 +6,7 @@ cimport numpy.random as npr
 
 cdef class DiffusionModel:
     cdef readonly float[:] payoffs
+    cdef object _rng
     cdef npr.bitgen_t* bitgen_state
 
     cpdef void advance_model(self)
