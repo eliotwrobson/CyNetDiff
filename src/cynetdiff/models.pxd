@@ -2,9 +2,11 @@ from libcpp.deque cimport deque as cdeque
 from libcpp.unordered_set cimport unordered_set as cset
 from libcpp.unordered_map cimport unordered_map as cmap
 from libcpp.vector cimport vector as cvector
+cimport numpy.random as npr
 
 cdef class DiffusionModel:
     cdef readonly float[:] payoffs
+    cdef npr.bitgen_t* bitgen_state
 
     cpdef void advance_model(self)
     cpdef void reset_model(self)

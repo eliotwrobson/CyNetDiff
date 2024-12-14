@@ -7,6 +7,12 @@ from libcpp.vector cimport vector as cvector
 from libcpp.unordered_map cimport unordered_map as cmap
 
 cimport cython
+import numpy.random as npr
+cimport numpy.random as npr
+from numpy.random.c_distributions cimport random_standard_uniform
+from cpython.pycapsule cimport PyCapsule_GetPointer
+
+cdef const char *capsule_name = "BitGenerator"
 
 # Next, utility functions
 # TODO move these to a separate file later
@@ -16,6 +22,9 @@ cdef double RAND_SCALE = 1.0 / RAND_MAX
 
 cdef inline double next_rand() nogil:
     return rand() * RAND_SCALE
+
+#cdef extern from "numpy/random/c_distributions.pxd":
+#    double random_standard_uniform(npr.bitgen_t *bitgen_state) nogil
 
 # Now, the actual classes we care about
 
@@ -65,7 +74,8 @@ cdef class IndependentCascadeModel(DiffusionModel):
         double activation_prob = 0.1,
         float[:] activation_probs = None,
         float[:] payoffs = None,
-        float[:] _edge_probabilities = None
+        float[:] _edge_probabilities = None,
+        rng = None,
     ):
 
         self.starts = starts
@@ -73,6 +83,14 @@ cdef class IndependentCascadeModel(DiffusionModel):
         self.activation_prob = activation_prob
         self.activation_probs = activation_probs
         self.payoffs = payoffs
+
+        self.bitgen_state = <npr.bitgen_t*>PyCapsule_GetPointer(
+            npr.default_rng(rng).bit_generator.get_bit_generator_state(),
+            capsule_name
+        )
+
+        random_standard_uniform(self.bitgen_state)
+        #npr.c_distributions.random_standard_uniform(self.bitgen_state)
 
         self._edge_probabilities = _edge_probabilities
 

@@ -1,7 +1,9 @@
+import os
 import shutil
 from importlib.util import find_spec
 from pathlib import Path
 
+import numpy as np
 from setuptools import Extension
 from setuptools.command.build_ext import build_ext
 from setuptools.dist import Distribution
@@ -24,6 +26,10 @@ def build_cython_extensions() -> None:
             ["src/cynetdiff/models" + ext],
             language="c++",
             extra_compile_args=["-O3"],
+            include_dirs=[np.get_include()],
+            # Not so nice. We need the random/lib library from numpy
+            library_dirs=[os.path.join(np.get_include(), "..", "..", "random", "lib")],
+            libraries=["npyrandom"],
         ),
     ]
 
