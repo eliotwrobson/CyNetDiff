@@ -3,23 +3,31 @@ Functions used to convert NetworkX graphs to usable models.
 """
 
 import array
-import random
 import typing as t
+from collections.abc import Sequence
 
 import networkx as nx
+import numpy as np
 
 from cynetdiff.models import IndependentCascadeModel, LinearThresholdModel
 
 Graph = t.Union[nx.Graph, nx.DiGraph]
 NodeMappingDict = t.Dict[t.Any, int]
 
+SeedLike = t.Union[int, np.integer, Sequence[int], np.random.SeedSequence]
+RNGLike = t.Union[np.random.Generator, np.random.BitGenerator]
+
 
 def set_activation_uniformly_random(
-    graph: Graph, *, range_start: float = 0.0, range_end: float = 1.0
+    graph: Graph,
+    *,
+    range_start: float = 0.0,
+    range_end: float = 1.0,
+    rng: t.Union[RNGLike, SeedLike, None] = None,
 ) -> None:
     """
     Set activation probability on each edge uniformly at random in the range
-    [`range_start`, `range_end`]. Must have that
+    [`range_start`, `range_end`). Must have that
     `0.0` <= `range_start` < `range_end` <= `1.0`. Should be used on graphs before
     creating the independent cascade model.
 
@@ -33,12 +41,16 @@ def set_activation_uniformly_random(
     range_end : float, optional
         The end of the range to sample activation probabilities from. If not set,
         defaults to `1.0`.
+    rng : np.random.Generator | np.random.BitGenerator | None, optional
+        Random number generator to use for the model. If not set, creates a new generator by default.
     """
 
     assert 0.0 <= range_start < range_end <= 1.0
 
+    rng = np.random.default_rng(rng)
+
     for _, _, edge_data in graph.edges(data=True):
-        edge_data["activation_prob"] = random.uniform(range_start, range_end)
+        edge_data["activation_prob"] = rng.uniform(range_start, range_end)
 
 
 def set_activation_weighted_cascade(graph: nx.DiGraph) -> None:
@@ -60,7 +72,10 @@ def set_activation_weighted_cascade(graph: nx.DiGraph) -> None:
 
 
 def set_activation_random_sample(
-    graph: Graph, weight_set: t.AbstractSet[float]
+    graph: Graph,
+    weight_set: t.AbstractSet[float],
+    *,
+    rng: t.Union[RNGLike, SeedLike, None] = None,
 ) -> None:
     """
     Set activation probability on each edge uniformly at random from the given weight set.
@@ -73,11 +88,14 @@ def set_activation_random_sample(
     weight_set : AbstractSet[float]
         The set of weights to sample from. Assigns each edge in the input graph
         a weight uniformly at random from this set.
+    rng : np.random.Generator | np.random.BitGenerator | None, optional
+        Random number generator to use for the model. If not set, creates a new generator by default.
     """
     weights = tuple(weight_set)
+    rng = np.random.default_rng(rng)
 
     for _, _, edge_data in graph.edges(data=True):
-        edge_data["activation_prob"] = random.choice(weights)
+        edge_data["activation_prob"] = rng.choice(weights)
 
 
 def networkx_to_ic_model(
