@@ -4,18 +4,14 @@ Functions used to convert NetworkX graphs to usable models.
 
 import array
 import typing as t
-from collections.abc import Sequence
 
 import networkx as nx
 import numpy as np
 
-from cynetdiff.models import IndependentCascadeModel, LinearThresholdModel
+from cynetdiff.models import IndependentCascadeModel, LinearThresholdModel, RNGType
 
 Graph = t.Union[nx.Graph, nx.DiGraph]
 NodeMappingDict = t.Dict[t.Any, int]
-
-SeedLike = t.Union[int, np.integer, Sequence[int], np.random.SeedSequence]
-RNGLike = t.Union[np.random.Generator, np.random.BitGenerator]
 
 
 def set_activation_uniformly_random(
@@ -23,7 +19,7 @@ def set_activation_uniformly_random(
     *,
     range_start: float = 0.0,
     range_end: float = 1.0,
-    rng: t.Union[RNGLike, SeedLike, None] = None,
+    rng: RNGType = None,
 ) -> None:
     """
     Set activation probability on each edge uniformly at random in the range
@@ -75,7 +71,7 @@ def set_activation_random_sample(
     graph: Graph,
     weight_set: t.AbstractSet[float],
     *,
-    rng: t.Union[RNGLike, SeedLike, None] = None,
+    rng: RNGType = None,
 ) -> None:
     """
     Set activation probability on each edge uniformly at random from the given weight set.

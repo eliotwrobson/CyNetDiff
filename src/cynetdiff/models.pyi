@@ -6,6 +6,7 @@ import numpy as np
 
 SeedLike = t.Union[int, np.integer, Sequence[int], np.random.SeedSequence]
 RNGLike = t.Union[np.random.Generator, np.random.BitGenerator]
+RNGType = t.Union[SeedLike, RNGLike, None]
 
 class DiffusionModel:
     """
@@ -117,7 +118,7 @@ class IndependentCascadeModel(DiffusionModel):
         activation_prob: float = 0.1,
         activation_probs: t.Optional[array.array] = None,
         payoffs: t.Optional[array.array] = None,
-        rng: t.Union[RNGLike, SeedLike, None] = None,
+        rng: RNGType = None,
         _edge_probabilities: t.Optional[array.array] = None,
     ) -> None: ...
     def compute_marginal_gains(
@@ -175,7 +176,7 @@ class LinearThresholdModel(DiffusionModel):
         *,
         payoffs: t.Optional[array.array] = None,
         influence: t.Optional[array.array] = None,
-        rng: t.Union[RNGLike, SeedLike, None] = None,
+        rng: RNGType = None,
     ) -> None: ...
     def _assign_thresholds(self, node_thresholds: array.array) -> None:
         """
