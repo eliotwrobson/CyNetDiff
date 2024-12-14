@@ -14,20 +14,6 @@ from cpython.pycapsule cimport PyCapsule_GetPointer
 
 cdef const char *capsule_name = "BitGenerator"
 
-# Next, utility functions
-# TODO move these to a separate file later
-# From https://narkive.com/Fjs6xpVv:2.890.139
-from libc.stdlib cimport rand, RAND_MAX
-cdef double RAND_SCALE = 1.0 / RAND_MAX
-
-cdef inline double next_rand() nogil:
-    return rand() * RAND_SCALE
-
-#cdef extern from "numpy/random/c_distributions.pxd":
-#    double random_standard_uniform(npr.bitgen_t *bitgen_state) nogil
-
-# Now, the actual classes we care about
-
 # First, the DiffusionModel base class
 cdef class DiffusionModel:
     def get_newly_activated_nodes(self):
@@ -85,12 +71,9 @@ cdef class IndependentCascadeModel(DiffusionModel):
         self.payoffs = payoffs
 
         self.bitgen_state = <npr.bitgen_t*>PyCapsule_GetPointer(
-            npr.default_rng(rng).bit_generator.get_bit_generator_state(),
+            npr.default_rng(rng).bit_generator.capsule,
             capsule_name
         )
-
-        random_standard_uniform(self.bitgen_state)
-        #npr.c_distributions.random_standard_uniform(self.bitgen_state)
 
         self._edge_probabilities = _edge_probabilities
 
@@ -226,7 +209,7 @@ cdef class IndependentCascadeModel(DiffusionModel):
 
         # NOTE don't need to store random number since only one is drawn for each edge.
         if self._edge_probabilities is None:
-            if next_rand() <= activation_prob:
+            if random_standard_uniform(self.bitgen_state) <= activation_prob:
                 return 1
             return 0
 
@@ -288,10 +271,16 @@ cdef class LinearThresholdModel(DiffusionModel):
         *,
         float[:] influence = None,
         float[:] payoffs = None,
+        rng = None,
     ):
         self.starts = starts
         self.edges = edges
         self.payoffs = payoffs
+
+        self.bitgen_state = <npr.bitgen_t*>PyCapsule_GetPointer(
+            npr.default_rng(rng).bit_generator.capsule,
+            capsule_name
+        )
 
         cdef unsigned int n = len(self.starts)
         cdef unsigned int m = len(self.edges)
@@ -521,9 +510,9 @@ cdef class LinearThresholdModel(DiffusionModel):
                         buckets[child] = 0.0
 
                     if thresholds.count(child) == 0:
-                        thresholds[child] = next_rand()
+                        thresholds[child] = random_standard_uniform(self.bitgen_state)
                         while thresholds[child] == 0.0:
-                            thresholds[child] = next_rand()
+                            thresholds[child] = random_standard_uniform(self.bitgen_state)
 
                     threshold = thresholds[child]
 

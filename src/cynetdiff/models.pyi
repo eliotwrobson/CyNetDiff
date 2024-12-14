@@ -1,5 +1,11 @@
 import array
 import typing as t
+from collections.abc import Sequence
+
+import numpy as np
+
+SeedLike = int | np.integer | Sequence[int] | np.random.SeedSequence
+RNGLike = np.random.Generator | np.random.BitGenerator
 
 class DiffusionModel:
     """
@@ -110,6 +116,7 @@ class IndependentCascadeModel(DiffusionModel):
         activation_probs: t.Optional[array.array] = None,
         payoffs: t.Optional[array.array] = None,
         _edge_probabilities: t.Optional[array.array] = None,
+        rng: RNGLike | SeedLike | None = None,
     ) -> None: ...
     def compute_marginal_gains(
         self, seed_set: t.Iterable[int], new_seeds: t.List[int], num_trials: int
@@ -164,6 +171,7 @@ class LinearThresholdModel(DiffusionModel):
         *,
         payoffs: t.Optional[array.array] = None,
         influence: t.Optional[array.array] = None,
+        rng: RNGLike | SeedLike | None = None,
     ) -> None: ...
     def _assign_thresholds(self, node_thresholds: array.array) -> None:
         """
