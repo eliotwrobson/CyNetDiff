@@ -103,6 +103,7 @@ def networkx_to_ic_model(
     graph: Graph,
     *,
     activation_prob: t.Optional[float] = None,
+    rng: RNGType = None,
     _include_succcess_prob: bool = False,
 ) -> t.Tuple[IndependentCascadeModel, NodeMappingDict]:
     """
@@ -121,6 +122,8 @@ def networkx_to_ic_model(
     activation_prob : float, optional
         Activation probability for the Independent Cascade model, by default `None`.
         If not set, and `"activation_prob"` key not found on edges, set to 0.1.
+    rng : np.random.Generator | np.random.BitGenerator | None, optional
+        Random number generator to use for the model. If not set, creates a new generator by default.
     _include_succcess_prob : bool, optional
         If True, includes success probabilities for each edge. These probabilities
         are then stored in the edge data dictionary with the key "success_prob",
@@ -189,6 +192,7 @@ def networkx_to_ic_model(
             payoffs=payoffs,
             activation_prob=activation_prob,
             _edge_probabilities=success_prob,
+            rng=rng,
         ), node_mapping
 
     elif activation_probs is not None:
@@ -198,6 +202,7 @@ def networkx_to_ic_model(
             payoffs=payoffs,
             activation_probs=activation_probs,
             _edge_probabilities=success_prob,
+            rng=rng,
         ), node_mapping
     else:
         return IndependentCascadeModel(
@@ -205,11 +210,13 @@ def networkx_to_ic_model(
             edges,
             payoffs=payoffs,
             _edge_probabilities=success_prob,
+            rng=rng,
         ), node_mapping
 
 
 def networkx_to_lt_model(
     graph: Graph,
+    rng: RNGType = None,
 ) -> t.Tuple[LinearThresholdModel, NodeMappingDict]:
     """
     Converts a NetworkX graph into a Linear Threshold model. Includes influence
@@ -222,6 +229,8 @@ def networkx_to_lt_model(
     ----------
     graph : nx.Graph or nx.DiGraph
         A NetworkX graph or directed graph.
+    rng : np.random.Generator | np.random.BitGenerator | None, optional
+        Random number generator to use for the model. If not set, creates a new generator by default.
 
     Returns
     -------
@@ -285,6 +294,7 @@ def networkx_to_lt_model(
         edges,
         payoffs=payoffs,
         influence=influence,
+        rng=rng,
     )
 
     return model, node_mapping
