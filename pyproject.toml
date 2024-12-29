@@ -47,7 +47,6 @@ tqdm = "^4.66.2"
 pooch = "^1.8.1"
 notebook = "^7.1.2"
 coloraide = "^3.1.2"
-pytest-benchmark = "^5.1.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.4"
@@ -60,6 +59,7 @@ pandas-stubs = "^2.2.0.240218"
 types-tqdm = "^4.66.0.20240106"
 cython = "^3.0.9"
 cython-lint = "^0.16.2"
+pytest-benchmark = "^5.1.0"
 
 
 [tool.poetry.group.docs]
