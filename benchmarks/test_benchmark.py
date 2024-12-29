@@ -75,7 +75,7 @@ def make_diffusion_graph(n: int, p: float, seed: int) -> DiffusionGraphT:
 )
 @pytest.mark.parametrize(
     "n, p",
-    [(1_000, 0.01), (10_000, 0.01), (100_000, 0.001)],
+    [(1_000, 0.01), (10_000, 0.01), (50_000, 0.005)],
 )
 @pytest.mark.parametrize(
     "num_samples",
@@ -96,5 +96,5 @@ def test_speed(
     random.seed(random_seed)
     seeds = set(random.sample(list(diffusion_graph.nodes()), num_seeds))
 
-    benchmark(diffusion_function, diffusion_graph, seeds, num_samples)
     benchmark.group = f"n={n}, p={p}, num_samples={num_samples}"
+    benchmark(diffusion_function, diffusion_graph, seeds, num_samples)

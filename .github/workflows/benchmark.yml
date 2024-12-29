@@ -31,5 +31,5 @@ jobs:
       - name: Install dependencies
         run: poetry install --with dev
 
-      - name: Tests with pytest and pytest-benchmark
-        run: poetry run pytest
+      - name: Benchmark with pytest-benchmark
+        run: poetry run pytest --benchmark-only benchmarks/test_benchmark.py
