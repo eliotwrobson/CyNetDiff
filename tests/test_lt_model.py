@@ -210,8 +210,7 @@ def test_model_rng_seed(directed: bool, seed: int) -> None:
     num_runs = 10
     # Just trying the main functions with no set thresholds
     graph = generate_random_graph_from_seed(n, p, directed, False, False, seed=seed)
-    model, _ = networkx_to_lt_model(graph)
-    model.set_rng(seed)
+    model, _ = networkx_to_lt_model(graph, rng=seed)
 
     random.seed(seed)
     seeds = set(random.sample(list(graph.nodes), k))

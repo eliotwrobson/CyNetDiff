@@ -199,8 +199,7 @@ def test_model_rng_seed(directed: bool, seed: int) -> None:
     graph = generate_random_graph_from_seed(
         n, p, directed, False, seed=seed, include_success_prob=False
     )
-    model, _ = networkx_to_ic_model(graph)
-    model.set_rng(seed)
+    model, _ = networkx_to_ic_model(graph, rng=seed)
 
     random.seed(seed)
     seeds = set(random.sample(list(graph.nodes), k))
