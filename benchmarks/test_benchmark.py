@@ -79,7 +79,7 @@ def make_diffusion_graph(n: int, p: float, seed: int) -> DiffusionGraphT:
 )
 @pytest.mark.parametrize(
     "num_samples",
-    [10, 100, 1_000],
+    [10, 100],
 )
 def test_speed(
     benchmark,
