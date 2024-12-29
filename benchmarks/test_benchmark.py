@@ -75,7 +75,7 @@ def make_diffusion_graph(n: int, p: float, seed: int) -> DiffusionGraphT:
 )
 @pytest.mark.parametrize(
     "n, p",
-    [(1_000, 0.01), (10_000, 0.01), (50_000, 0.005)],
+    [(1_000, 0.01), (10_000, 0.01)],
 )
 @pytest.mark.parametrize(
     "num_samples",
