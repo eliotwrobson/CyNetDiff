@@ -60,7 +60,7 @@ def diffuse_ndlib(graph: DiffusionGraphT, seeds: set[int], num_samples: int) -> 
 
 
 def make_diffusion_graph(n: int, p: float, seed: int) -> DiffusionGraphT:
-    graph = nx.erdos_renyi_graph(1_000, 0.1, seed=seed)
+    graph = nx.erdos_renyi_graph(n, p, seed=seed)
     set_activation_random_sample(graph, {0.1})
     return graph
 
