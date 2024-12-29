@@ -49,16 +49,18 @@ notebook = "^7.1.2"
 coloraide = "^3.1.2"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^8.0.2"
+pytest = "^8.3.4"
 mypy = "^1.7.1"
 types-setuptools = "^69.0.0.0"
 networkx = "^3.2.1"
 numpy = "^2.0.0"
-ruff = "^0.3.0"
+ruff = "^0.8.4"
 pandas-stubs = "^2.2.0.240218"
 types-tqdm = "^4.66.0.20240106"
 cython = "^3.0.9"
 cython-lint = "^0.16.2"
+pytest-benchmark = "^5.1.0"
+ndlib = "^5.1.1"
 
 [tool.poetry.group.docs]
 optional = true
@@ -90,3 +92,5 @@ ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = "tests"
+# Don't need warmup iterations because benchmark is already an average.
+benchmark_warmups = 0
