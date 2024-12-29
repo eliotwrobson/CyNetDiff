@@ -16,6 +16,17 @@ class DiffusionModel:
     sparse row format.
     """
 
+    def set_rng(self, rng: RNGType = None):
+        """
+        Sets the random number generator for the model. If not set, creates a new generator
+        by default.
+
+        Parameters
+        ----------
+        rng : SeedLike | RNGLike | None
+            Random number generator to use for the model.
+        """
+
     def advance_model(self) -> None:
         """
         Advances the diffusion model by one step.
@@ -105,7 +116,8 @@ class IndependentCascadeModel(DiffusionModel):
         Set individual activation probabilities for the Independent Cascade model.
         Overrides `activation_prob`. Array elements must be `float`s in [`0.0`,`1.0`].
     rng : np.random.Generator | np.random.BitGenerator | None, optional
-        Random number generator to use for the model. If not set, creates a new generator by default.
+        Random number generator to use for the model.
+        If not set, creates a new generator by default.
     _edge_probabilities : array.array, optional
         An array of success probabilities for each edge, default is None.
     """

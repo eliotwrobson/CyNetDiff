@@ -5,6 +5,7 @@ import typing as t
 
 import networkx as nx
 import pytest
+
 from cynetdiff.utils import (
     networkx_to_ic_model,
     set_activation_random_sample,
@@ -167,13 +168,15 @@ def generate_random_graph_from_seed(
     directed: bool,
     include_payoff: bool,
     *,
+    include_success_prob: bool = True,
     seed: int = 12345,
 ) -> t.Union[nx.Graph, nx.DiGraph]:
     graph = nx.fast_gnp_random_graph(n, p, directed=directed, seed=seed)
 
     random.seed(seed)
-    for _, _, data in graph.edges(data=True):
-        data["success_prob"] = random.random()
+    if include_success_prob:
+        for _, _, data in graph.edges(data=True):
+            data["success_prob"] = random.random()
 
     if include_payoff:
         for _, data in graph.nodes(data=True):
@@ -183,6 +186,34 @@ def generate_random_graph_from_seed(
 
 
 # The start of the actual test cases
+
+
+@pytest.mark.parametrize("seed", [12345, 505050, 2024])
+def test_model_rng_seed(seed: int) -> None:
+    n = 10000
+    k = 10
+    p = 0.01
+    # Just trying the main functions with no set thresholds
+    graph = generate_random_graph_from_seed(
+        n, p, False, False, seed=seed, include_success_prob=False
+    )
+    model, _ = networkx_to_ic_model(graph)
+    model.set_rng(seed)
+
+    random.seed(seed)
+    seeds = set(random.sample(list(graph.nodes), k))
+    model.set_seeds(seeds)
+    model.advance_until_completion()
+
+    activated_nodes = set(model.get_activated_nodes())
+
+    # Reset model and run again
+    model.reset_model()
+    model.set_seeds(seeds)
+    model.set_rng(seed)
+    model.advance_until_completion()
+
+    assert activated_nodes == set(model.get_activated_nodes())
 
 
 @pytest.mark.parametrize("directed", [True, False])

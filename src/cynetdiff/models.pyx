@@ -16,6 +16,13 @@ cdef const char *capsule_name = "BitGenerator"
 
 # First, the DiffusionModel base class
 cdef class DiffusionModel:
+    def set_rng(self, rng = None):
+        self._rng = npr.default_rng(rng)
+        self.bitgen_state = <npr.bitgen_t*>PyCapsule_GetPointer(
+            self._rng.bit_generator.capsule,
+            capsule_name
+        )
+
     def get_newly_activated_nodes(self):
         raise NotImplementedError
 
@@ -70,11 +77,7 @@ cdef class IndependentCascadeModel(DiffusionModel):
         self.activation_probs = activation_probs
         self.payoffs = payoffs
 
-        self._rng = npr.default_rng(rng)
-        self.bitgen_state = <npr.bitgen_t*>PyCapsule_GetPointer(
-            self._rng.bit_generator.capsule,
-            capsule_name
-        )
+        self.set_rng(rng)
 
         self._edge_probabilities = _edge_probabilities
 
@@ -278,11 +281,7 @@ cdef class LinearThresholdModel(DiffusionModel):
         self.edges = edges
         self.payoffs = payoffs
 
-        self._rng = npr.default_rng(rng)
-        self.bitgen_state = <npr.bitgen_t*>PyCapsule_GetPointer(
-            self._rng.bit_generator.capsule,
-            capsule_name
-        )
+        self.set_rng(rng)
 
         cdef unsigned int n = len(self.starts)
         cdef unsigned int m = len(self.edges)
