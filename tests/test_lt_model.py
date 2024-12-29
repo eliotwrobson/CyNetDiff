@@ -6,6 +6,7 @@ import typing as t
 
 import networkx as nx
 import pytest
+
 from cynetdiff.utils import networkx_to_lt_model
 
 #    Code below adapted from code by
@@ -198,6 +199,45 @@ def get_thresholds(graph: nx.DiGraph) -> array.array:
 
 
 # Start of actual test code
+
+
+@pytest.mark.parametrize("directed", [True, False])
+@pytest.mark.parametrize("seed", [12345, 505050, 2024])
+def test_model_rng_seed(directed: bool, seed: int) -> None:
+    n = 10000
+    k = 10
+    p = 0.01
+    num_runs = 10
+    # Just trying the main functions with no set thresholds
+    graph = generate_random_graph_from_seed(n, p, directed, False, False, seed=seed)
+    model, _ = networkx_to_lt_model(graph, rng=seed)
+
+    random.seed(seed)
+    seeds = set(random.sample(list(graph.nodes), k))
+
+    model.set_seeds(seeds)
+    activated_nodes_sets = []
+
+    # Get activated nodes sets for 10 runs
+    for _ in range(num_runs):
+        model.reset_model()
+        model.advance_until_completion()
+
+        activated_nodes = set(model.get_activated_nodes())
+        activated_nodes_sets.append(activated_nodes)
+
+    # Assert that sets are different
+    model.reset_model()
+    model.advance_until_completion()
+    assert activated_nodes != set(model.get_activated_nodes())
+
+    # Reseed model and run again
+    model.set_rng(seed)
+
+    for activated_nodes in activated_nodes_sets:
+        model.reset_model()
+        model.advance_until_completion()
+        assert activated_nodes == set(model.get_activated_nodes())
 
 
 @pytest.mark.parametrize("directed", [True, False])

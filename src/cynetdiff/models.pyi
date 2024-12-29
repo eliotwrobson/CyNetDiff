@@ -1,5 +1,12 @@
 import array
 import typing as t
+from collections.abc import Sequence
+
+import numpy as np
+
+SeedLike = t.Union[int, np.integer, Sequence[int], np.random.SeedSequence]
+RNGLike = t.Union[np.random.Generator, np.random.BitGenerator]
+RNGType = t.Union[SeedLike, RNGLike, None]
 
 class DiffusionModel:
     """
@@ -8,6 +15,17 @@ class DiffusionModel:
     process have labels in [0, n-1] and the graph is represented in compressed
     sparse row format.
     """
+
+    def set_rng(self, rng: RNGType = None):
+        """
+        Sets the random number generator for the model. If not set, creates a new generator
+        by default.
+
+        Parameters
+        ----------
+        rng : SeedLike | RNGLike | None
+            Random number generator to use for the model.
+        """
 
     def advance_model(self) -> None:
         """
@@ -97,6 +115,9 @@ class IndependentCascadeModel(DiffusionModel):
     activation_probs : array.array, optional
         Set individual activation probabilities for the Independent Cascade model.
         Overrides `activation_prob`. Array elements must be `float`s in [`0.0`,`1.0`].
+    rng : np.random.Generator | np.random.BitGenerator | None, optional
+        Random number generator to use for the model.
+        If not set, creates a new generator by default.
     _edge_probabilities : array.array, optional
         An array of success probabilities for each edge, default is None.
     """
@@ -109,6 +130,7 @@ class IndependentCascadeModel(DiffusionModel):
         activation_prob: float = 0.1,
         activation_probs: t.Optional[array.array] = None,
         payoffs: t.Optional[array.array] = None,
+        rng: RNGType = None,
         _edge_probabilities: t.Optional[array.array] = None,
     ) -> None: ...
     def compute_marginal_gains(
@@ -155,6 +177,8 @@ class LinearThresholdModel(DiffusionModel):
         An array of influence values for each edge. Array elements must be
         `float`s in [`0.0`,`1.0`]. If not set, the inverse of the in-degree of a node
         is used for the influence.
+    rng : np.random.Generator | np.random.BitGenerator | None, optional
+        Random number generator to use for the model. If not set, creates a new generator by default.
     """
 
     def __init__(
@@ -164,6 +188,7 @@ class LinearThresholdModel(DiffusionModel):
         *,
         payoffs: t.Optional[array.array] = None,
         influence: t.Optional[array.array] = None,
+        rng: RNGType = None,
     ) -> None: ...
     def _assign_thresholds(self, node_thresholds: array.array) -> None:
         """

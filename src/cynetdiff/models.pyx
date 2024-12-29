@@ -7,20 +7,22 @@ from libcpp.vector cimport vector as cvector
 from libcpp.unordered_map cimport unordered_map as cmap
 
 cimport cython
+import numpy.random as npr
+cimport numpy.random as npr
+from numpy.random.c_distributions cimport random_standard_uniform
+from cpython.pycapsule cimport PyCapsule_GetPointer
 
-# Next, utility functions
-# TODO move these to a separate file later
-# From https://narkive.com/Fjs6xpVv:2.890.139
-from libc.stdlib cimport rand, RAND_MAX
-cdef double RAND_SCALE = 1.0 / RAND_MAX
-
-cdef inline double next_rand() nogil:
-    return rand() * RAND_SCALE
-
-# Now, the actual classes we care about
+cdef const char *capsule_name = "BitGenerator"
 
 # First, the DiffusionModel base class
 cdef class DiffusionModel:
+    def set_rng(self, rng = None):
+        self._rng = npr.default_rng(rng)
+        self.bitgen_state = <npr.bitgen_t*>PyCapsule_GetPointer(
+            self._rng.bit_generator.capsule,
+            capsule_name
+        )
+
     def get_newly_activated_nodes(self):
         raise NotImplementedError
 
@@ -65,7 +67,8 @@ cdef class IndependentCascadeModel(DiffusionModel):
         double activation_prob = 0.1,
         float[:] activation_probs = None,
         float[:] payoffs = None,
-        float[:] _edge_probabilities = None
+        float[:] _edge_probabilities = None,
+        rng = None,
     ):
 
         self.starts = starts
@@ -73,6 +76,8 @@ cdef class IndependentCascadeModel(DiffusionModel):
         self.activation_prob = activation_prob
         self.activation_probs = activation_probs
         self.payoffs = payoffs
+
+        self.set_rng(rng)
 
         self._edge_probabilities = _edge_probabilities
 
@@ -208,7 +213,7 @@ cdef class IndependentCascadeModel(DiffusionModel):
 
         # NOTE don't need to store random number since only one is drawn for each edge.
         if self._edge_probabilities is None:
-            if next_rand() <= activation_prob:
+            if random_standard_uniform(self.bitgen_state) <= activation_prob:
                 return 1
             return 0
 
@@ -270,10 +275,13 @@ cdef class LinearThresholdModel(DiffusionModel):
         *,
         float[:] influence = None,
         float[:] payoffs = None,
+        rng = None,
     ):
         self.starts = starts
         self.edges = edges
         self.payoffs = payoffs
+
+        self.set_rng(rng)
 
         cdef unsigned int n = len(self.starts)
         cdef unsigned int m = len(self.edges)
@@ -501,14 +509,14 @@ cdef class LinearThresholdModel(DiffusionModel):
                     # Lazy evaluation for buckets and thresholds
                     if buckets.count(child) == 0:
                         buckets[child] = 0.0
-
                     if thresholds.count(child) == 0:
-                        thresholds[child] = next_rand()
+                        thresholds[child] = random_standard_uniform(self.bitgen_state)
                         while thresholds[child] == 0.0:
-                            thresholds[child] = next_rand()
+                            thresholds[child] = random_standard_uniform(
+                                self.bitgen_state
+                            )
 
                     threshold = thresholds[child]
-
                     # Function is written so that each edge is traversed _once_
                     assert buckets[child] < threshold
 
