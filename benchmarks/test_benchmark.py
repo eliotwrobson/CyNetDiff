@@ -20,14 +20,7 @@ def diffuse_CyNetDiff(
     model, _ = networkx_to_ic_model(graph)
     model.set_seeds(seeds)
 
-    total_activated = 0.0
-
-    for _ in range(num_samples):
-        model.reset_model()
-        model.advance_until_completion()
-        total_activated += model.get_num_activated_nodes()
-
-    return total_activated / num_samples
+    return model.compute_marginal_gains(seeds, [], num_samples)[0]
 
 
 def diffuse_ndlib(graph: DiffusionGraphT, seeds: set[int], num_samples: int) -> float:
