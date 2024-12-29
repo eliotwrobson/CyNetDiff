@@ -29,7 +29,7 @@ jobs:
           poetry-version: ${{ matrix.poetry-version }}
 
       - name: Install dependencies
-        run: poetry install --with dev, benchmark
+        run: poetry install --with dev,benchmark
 
       - name: Benchmark with pytest-benchmark
         run: poetry run pytest --benchmark-only benchmarks/test_benchmark.py
