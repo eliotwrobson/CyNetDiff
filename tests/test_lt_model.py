@@ -207,6 +207,7 @@ def test_model_rng_seed(directed: bool, seed: int) -> None:
     n = 10000
     k = 10
     p = 0.01
+    num_runs = 10
     # Just trying the main functions with no set thresholds
     graph = generate_random_graph_from_seed(n, p, directed, False, False, seed=seed)
     model, _ = networkx_to_lt_model(graph)
@@ -214,18 +215,30 @@ def test_model_rng_seed(directed: bool, seed: int) -> None:
 
     random.seed(seed)
     seeds = set(random.sample(list(graph.nodes), k))
+
     model.set_seeds(seeds)
-    model.advance_until_completion()
+    activated_nodes_sets = []
 
-    activated_nodes = set(model.get_activated_nodes())
+    # Get activated nodes sets for 10 runs
+    for _ in range(num_runs):
+        model.reset_model()
+        model.advance_until_completion()
 
-    # Reset model and run again
+        activated_nodes = set(model.get_activated_nodes())
+        activated_nodes_sets.append(activated_nodes)
+
+    # Assert that sets are different
     model.reset_model()
-    model.set_seeds(seeds)
-    model.set_rng(seed)
     model.advance_until_completion()
+    assert activated_nodes != set(model.get_activated_nodes())
 
-    assert activated_nodes == set(model.get_activated_nodes())
+    # Reseed model and run again
+    model.set_rng(seed)
+
+    for activated_nodes in activated_nodes_sets:
+        model.reset_model()
+        model.advance_until_completion()
+        assert activated_nodes == set(model.get_activated_nodes())
 
 
 @pytest.mark.parametrize("directed", [True, False])
