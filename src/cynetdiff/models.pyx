@@ -41,6 +41,24 @@ cdef class DiffusionModel:
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
+    cdef float _compute_payoff_set(
+        self,
+        cset[unsigned int]& activated_nodes,
+        float[:] payoffs,
+    ):
+        cdef float result = 0.0
+
+        if payoffs is not None:
+            for node in activated_nodes:
+                result += payoffs[node]
+        else:
+            result += <float>activated_nodes.size()
+
+        return result
+
+
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
     cdef float _compute_payoff(
         self,
         cdeque[unsigned int]& activated_nodes,
@@ -118,6 +136,9 @@ cdef class IndependentCascadeModel(DiffusionModel):
 
     def get_num_activated_nodes(self):
         return self.seen_set.size()
+
+    def compute_payoffs(self):
+        return self._compute_payoff_set(self.seen_set, self.payoffs)
 
     def compute_marginal_gains(self, seed_set, new_seeds, num_trials):
         cdef cvector[unsigned int] original_seeds
@@ -351,6 +372,9 @@ cdef class LinearThresholdModel(DiffusionModel):
 
     def get_num_activated_nodes(self):
         return self.seen_set.size()
+
+    def compute_payoffs(self):
+        return self._compute_payoff_set(self.seen_set, self.payoffs)
 
     def compute_marginal_gains(
         self,

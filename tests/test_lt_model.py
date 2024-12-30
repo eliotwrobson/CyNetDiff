@@ -193,6 +193,31 @@ def get_thresholds(graph: nx.DiGraph) -> array.array:
 # Start of actual test code
 
 
+@pytest.mark.parametrize("seed", [12345, 505050, 2024])
+def test_model_payoffs(seed: int) -> None:
+    n = 10_000
+    k = 10
+    p = 0.01
+
+    # Just trying the main functions with no set thresholds
+    graph = generate_random_graph_from_seed(n, p, True, False, True, seed=seed)
+    model, _ = networkx_to_lt_model(graph, rng=seed)
+    random.seed(seed)
+    seeds = set(random.sample(list(graph.nodes), k))
+
+    # Run the model
+    model.set_seeds(seeds)
+    model.advance_until_completion()
+    payoff_score = model.compute_payoffs()
+
+    # Compute score manually and compare
+    manual_score = 0.0
+    for node in model.get_activated_nodes():
+        manual_score += graph.nodes[node]["payoff"]
+
+    assert math.isclose(payoff_score, manual_score, abs_tol=0.05)
+
+
 @pytest.mark.parametrize("directed", [True, False])
 @pytest.mark.parametrize("seed", [12345, 505050, 2024])
 def test_model_rng_seed(directed: bool, seed: int) -> None:

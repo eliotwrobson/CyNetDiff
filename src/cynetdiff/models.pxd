@@ -12,6 +12,12 @@ cdef class DiffusionModel:
     cpdef void advance_model(self)
     cpdef void reset_model(self)
     cpdef void advance_until_completion(self)
+    cdef float _compute_payoff_set(
+        self,
+        cset[unsigned int]& activated_nodes,
+        float[:] payoffs,
+    )
+
     cdef float _compute_payoff(
         self,
         cdeque[unsigned int]& activated_nodes,
