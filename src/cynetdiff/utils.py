@@ -156,8 +156,7 @@ def networkx_to_ic_model(
         # Don't have both things set.
         if activation_prob is not None:
             raise ValueError(
-                "Activation probability set on both graph data and function argument, "
-                "only one should be set."
+                "Activation probability set on both graph data and function argument, only one should be set."
             )
 
         activation_probs = array.array("f")
@@ -282,10 +281,7 @@ def networkx_to_lt_model(
             # 1.0001 instead of 1.0 to avoid floating point issues.
             # TODO will this annoy people?
             if pred_sum > 1.0001:
-                raise ValueError(
-                    f"Node {node} has inward influence {pred_sum}, "
-                    "must be less than 1.0."
-                )
+                raise ValueError(f"Node {node} has inward influence {pred_sum}, must be less than 1.0.")
 
     check_csr_arrays(starts, edges)
 
@@ -323,9 +319,7 @@ def check_csr_arrays(starts: array.array, edges: array.array) -> None:
 
     # Check typecodes
     if starts.typecode != "I":
-        raise ValueError(
-            f'starts array must have typecode "I" not "{starts.typecode}".'
-        )
+        raise ValueError(f'starts array must have typecode "I" not "{starts.typecode}".')
 
     if edges.typecode != "I":
         raise ValueError(f'edges array must have typecode "I" not "{edges.typecode}".')
@@ -336,9 +330,7 @@ def check_csr_arrays(starts: array.array, edges: array.array) -> None:
     # Boundscheck edges
     for edge_link in edges:
         if not (0 <= edge_link < n):
-            raise ValueError(
-                f'Value in edges "{edge_link}" must ben in the range [0,{n-1}].'
-            )
+            raise ValueError(f'Value in edges "{edge_link}" must ben in the range [0,{n-1}].')
 
     # Boundscheck nodes
     prev_node_start = 0
@@ -348,9 +340,7 @@ def check_csr_arrays(starts: array.array, edges: array.array) -> None:
 
     for node_start in starts:
         if not (0 <= node_start <= m):
-            raise ValueError(
-                f"Value in starts '{node_start}' must be in the range [0,{m}]."
-            )
+            raise ValueError(f"Value in starts '{node_start}' must be in the range [0,{m}].")
         if node_start < prev_node_start:
             raise ValueError("Values stored in starts must be in increasing order.")
 

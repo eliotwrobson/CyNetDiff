@@ -28,13 +28,11 @@ classifiers = [
 homepage = "https://github.com/eliotwrobson/CyNetDiff"
 tracker = "https://github.com/eliotwrobson/CyNetDiff/issues"
 documentation = "https://eliotwrobson.github.io/CyNetDiff/"
-# TODO add these later
-#gitter = "https://gitter/area"
 
 [tool.poetry.dependencies]
 python = ">=3.9"
 
-# TODO change the group name to "examples"
+
 [tool.poetry.group.benchmark]
 optional = true
 
@@ -94,3 +92,20 @@ ignore_missing_imports = true
 testpaths = "tests"
 # Don't need warmup iterations because benchmark is already an average.
 benchmark_warmups = 0
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = [
+    # pycodestyle
+    "E",
+    # Pyflakes
+    "F",
+    # flake8-bugbear
+    "B",
+    # isort
+    "I",
+    # pep8-naming
+    "N",
+]

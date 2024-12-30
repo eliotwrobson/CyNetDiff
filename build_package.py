@@ -16,9 +16,9 @@ def build_cython_extensions() -> None:
     # Flag to enable Cython code generation during install / build. This is
     # enabled during development to generated the C++ files that will be
     # compiled
-    USE_CYTHON = find_spec("Cython") is not None
+    use_cython = find_spec("Cython") is not None
 
-    ext = ".pyx" if USE_CYTHON else ".cpp"
+    ext = ".pyx" if use_cython else ".cpp"
 
     extensions = [
         Extension(
@@ -33,7 +33,7 @@ def build_cython_extensions() -> None:
         ),
     ]
 
-    if USE_CYTHON:
+    if use_cython:
         from Cython.Build import cythonize  # isort: skip
 
         # when using setuptools, you should import setuptools before Cython,
