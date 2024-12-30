@@ -109,3 +109,6 @@ select = [
     # pep8-naming
     "N",
 ]
+
+[tool.cython-lint]
+max-line-length = 120

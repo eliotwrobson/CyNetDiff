@@ -56,7 +56,6 @@ cdef class DiffusionModel:
 
         return result
 
-
     @cython.boundscheck(False)
     @cython.wraparound(False)
     cdef float _compute_payoff(
@@ -358,7 +357,6 @@ cdef class LinearThresholdModel(DiffusionModel):
         if self.payoffs is not None:
             assert len(self.starts) == len(self.payoffs)
 
-
     cpdef void _assign_thresholds(self, float[:] _node_thresholds):
         # If provided, copy from user code
         cdef unsigned int n = len(self.starts)
@@ -384,7 +382,6 @@ cdef class LinearThresholdModel(DiffusionModel):
                 if random_standard_uniform(self.bitgen_state) <= self.seed_probs[i]:
                     self.work_deque.push_back(self.original_seeds[i])
                     self.seen_set.insert(self.original_seeds[i])
-
 
     def get_newly_activated_nodes(self):
         for node in self.work_deque:
