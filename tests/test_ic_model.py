@@ -62,9 +62,7 @@ def independent_cascade(
         In Automata, Languages and Programming, 2005.
     """
     if isinstance(graph, (nx.MultiGraph, nx.MultiDiGraph)):
-        raise Exception(
-            "independent_cascade() is not defined for graphs with multiedges."
-        )
+        raise Exception("independent_cascade() is not defined for graphs with multiedges.")
 
     rand_gen = random.Random(random_seed)
 
@@ -85,9 +83,7 @@ def independent_cascade(
         # if "act_prob" not in data:
         #    data["act_prob"] = 0.1
         if act_prob_default > 1.0:
-            raise Exception(
-                f"edge activation probability: {act_prob_default} cannot be larger than 1."
-            )
+            raise Exception(f"edge activation probability: {act_prob_default} cannot be larger than 1.")
 
         data.setdefault("success_prob", rand_gen.random())
 
@@ -106,8 +102,8 @@ def _diffuse_all(graph, activated, rand_gen):
     layer_i_nodes.append([i for i in activated])  # prevent side effect
     while True:
         len_old = len(activated)
-        (activated, activated_nodes_of_this_round, cur_tried_edges) = (
-            _diffuse_one_round(graph, activated, tried_edges, rand_gen)
+        (activated, activated_nodes_of_this_round, cur_tried_edges) = _diffuse_one_round(
+            graph, activated, tried_edges, rand_gen
         )
         layer_i_nodes.append(activated_nodes_of_this_round)
         tried_edges = tried_edges.union(cur_tried_edges)
@@ -122,8 +118,8 @@ def _diffuse_k_rounds(graph, activated, steps, rand_gen):
     layer_i_nodes.append([i for i in activated])
     while steps > 0 and len(activated) < len(graph):
         len_old = len(activated)
-        (activated, activated_nodes_of_this_round, cur_tried_edges) = (
-            _diffuse_one_round(graph, activated, tried_edges, rand_gen)
+        (activated, activated_nodes_of_this_round, cur_tried_edges) = _diffuse_one_round(
+            graph, activated, tried_edges, rand_gen
         )
         layer_i_nodes.append(activated_nodes_of_this_round)
         tried_edges = tried_edges.union(cur_tried_edges)
@@ -189,9 +185,7 @@ def test_model_rng_seed(directed: bool, seed: int) -> None:
     p = 0.005
     num_runs = 10
     # Just trying the main functions with no set thresholds
-    graph = generate_random_graph_from_seed(
-        n, p, directed, False, seed=seed, include_success_prob=False
-    )
+    graph = generate_random_graph_from_seed(n, p, directed, False, seed=seed, include_success_prob=False)
     model, _ = networkx_to_ic_model(graph, rng=seed)
 
     random.seed(seed)
@@ -277,17 +271,13 @@ def test_specific_model(
 
     # If this function is None, we use the uniform activation threshold.
     if set_act_prob_fn is None:
-        activated_nodes_levels = independent_cascade(
-            test_graph, seeds, activation_prob=indep_cascade_prob
-        )
+        activated_nodes_levels = independent_cascade(test_graph, seeds, activation_prob=indep_cascade_prob)
     else:
         activated_nodes_levels = independent_cascade(test_graph, seeds)
 
     # Set up the model
     if set_act_prob_fn is None:
-        model, _ = networkx_to_ic_model(
-            test_graph, activation_prob=indep_cascade_prob, _include_succcess_prob=True
-        )
+        model, _ = networkx_to_ic_model(test_graph, activation_prob=indep_cascade_prob, _include_succcess_prob=True)
     else:
         model, _ = networkx_to_ic_model(test_graph, _include_succcess_prob=True)
 
@@ -388,9 +378,7 @@ def test_marginal_gain(directed: bool, include_payoffs: bool, seed: int) -> None
     n = 1000
     p = 0.01
     k = 10
-    test_graph = generate_random_graph_from_seed(
-        n, p, directed, include_payoffs, seed=seed
-    )
+    test_graph = generate_random_graph_from_seed(n, p, directed, include_payoffs, seed=seed)
 
     nodes = list(test_graph.nodes)
     seeds = random.sample(nodes, k)
@@ -399,9 +387,7 @@ def test_marginal_gain(directed: bool, include_payoffs: bool, seed: int) -> None
     model, _ = networkx_to_ic_model(test_graph, _include_succcess_prob=True)
 
     result = model.compute_marginal_gains(seeds, [], 1000)[0]
-    total_activated = compute_graph_marginal_gain(
-        test_graph, independent_cascade(test_graph, seeds)
-    )
+    total_activated = compute_graph_marginal_gain(test_graph, independent_cascade(test_graph, seeds))
 
     assert math.isclose(result, total_activated, abs_tol=0.05)
 
@@ -413,9 +399,7 @@ def test_marginal_gain(directed: bool, include_payoffs: bool, seed: int) -> None
     set_so_far: t.List[int] = []
 
     for seed, result in zip(seeds, results[1:]):
-        without_new_seed_total = compute_graph_marginal_gain(
-            test_graph, independent_cascade(test_graph, set_so_far)
-        )
+        without_new_seed_total = compute_graph_marginal_gain(test_graph, independent_cascade(test_graph, set_so_far))
 
         with_new_seed_total = compute_graph_marginal_gain(
             test_graph, independent_cascade(test_graph, set_so_far + [seed])

@@ -95,6 +95,8 @@ benchmark_warmups = 0
 
 [tool.ruff]
 line-length = 120
+
+[tool.ruff.lint]
 select = [
     # pycodestyle
     "E",

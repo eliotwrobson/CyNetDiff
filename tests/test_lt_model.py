@@ -167,9 +167,7 @@ def generate_random_graph_from_seed(
             data["influence"] = random.random()
 
         for node in graph.nodes():
-            pred_dicts = tuple(
-                graph[predecessor][node] for predecessor in graph.predecessors(node)
-            )
+            pred_dicts = tuple(graph[predecessor][node] for predecessor in graph.predecessors(node))
 
             # Get sum of influences and then normalize.
             inf_sum = 0.0
@@ -324,9 +322,7 @@ def compute_graph_marginal_gain(
 @pytest.mark.parametrize("nondefault_influence", [True, False])
 @pytest.mark.parametrize("include_payoffs", [True, False])
 @pytest.mark.parametrize("seed", [12345, 505050])
-def test_marginal_gain(
-    directed: bool, nondefault_influence: bool, include_payoffs: bool, seed: int
-) -> None:
+def test_marginal_gain(directed: bool, nondefault_influence: bool, include_payoffs: bool, seed: int) -> None:
     """
     Test the marginal gain function under a couple of parameter settings.
     """
@@ -334,9 +330,7 @@ def test_marginal_gain(
     n = 500
     p = 0.01
     k = 10
-    test_graph = generate_random_graph_from_seed(
-        n, p, directed, nondefault_influence, include_payoffs, seed=seed
-    )
+    test_graph = generate_random_graph_from_seed(n, p, directed, nondefault_influence, include_payoffs, seed=seed)
 
     nodes = list(test_graph.nodes)
     seeds = random.sample(nodes, k)
@@ -345,18 +339,12 @@ def test_marginal_gain(
     model, _ = networkx_to_lt_model(test_graph)
     node_thresholds = get_thresholds(test_graph)
 
-    result = model.compute_marginal_gains(
-        seeds, [], 1, _node_thresholds=node_thresholds
-    )[0]
-    total_activated = compute_graph_marginal_gain(
-        test_graph, linear_threshold(test_graph, seeds)
-    )
+    result = model.compute_marginal_gains(seeds, [], 1, _node_thresholds=node_thresholds)[0]
+    total_activated = compute_graph_marginal_gain(test_graph, linear_threshold(test_graph, seeds))
 
     assert math.isclose(result, total_activated, abs_tol=0.05)
 
-    results: t.List[float] = model.compute_marginal_gains(
-        [], seeds, 1, _node_thresholds=node_thresholds
-    )
+    results: t.List[float] = model.compute_marginal_gains([], seeds, 1, _node_thresholds=node_thresholds)
 
     assert math.isclose(results[0], 0.0)
     assert math.isclose(sum(results), result, abs_tol=0.05)
@@ -364,13 +352,9 @@ def test_marginal_gain(
     set_so_far: t.List[int] = []
 
     for seed, result in zip(seeds, results[1:]):
-        without_new_seed_total = compute_graph_marginal_gain(
-            test_graph, linear_threshold(test_graph, set_so_far)
-        )
+        without_new_seed_total = compute_graph_marginal_gain(test_graph, linear_threshold(test_graph, set_so_far))
 
-        with_new_seed_total = compute_graph_marginal_gain(
-            test_graph, linear_threshold(test_graph, set_so_far + [seed])
-        )
+        with_new_seed_total = compute_graph_marginal_gain(test_graph, linear_threshold(test_graph, set_so_far + [seed]))
 
         marg_gain = with_new_seed_total - without_new_seed_total
 
