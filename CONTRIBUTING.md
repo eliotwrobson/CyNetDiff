@@ -46,7 +46,7 @@ poetry install --with docs
 Then, start the local server with the following command:
 
 ```sh
-mkdocs serve
+poetry run mkdocs serve
 ```
 ### Using Poetry
 

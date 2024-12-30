@@ -646,7 +646,7 @@ def celf(
                 method,
             )
 
-            if new_mg_neg > current_mg:
+            if new_mg_neg <= current_mg:
                 break
             else:
                 heapq.heappush(marg_gain, (current_mg, current_node))
