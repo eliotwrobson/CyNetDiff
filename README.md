@@ -11,6 +11,7 @@
 
 - **Documentation**: https://eliotwrobson.github.io/CyNetDiff/
 - **Examples**: https://eliotwrobson.github.io/CyNetDiff/examples/preliminaries/
+- **Benchmarks**: [![benchmarks](https://github.com/eliotwrobson/CyNetDiff/actions/workflows/benchmark.yml/badge.svg)](https://github.com/eliotwrobson/CyNetDiff/actions/workflows/benchmark.yml?query=branch%3Amain)
 
 Network diffusion processes aim to model the spread of trends through social networks, represented using graphs. Experimental work with these models usually involves simulating these processes many times over large graphs, which can be computationally very expensive. To address this, CyNetDiff is a Cython module implementing the independent cascade and linear threshold models. Development has been focused on performance, while still giving an intuitive, high-level interface to assist in research tasks. To learn more about these specific models, read
 [this book chapter](https://www.researchgate.net/publication/300470631_The_Independent_Cascade_and_Linear_Threshold_Models)
