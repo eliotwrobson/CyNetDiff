@@ -54,15 +54,22 @@ class DiffusionModel:
             The label of a node that was newly activated.
         """
 
-    def set_seeds(self, seeds: t.Iterable[int]) -> None:
+    def set_seeds(self, seeds: t.Iterable[int], seed_probs: t.Optional[t.Iterable[float]] = None) -> None:
         """
         Sets the initial active nodes (seeds) for the diffusion process. Must
-        be valid nodes in the graph.
+        be valid nodes in the graph. If activation probabilities are set, they
+        represent the probability of activation for each seed node. Must be
+        in the range [0.0, 1.0].
 
         Parameters
         ----------
         seeds : Iterable[int]
             Seeds to set as initially active.
+
+        seed_probs : Optional[Iterable[float]]
+            Activation probabilities for each seed node.
+            Entries must be in the range [0.0, 1.0]. Length must be equal to seeds.
+            If not set, seeds are always active.
 
         Raises
         ------
@@ -90,7 +97,16 @@ class DiffusionModel:
             All of the currently activated nodes.
         """
 
-    # TODO add function that computes payoffs.
+    def compute_payoffs(self) -> float:
+        """
+        Computes the payoffs of each node which has been activated.
+        Payoffs are defaulted to 1.0 if not set.
+
+        Returns
+        ----------
+        float
+            Sum of payoffs for all activated nodes.
+        """
 
 class IndependentCascadeModel(DiffusionModel):
     """
@@ -138,7 +154,8 @@ class IndependentCascadeModel(DiffusionModel):
     ) -> t.List[float]:
         """
         Computes the marginal gain of adding each seed in new_seeds on top of the original seed_set.
-        Averages over num_trials number of randomized activations.
+        Averages over num_trials number of randomized activations. Scores are computed using payoffs
+        if set, otherwise the number of activated nodes is used.
 
         Parameters
         ----------
@@ -207,7 +224,8 @@ class LinearThresholdModel(DiffusionModel):
     ) -> t.List[float]:
         """
         Computes the marginal gain of adding each seed in new_seeds on top of the original seed_set.
-        Averages over num_trials number of randomized activations.
+        Averages over num_trials number of randomized activations. Scores are computed using payoffs
+        if set, otherwise the number of activated nodes is used.
 
         Parameters
         ----------
