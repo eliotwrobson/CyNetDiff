@@ -178,6 +178,31 @@ def generate_random_graph_from_seed(
 
 
 @pytest.mark.parametrize("seed", [12345, 505050, 2024])
+def test_randomized_activation(seed: int) -> None:
+    n = 100
+    k = 10
+    p = 0.01
+
+    # Create random graph and initialize model
+    graph = generate_random_graph_from_seed(n, p, True, False, seed=seed)
+    model, _ = networkx_to_ic_model(graph, rng=seed)
+
+    random.seed(seed)
+    seeds = random.sample(list(graph.nodes), k)
+    seed_probs = random.sample([1.0 for _ in range(k // 2)] + [0.0 for _ in range(k // 2)], k)
+
+    model.set_seeds(seeds, seed_probs)
+
+    # Check that the seeds are set correctly
+    assert model.get_num_activated_nodes() == k // 2
+
+    activated_nodes = set(model.get_activated_nodes())
+
+    for seed_node, prob in zip(seeds, seed_probs):
+        assert (seed_node in activated_nodes) == (prob == 1.0)
+
+
+@pytest.mark.parametrize("seed", [12345, 505050, 2024])
 def test_model_payoffs(seed: int) -> None:
     n = 10_000
     k = 10
