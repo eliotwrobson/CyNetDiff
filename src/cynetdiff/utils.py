@@ -4,7 +4,9 @@ Functions used to convert NetworkX graphs to usable models.
 
 import array
 import typing as t
+from collections import defaultdict
 from collections.abc import Sequence
+from itertools import count
 
 import networkx as nx
 import numpy as np
@@ -327,6 +329,62 @@ def networkx_to_lt_model(
     )
 
     return model, node_mapping
+
+
+def edgelist_to_csr_arrays(
+    edgelist: t.Iterable[t.Tuple[int, int]],
+) -> t.Tuple[array.array, array.array, t.Dict[int, int]]:
+    """
+    Converts an edge list to compressed sparse row (CSR) arrays. The edge list
+    should be a sequence of tuples, where each tuple represents an edge in the
+    graph. Each tuple should contain two integers representing the nodes of the
+    edge. The function returns the CSR arrays, as well as a dictionary mapping
+    the original node names to the new node names.
+
+    Parameters
+    ----------
+    edgelist : Iterable[Tuple[int, int]]
+        An iterable of tuples, where each tuple contains two integers representing
+        the nodes of an edge in the graph.
+
+    Returns
+    -------
+    Tuple[array.array, array.array, Dict[int, int]]
+        A tuple containing the starts array, edges array, and a dictionary mapping
+        the original node names to the new node names.
+
+    Examples
+    --------
+    >>> starts, edges, rename_dict = edgelist_to_csr_arrays([(0, 1), (1, 2), (2, 0)])
+    >>> check_csr_arrays(starts, edges)
+    """
+    edge_name_counter = count()
+    rename_dict: defaultdict[int, int] = defaultdict(edge_name_counter.__next__)
+
+    # Initialize adjacency list
+    adj_list = defaultdict(list)
+
+    # Fill the adjacency list
+    for u, v in edgelist:
+        u_new = rename_dict[u]
+        v_new = rename_dict[v]
+
+        adj_list[u_new].append(v_new)
+        adj_list[v_new]
+
+    num_nodes = len(adj_list)
+
+    # Initialize CSR lists
+    starts = [0 for _ in range(num_nodes)]
+    edges = []
+
+    # Build the CSR representation
+    for node, node_adj_list in sorted(adj_list.items()):
+        if node + 1 < num_nodes:
+            starts[node + 1] = starts[node] + len(node_adj_list)
+        edges.extend(sorted(adj_list[node]))  # Sort neighbors for consistency if needed
+
+    return array.array("I", starts), array.array("I", edges), dict(rename_dict)
 
 
 def check_csr_arrays(starts: array.array, edges: array.array) -> None:
