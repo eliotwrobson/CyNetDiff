@@ -31,8 +31,11 @@ jobs:
       - name: Install dependencies
         run: poetry install --with dev,benchmark
 
-      - name: Run ruff
+      - name: Run ruff lint check
         run: poetry run ruff check .
+
+      - name: Run ruff format check
+        run: poetry run ruff format --check .
 
       - name: Run Cython lint
         run: poetry run cython-lint .
