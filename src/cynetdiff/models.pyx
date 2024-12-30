@@ -74,6 +74,35 @@ cdef class DiffusionModel:
 
         return result
 
+    def set_seeds(self, seeds, seed_probs=None):
+        self.original_seeds.clear()
+        self.seed_probs.clear()
+
+        n = len(self.starts)
+
+        for seed in seeds:
+            if not (isinstance(seed, int) and 0 <= seed < n):
+                raise ValueError(
+                    f"Invalid seed node: {seed}. Must be in the range [0, {n-1}]"
+                )
+            self.original_seeds.push_back(seed)
+
+        if seed_probs is not None:
+            for prob in seed_probs:
+                if not (isinstance(prob, float) and 0.0 <= prob <= 1.0):
+                    raise ValueError(
+                        f"Invalid activation probability: {prob}. "
+                        "Must be in the range [0.0, 1.0]"
+                    )
+                self.seed_probs.push_back(prob)
+
+        if self.seed_probs.size() > 0 and self.seed_probs.size() != self.original_seeds.size():
+            raise ValueError(
+                "Activation probabilities must be provided for each seed node."
+            )
+
+        self.reset_model()
+
 # IC Model
 cdef class IndependentCascadeModel(DiffusionModel):
     # Functions that interface with the Python side of things
@@ -108,23 +137,19 @@ cdef class IndependentCascadeModel(DiffusionModel):
         if self.payoffs is not None:
             assert len(self.starts) == len(self.payoffs)
 
-    def set_seeds(self, seeds):
-        self.original_seeds.clear()
-        n = len(self.starts)
-
-        for seed in seeds:
-            if not (isinstance(seed, int) and 0 <= seed < n):
-                raise ValueError(
-                    f"Invalid seed node: {seed}. Must be in the range [0, {n-1}]"
-                )
-            self.original_seeds.insert(seed)
-
-        self.reset_model()
-
     cpdef void reset_model(self):
-        self.work_deque.assign(self.original_seeds.begin(), self.original_seeds.end())
         self.seen_set.clear()
-        self.seen_set.insert(self.original_seeds.begin(), self.original_seeds.end())
+        self.work_deque.clear()
+
+        # Reset the work deque
+        if len(self.seed_probs) == 0:
+            self.work_deque.assign(self.original_seeds.begin(), self.original_seeds.end())
+            self.seen_set.insert(self.original_seeds.begin(), self.original_seeds.end())
+        else:
+            for i in range(self.original_seeds.size()):
+                if random_standard_uniform(self.bitgen_state) <= self.seed_probs[i]:
+                    self.work_deque.push_back(self.original_seeds[i])
+                    self.seen_set.insert(self.original_seeds[i])
 
     def get_newly_activated_nodes(self):
         for node in self.work_deque:
@@ -333,18 +358,6 @@ cdef class LinearThresholdModel(DiffusionModel):
         if self.payoffs is not None:
             assert len(self.starts) == len(self.payoffs)
 
-    def set_seeds(self, seeds):
-        self.original_seeds.clear()
-        n = len(self.starts)
-
-        for seed in seeds:
-            if not (isinstance(seed, int) and 0 <= seed < n):
-                raise ValueError(
-                    f"Invalid seed node: {seed}. Must be in the range [0, {n-1}]"
-                )
-            self.original_seeds.insert(seed)
-
-        self.reset_model()
 
     cpdef void _assign_thresholds(self, float[:] _node_thresholds):
         # If provided, copy from user code
@@ -356,11 +369,22 @@ cdef class LinearThresholdModel(DiffusionModel):
             self.thresholds[i] = _node_thresholds[i]
 
     cpdef void reset_model(self):
-        self.work_deque.assign(self.original_seeds.begin(), self.original_seeds.end())
+        # Clear old data structures
         self.seen_set.clear()
-        self.seen_set.insert(self.original_seeds.begin(), self.original_seeds.end())
+        self.work_deque.clear()
         self.buckets.clear()
         self.thresholds.clear()
+
+        # Reset the work deque
+        if len(self.seed_probs) == 0:
+            self.work_deque.assign(self.original_seeds.begin(), self.original_seeds.end())
+            self.seen_set.insert(self.original_seeds.begin(), self.original_seeds.end())
+        else:
+            for i in range(self.original_seeds.size()):
+                if random_standard_uniform(self.bitgen_state) <= self.seed_probs[i]:
+                    self.work_deque.push_back(self.original_seeds[i])
+                    self.seen_set.insert(self.original_seeds[i])
+
 
     def get_newly_activated_nodes(self):
         for node in self.work_deque:

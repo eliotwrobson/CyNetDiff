@@ -54,15 +54,22 @@ class DiffusionModel:
             The label of a node that was newly activated.
         """
 
-    def set_seeds(self, seeds: t.Iterable[int]) -> None:
+    def set_seeds(self, seeds: t.Iterable[int], seed_probs: t.Optional[t.Iterable[float]] = None) -> None:
         """
         Sets the initial active nodes (seeds) for the diffusion process. Must
-        be valid nodes in the graph.
+        be valid nodes in the graph. If activation probabilities are set, they
+        represent the probability of activation for each seed node. Must be
+        in the range [0.0, 1.0].
 
         Parameters
         ----------
         seeds : Iterable[int]
             Seeds to set as initially active.
+
+        seed_probs : Optional[Iterable[float]]
+            Activation probabilities for each seed node.
+            Entries must be in the range [0.0, 1.0]. Length must be equal to seeds.
+            If not set, seeds are always active.
 
         Raises
         ------
