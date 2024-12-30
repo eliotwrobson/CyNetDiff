@@ -44,6 +44,13 @@ def set_activation_uniformly_random(
         defaults to `1.0`.
     rng : np.random.Generator | np.random.BitGenerator | None, optional
         Random number generator to use for the model. If not set, creates a new generator by default.
+
+    Examples
+    --------
+    >>> import networkx as nx
+    >>> graph = nx.complete_graph(5)
+    >>> set_activation_uniformly_random(graph, range_start=0.1, range_end=0.2)
+    >>> model, _ = networkx_to_ic_model(graph)
     """
 
     assert 0.0 <= range_start < range_end <= 1.0
@@ -64,6 +71,13 @@ def set_activation_weighted_cascade(graph: nx.DiGraph) -> None:
     ----------
     graph : nx.DiGraph
         A NetworkX directed graph.
+
+    Examples
+    --------
+    >>> import networkx as nx
+    >>> graph = nx.complete_graph(5)
+    >>> set_activation_weighted_cascade(graph, range_start=0.1, range_end=0.2)
+    >>> model, _ = networkx_to_ic_model(graph)
     """
     if not graph.is_directed():
         raise ValueError("Graph must be directed or weighting will not be correct.")
@@ -91,6 +105,13 @@ def set_activation_random_sample(
         a weight uniformly at random from this set.
     rng : np.random.Generator | np.random.BitGenerator | None, optional
         Random number generator to use for the model. If not set, creates a new generator by default.
+
+    Examples
+    --------
+    >>> import networkx as nx
+    >>> graph = nx.complete_graph(5)
+    >>> set_activation_random_sample(graph, range_start=0.1, range_end=0.2)
+    >>> model, _ = networkx_to_ic_model(graph)
     """
     weights = tuple(weight_set)
     rng = np.random.default_rng(rng)
@@ -135,6 +156,12 @@ def networkx_to_ic_model(
         A tuple with the instance of IndependentCascadeModel using the given graph
         and a dictionary mapping the nodes of the graph to their integer labels in
         the model.
+
+    Examples
+    --------
+    >>> import networkx as nx
+    >>> graph = nx.erdos_renyi_graph(10, 0.5)
+    >>> model, _ = networkx_to_ic_model(graph)
     """
 
     node_list = list(enumerate(graph.nodes(data=True)))
@@ -237,6 +264,12 @@ def networkx_to_lt_model(
         A tuple with the instance of LinearThresholdModel using the given graph
         and a dictionary mapping the nodes of the graph to their integer labels in
         the model.
+
+    Examples
+    --------
+    >>> import networkx as nx
+    >>> graph = nx.erdos_renyi_graph(10, 0.5)
+    >>> model, _ = networkx_to_lt_model(graph)
     """
 
     node_list = list(enumerate(graph.nodes(data=True)))
@@ -315,6 +348,14 @@ def check_csr_arrays(starts: array.array, edges: array.array) -> None:
     ------
     ValueError
         If the input parameters are not in valid CSR format.
+
+    Examples
+    --------
+    >>> import array
+    >>> starts = array.array("I", [0, 2, 4, 5])
+    >>> edges = array.array("I", [1, 2, 0, 3, 7])
+    >>> check_csr_arrays(starts, edges)
+    ValueError: Value in edges "7" must ben in the range [0,3].
     """
 
     # Check typecodes
