@@ -6,7 +6,6 @@ repo_name: cynetdiff
 edit_uri: blob/main/docs/
 authors:
   - eliotwrobson: https://github.com/eliotwrobson
-# TODO change these colors + theme
 theme:
   name: material
   palette:
@@ -30,11 +29,6 @@ theme:
     - navigation.indexes
     - navigation.tabs
     - content.code.copy
-  # - navigation.tabs.sticky
-  # - navigation.tracking
-  # - navigation.expand
-  # - navigation.sections
-  # - header.autohide
   icon:
     repo: fontawesome/brands/github
   logo: assets/img/dgraph.svg
@@ -104,8 +98,6 @@ extra:
     - icon: fontawesome/brands/python
       link: https://pypi.org/project/cynetdiff/
       name: Package on PyPI
-# extra_css:
-#   - stylesheets/extra.css
 extra_javascript:
   - javascripts/mathjax.js
   - https://polyfill.io/v3/polyfill.min.js?features=es6

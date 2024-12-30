@@ -25,6 +25,8 @@ class DiffusionModel:
         ----------
         rng : SeedLike | RNGLike | None
             Random number generator to use for the model.
+
+        Examples
         """
 
     def advance_model(self) -> None:
@@ -35,7 +37,9 @@ class DiffusionModel:
     def reset_model(self) -> None:
         """
         Resets the model to the original set of seed nodes. This is useful if
-        running many simulations over the same original seed set.
+        running many simulations over the same original seed set. If randomized
+        activation is enabled, resetting the model will perform the randomized
+        activation step.
         """
 
     def advance_until_completion(self) -> None:
