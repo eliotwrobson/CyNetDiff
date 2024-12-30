@@ -99,13 +99,17 @@ class DiffusionModel:
 
     def compute_payoffs(self) -> float:
         """
-        Computes the payoffs of each node which has been activated.
+        Computes the payoffs of each active node.
         Payoffs are defaulted to 1.0 if not set.
 
         Returns
         ----------
         float
             Sum of payoffs for all activated nodes.
+
+        Examples
+        ----------
+        >>> model.compute_payoffs()
         """
 
 class IndependentCascadeModel(DiffusionModel):
