@@ -27,11 +27,28 @@ class DiffusionModel:
             Random number generator to use for the model.
 
         Examples
+        ----------
+        >>> rng_seed = 42
+        >>> model.set_rng(rng_seed)
+        >>> model.advance_until_completion()
+        >>> old_num = model.get_num_activated_nodes()
+        >>> model.set_rng(rng_seed)
+        >>> model.advance_until_completion()
+        >>> old_num == model.get_num_activated_nodes()
+        True
         """
 
     def advance_model(self) -> None:
         """
-        Advances the diffusion model by one step.
+        Advances the diffusion model by one step. Since these diffusion models
+        are progressive, the number of activated nodes cannot decrease.
+
+        Examples
+        ----------
+        >>> old_num_active = model.get_num_activated_nodes()
+        >>> model.advance_model()
+        >>> model.get_num_activated_nodes() >= old_num_active
+        True
         """
 
     def reset_model(self) -> None:
@@ -40,22 +57,50 @@ class DiffusionModel:
         running many simulations over the same original seed set. If randomized
         activation is enabled, resetting the model will perform the randomized
         activation step.
+
+        Examples
+        ----------
+        >>> model.set_seeds([0, 1, 2])
+        >>> model.advance_until_completion()
+        >>> model.get_num_activated_nodes()
+        10
+        >>> model.reset_model()
+        >>> model.get_num_activated_nodes()
+        3
         """
 
     def advance_until_completion(self) -> None:
         """
         Continuously advances the model until the diffusion process is complete.
+
+        Examples
+        ----------
+        >>> model.advance_until_completion()
+        >>> activated_nodes = model.get_num_activated_nodes()
+        >>> model.advance_model()
+        >>> activated_nodes == model.get_num_activated_nodes()
+        True
         """
 
     def get_newly_activated_nodes(self) -> t.Generator[int, None, None]:
         """
         A generator yielding the nodes that were newly activated in the last
-        iteration of the model.
+        iteration of the model. If the model has not yet been run, this is
+        just the current seed nodes.
 
         Yields
         ----------
         int
             The label of a node that was newly activated.
+
+        Examples
+        ----------
+        >>> model.set_seeds([0, 1, 2])
+        >>> set(model.get_newly_activated_nodes())
+        {0, 1, 2}
+        >>> model.advance_until_completion()
+        >>> len(set(model.get_newly_activated_nodes()))
+        0
         """
 
     def set_seeds(self, seeds: t.Iterable[int], seed_probs: t.Optional[t.Iterable[float]] = None) -> None:
@@ -79,6 +124,12 @@ class DiffusionModel:
         ------
         ValueError
             If a node in the seed set is invalid (not in the graph).
+
+        Examples
+        ----------
+        >>> model.set_seeds([0, 1, 2])
+        >>> set(model.get_activated_nodes())
+        {0, 1, 2}
         """
 
     def get_num_activated_nodes(self) -> int:
@@ -89,6 +140,12 @@ class DiffusionModel:
         ----------
         int
             Total number of activated nodes.
+
+        Examples
+        ----------
+        >>> model.set_seeds([0, 1, 2])
+        >>> model.get_num_activated_nodes()
+        3
         """
 
     def get_activated_nodes(self) -> t.Generator[int, None, None]:
@@ -99,6 +156,15 @@ class DiffusionModel:
         ----------
         int
             All of the currently activated nodes.
+
+        Examples
+        ----------
+        >>> model.set_seeds([0, 1, 2])
+        >>> for node in model.get_activated_nodes()
+        ...    print(node)
+        0
+        1
+        2
         """
 
     def compute_payoffs(self) -> float:
@@ -113,7 +179,9 @@ class DiffusionModel:
 
         Examples
         ----------
+        >>> model.set_seeds([0, 1, 2])
         >>> model.compute_payoffs()
+        3.0
         """
 
 class IndependentCascadeModel(DiffusionModel):
@@ -180,6 +248,11 @@ class IndependentCascadeModel(DiffusionModel):
             List containing computed marginal gains. First entry is average influence of the
             starting seed set. Following entries are marginal gains with the addition of vertices
             from new_seeds in order. Has length len(new_seeds)+1.
+
+        Examples
+        ----------
+        >>> model.compute_marginal_gains([0, 1, 2], [3, 4], 100)
+        [3.0, 1.0, 1.0]
         """
 
 class LinearThresholdModel(DiffusionModel):
@@ -250,4 +323,9 @@ class LinearThresholdModel(DiffusionModel):
             List containing computed marginal gains. First entry is average influence of the
             starting seed set. Following entries are marginal gains with the addition of vertices
             from new_seeds in order. Has length len(new_seeds)+1.
+
+        Examples
+        ----------
+        >>> model.compute_marginal_gains([0, 1, 2], [3, 4], 100)
+        [3.0, 1.0, 1.0]
         """
