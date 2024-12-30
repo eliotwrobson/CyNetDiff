@@ -5,16 +5,17 @@ import time
 import typing as t
 
 import ndlib.models.epidemics as ep
-import ndlib.models.ModelConfig as mc
+import ndlib.models.ModelConfig as Mc
 import networkx as nx
 import pandas as pd
 import pooch
+from tqdm import trange
+
 from cynetdiff.utils import (
     networkx_to_ic_model,
     set_activation_random_sample,
     set_activation_weighted_cascade,
 )
-from tqdm import trange
 
 DiffusionGraphT = t.Union[nx.Graph, nx.DiGraph]
 SeedSetT = set[int]
@@ -40,13 +41,13 @@ def get_facebook_graph() -> nx.Graph:
     return fb_network
 
 
-def independent_cascade(G: DiffusionGraphT, seeds: SeedSetT) -> list[list[int]]:
+def independent_cascade(graph: DiffusionGraphT, seeds: SeedSetT) -> list[list[int]]:
     """
     A basic pure-python implementation of independent cascade. Optimized so we can get
     a baseline reading on the best possible speed for this algorithm in pure-Python.
     """
-    if not G.is_directed():
-        G = G.to_directed()
+    if not graph.is_directed():
+        graph = graph.to_directed()
 
     visited = set(seeds)
 
@@ -60,7 +61,7 @@ def independent_cascade(G: DiffusionGraphT, seeds: SeedSetT) -> list[list[int]]:
         current_layer = []
 
         for next_node in res[-1]:
-            for child, data in G[next_node].items():
+            for child, data in graph[next_node].items():
                 if child not in visited:
                     # Lazy getter to deal with not having this set but still being
                     # efficient
@@ -87,9 +88,7 @@ def diffuse_python(graph: DiffusionGraphT, seeds: SeedSetT, num_samples: int) ->
     return res / num_samples
 
 
-def diffuse_CyNetDiff(
-    graph: DiffusionGraphT, seeds: SeedSetT, num_samples: int
-) -> float:
+def diffuse_cynetdiff(graph: DiffusionGraphT, seeds: SeedSetT, num_samples: int) -> float:
     model, _ = networkx_to_ic_model(graph)
     model.set_seeds(seeds)
 
@@ -106,7 +105,7 @@ def diffuse_CyNetDiff(
 def diffuse_ndlib(graph: DiffusionGraphT, seeds: SeedSetT, num_samples: int) -> float:
     model = ep.IndependentCascadesModel(graph)
 
-    config = mc.Configuration()
+    config = Mc.Configuration()
 
     # Assume that thresholds were already set.
     for u, v, data in graph.edges(data=True):
@@ -132,9 +131,7 @@ def diffuse_ndlib(graph: DiffusionGraphT, seeds: SeedSetT, num_samples: int) -> 
     return total_infected / num_samples
 
 
-def time_diffusion(
-    func: DiffusionFuncT, graph: DiffusionGraphT, seeds: SeedSetT, num_samples: int
-):
+def time_diffusion(func: DiffusionFuncT, graph: DiffusionGraphT, seeds: SeedSetT, num_samples: int):
     start = time.perf_counter()
     diffused = func(graph, seeds, num_samples)
     end = time.perf_counter()
@@ -175,18 +172,14 @@ def get_graphs() -> list[tuple[str, DiffusionGraphT]]:
 def main() -> None:
     seed_values = [1, 5, 10, 20, 50, 100]
     num_samples_values = [1_000]
-    diffusion_functions = [diffuse_CyNetDiff, diffuse_python, diffuse_ndlib]
+    diffusion_functions = [diffuse_cynetdiff, diffuse_python, diffuse_ndlib]
     weighting_schemes = ["Trivalency", "Uniform", "Weighted Cascade"]
 
     underlying_graphs = get_graphs()
 
     results = []
 
-    workloads = list(
-        it.product(
-            underlying_graphs, seed_values, num_samples_values, weighting_schemes
-        )
-    )
+    workloads = list(it.product(underlying_graphs, seed_values, num_samples_values, weighting_schemes))
 
     print(f"Running {len(workloads)} benchmarks.")
     i = 0
@@ -221,14 +214,10 @@ def main() -> None:
                 f"{graph.number_of_edges():,d} edges, {num_seeds} seeds, {num_samples} samples."
             )
 
-            model_name, diffused, time_taken = time_diffusion(
-                func, graph, seeds, num_samples
-            )
+            model_name, diffused, time_taken = time_diffusion(func, graph, seeds, num_samples)
 
             # Print the results after running
-            print(
-                f"Completed {model_name}: Diffused = {diffused}, Time = {time_taken:.4f} seconds\n"
-            )
+            print(f"Completed {model_name}: Diffused = {diffused}, Time = {time_taken:.4f} seconds\n")
             min_time_taken = min(min_time_taken, time_taken)
             res_dict[func.__name__] = time_taken
 

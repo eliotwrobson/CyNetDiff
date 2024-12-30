@@ -92,3 +92,18 @@ ignore_missing_imports = true
 testpaths = "tests"
 # Don't need warmup iterations because benchmark is already an average.
 benchmark_warmups = 0
+
+[tool.ruff]
+line-length = 120
+select = [
+    # pycodestyle
+    "E",
+    # Pyflakes
+    "F",
+    # flake8-bugbear
+    "B",
+    # isort
+    "I",
+    # pep8-naming
+    "N",
+]

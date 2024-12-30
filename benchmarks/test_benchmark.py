@@ -2,7 +2,7 @@ import random
 import typing as t
 
 import ndlib.models.epidemics as ep
-import ndlib.models.ModelConfig as mc
+import ndlib.models.ModelConfig as Mc
 import networkx as nx
 import pytest
 
@@ -14,9 +14,7 @@ DiffusionFunctionT = t.Callable[[DiffusionGraphT, set[int], int], float]
 # Start of helper functions for diffusion algorithms
 
 
-def diffuse_CyNetDiff(
-    graph: DiffusionGraphT, seeds: set[int], num_samples: int
-) -> float:
+def diffuse_cynetdiff(graph: DiffusionGraphT, seeds: set[int], num_samples: int) -> float:
     model, _ = networkx_to_ic_model(graph)
     model.set_seeds(seeds)
 
@@ -26,7 +24,7 @@ def diffuse_CyNetDiff(
 def diffuse_ndlib(graph: DiffusionGraphT, seeds: set[int], num_samples: int) -> float:
     model = ep.IndependentCascadesModel(graph)
 
-    config = mc.Configuration()
+    config = Mc.Configuration()
 
     # Assume that thresholds were already set.
     for u, v, data in graph.edges(data=True):
@@ -63,7 +61,7 @@ def make_diffusion_graph(n: int, p: float, seed: int) -> DiffusionGraphT:
 
 @pytest.mark.parametrize(
     "diffusion_function",
-    [diffuse_CyNetDiff, diffuse_ndlib],
+    [diffuse_cynetdiff, diffuse_ndlib],
     ids=["CyNetDiff", "ndlib"],
 )
 @pytest.mark.parametrize(

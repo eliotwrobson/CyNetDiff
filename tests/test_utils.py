@@ -2,6 +2,7 @@ import array
 
 import networkx as nx
 import pytest
+
 from cynetdiff.utils import check_csr_arrays
 
 

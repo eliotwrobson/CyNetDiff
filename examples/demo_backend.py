@@ -13,14 +13,15 @@ from functools import wraps
 
 import matplotlib.pyplot as plt
 import ndlib.models.epidemics as ep
-import ndlib.models.ModelConfig as mc
+import ndlib.models.ModelConfig as Mc
 import networkx as nx
 import numpy as np
 import pooch
 from coloraide import Color
+from tqdm.notebook import tqdm, trange
+
 from cynetdiff.models import DiffusionModel
 from cynetdiff.utils import networkx_to_ic_model
-from tqdm.notebook import tqdm, trange
 
 DiffusionGraphT = t.Union[nx.Graph, nx.DiGraph]
 SeedSetT = set[int]
@@ -47,13 +48,13 @@ def timing(f: t.Callable) -> t.Callable:
 # Pure Python diffusion code
 
 
-def independent_cascade(G: DiffusionGraphT, seeds: SeedSetT) -> list[list[int]]:
+def independent_cascade(graph: DiffusionGraphT, seeds: SeedSetT) -> list[list[int]]:
     """
     A basic pure-python implementation of independent cascade. Optimized so we can get
     a baseline reading on the best possible speed for this algorithm in pure-Python.
     """
-    if not G.is_directed():
-        G = G.to_directed()
+    if not graph.is_directed():
+        graph = graph.to_directed()
 
     visited = set(seeds)
 
@@ -67,7 +68,7 @@ def independent_cascade(G: DiffusionGraphT, seeds: SeedSetT) -> list[list[int]]:
         current_layer = []
 
         for next_node in res[-1]:
-            for child, data in G[next_node].items():
+            for child, data in graph[next_node].items():
                 if child not in visited:
                     # Lazy getter to deal with not having this set but still being
                     # efficient
@@ -109,7 +110,7 @@ def diffuse_python(
 def diffuse_ndlib(graph: DiffusionGraphT, seeds: SeedSetT, num_samples: int) -> float:
     model = ep.IndependentCascadesModel(graph)
 
-    config = mc.Configuration()
+    config = Mc.Configuration()
 
     # Assume that thresholds were already set.
     for u, v, data in graph.edges(data=True):
@@ -141,9 +142,7 @@ def diffuse_ndlib(graph: DiffusionGraphT, seeds: SeedSetT, num_samples: int) -> 
 
 
 @timing
-def diffuse_CyNetDiff(
-    graph: DiffusionGraphT, seeds: SeedSetT, num_samples: int
-) -> float:
+def diffuse_cynetdiff(graph: DiffusionGraphT, seeds: SeedSetT, num_samples: int) -> float:
     model, _ = networkx_to_ic_model(graph)
     model.set_seeds(seeds)
 
@@ -165,16 +164,19 @@ def simple_benchmark(
     *,
     num_seeds: int = 10,
     num_trials: int = 1_000,
-    backends_to_run: t.List[MethodsT] = [
-        "cynetdiff",
-        "ndlib",
-        "python",
-    ],
+    backends_to_run: t.Optional[t.List[MethodsT]] = None,
 ) -> None:
     """
     A simple benchmark function for three different diffusion
     implementations.
     """
+
+    if backends_to_run is None:
+        backends_to_run = [
+            "cynetdiff",
+            "ndlib",
+            "python",
+        ]
 
     # Number of seed nodes
     print(f"Number of randomly chosen seed nodes: {num_seeds:,d}")
@@ -193,7 +195,7 @@ def simple_benchmark(
 
     if "cynetdiff" in backends_to_run:
         print("Starting diffusion with CyNetDiff.")
-        avg_cynetdiff = diffuse_CyNetDiff(graph, seeds, num_trials)
+        avg_cynetdiff = diffuse_cynetdiff(graph, seeds, num_trials)
 
     if "ndlib" in backends_to_run:
         print("NDlib computed influence:", avg_ndlib)
@@ -206,9 +208,7 @@ def simple_benchmark(
 
 
 @timing
-def diffusion_get_frequencies(
-    graph: DiffusionGraphT, seeds: t.Set[int], num_trials: int = 1_000
-) -> t.Dict[int, int]:
+def diffusion_get_frequencies(graph: DiffusionGraphT, seeds: t.Set[int], num_trials: int = 1_000) -> t.Dict[int, int]:
     """
     Get the frequency dict from the network diffusion.
     """
@@ -283,9 +283,7 @@ def plot_num_nodes_activated(
     # Pad all data
     padded_all_graphs_data: t.List[t.Tuple[str, t.List[t.List[int]]]] = []
     for model_name, graph_data in all_graphs_data:
-        padded_trials = [
-            trial + [trial[-1]] * (max_length - len(trial)) for trial in graph_data
-        ]
+        padded_trials = [trial + [trial[-1]] * (max_length - len(trial)) for trial in graph_data]
         padded_all_graphs_data.append((model_name, padded_trials))
 
     # Graph Data
@@ -563,9 +561,7 @@ def compute_marginal_gain(
         if len(seeds) > 0:
             old_val = diffuse_python(graph, seeds, num_trials, progress_bar=False)
 
-        new_val = diffuse_python(
-            graph, seeds.union({new_node}), num_trials, progress_bar=False
-        )
+        new_val = diffuse_python(graph, seeds.union({new_node}), num_trials, progress_bar=False)
 
         return new_val - old_val
 
@@ -591,13 +587,13 @@ def celf(
     # NDLib Model
     ndlib_model = ep.IndependentCascadesModel(graph)
 
-    config = mc.Configuration()
+    config = Mc.Configuration()
 
     # Assume that thresholds were already set.
     for u, v, data in graph.edges(data=True):
         config.add_edge_configuration("threshold", (u, v), data["activation_prob"])
 
-        # Don't randomly infect anyone to start, just use given seeds.
+    # Don't randomly infect anyone to start, just use given seeds.
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         config.add_model_parameter("fraction_infected", 0.0)
@@ -632,7 +628,7 @@ def celf(
     heapq.heapify(marg_gain)
 
     max_mg, selected_node = heapq.heappop(marg_gain)
-    S = {selected_node}
+    seeds = {selected_node}
     spread = -max_mg
     spreads = [spread]
 
@@ -645,7 +641,7 @@ def celf(
                 ndlib_model,
                 dir_graph,
                 current_node,
-                S,
+                seeds,
                 num_trials,
                 method,
             )
@@ -656,10 +652,10 @@ def celf(
                 heapq.heappush(marg_gain, (current_mg, current_node))
 
         spread += -new_mg_neg
-        S.add(current_node)
+        seeds.add(current_node)
         spreads.append(spread)
 
-    return S, spreads
+    return seeds, spreads
 
 
 def draw_graph(
@@ -668,9 +664,9 @@ def draw_graph(
     *,
     layout_prog: str = "fdp",
 ) -> None:
-    A = nx.nx_agraph.to_agraph(graph)  # convert to a graphviz graph
-    A.node_attr["width"] = 0.5
-    A.node_attr["shape"] = "circle"
+    agraph = nx.nx_agraph.to_agraph(graph)  # convert to a graphviz graph
+    agraph.node_attr["width"] = 0.5
+    agraph.node_attr["shape"] = "circle"
 
     if frequencies is not None:
         heat_iterpolator = Color.interpolate(["blue", "red"], space="srgb")
@@ -678,12 +674,10 @@ def draw_graph(
         max_freq = max(frequencies.values())
         for node in graph.nodes():
             freq = frequencies.get(node, 0)
-            viz_node = A.get_node(node)
-            viz_node.attr["fillcolor"] = heat_iterpolator(freq / max_freq).to_string(
-                hex=True
-            )
+            viz_node = agraph.get_node(node)
+            viz_node.attr["fillcolor"] = heat_iterpolator(freq / max_freq).to_string(hex=True)
             viz_node.attr["style"] = "filled"
             viz_node.attr["fontcolor"] = "white"
 
-    A.layout(prog=layout_prog)
-    return A
+    agraph.layout(prog=layout_prog)
+    return agraph
