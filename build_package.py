@@ -8,9 +8,6 @@ from setuptools import Extension
 from setuptools.command.build_ext import build_ext
 from setuptools.dist import Distribution
 
-# TODO follow this example to make building easier:
-# https://github.com/FedericoStra/cython-package-example/blob/master/setup.py
-
 
 def build_cython_extensions() -> None:
     # Flag to enable Cython code generation during install / build. This is

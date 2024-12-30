@@ -325,8 +325,6 @@ def test_specific_model(directed: bool, nondefault_influence: bool) -> None:
     model.reset_model()
     model.advance_until_completion()
 
-    # TODO this test passes with high-enough probability. Refactor to avoid a possible
-    # random failure,
     assert seen_set != set(model.get_activated_nodes())
 
 

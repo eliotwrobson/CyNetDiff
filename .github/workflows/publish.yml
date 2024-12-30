@@ -1,5 +1,4 @@
 # Automatically publishes version of the package on tagged release
-# TODO try to do this so people don't have to build locally: https://github.com/BrianPugh/python-template
 name: publish
 on:
   push:

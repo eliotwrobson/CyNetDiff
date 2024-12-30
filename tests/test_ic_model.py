@@ -404,9 +404,6 @@ def compute_graph_marginal_gain(
     graph: Graph,
     new_set_lists: t.List[t.List[int]],
 ) -> float:
-    """
-    TODO put this function in a shared file.
-    """
     result = 0.0
 
     new_set = set(item for sublist in new_set_lists for item in sublist)
