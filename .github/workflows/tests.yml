@@ -28,5 +28,7 @@ jobs:
           restore-keys: ${{ runner.os }}-pip-
       - name: Install Hatch
         run: pipx install hatch
+      - name: Build project
+        run: hatch build
       - name: Run tests
         run: hatch test
