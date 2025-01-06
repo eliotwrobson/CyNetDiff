@@ -1,3 +1,7 @@
+# cython: language_level=3str
+# distutils: language=c++
+# distutils: define_macros=NPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION
+
 # Start with imports
 from cpython cimport array
 from libcpp.deque cimport deque as cdeque
