@@ -10,26 +10,24 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.12"]
-        poetry-version: ["1.8.5"]
-
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
-
-      - uses: abatilo/actions-poetry@v2
+          python-version: |
+            3.9
+            3.10
+            3.11
+            3.12
+            3.13
+      - name: Set up pip cache
+        if: runner.os == 'Linux'
+        uses: actions/cache@v3
         with:
-          poetry-version: ${{ matrix.poetry-version }}
-
-      - name: Install dependencies
-        run: poetry install --with dev,benchmark
-
-      - name: Benchmark with pytest-benchmark
-        run: poetry run pytest --benchmark-only benchmarks/test_benchmark.py
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('pyproject.toml') }}
+          restore-keys: ${{ runner.os }}-pip-
+      - name: Install Hatch
+        run: pipx install hatch
+      - name: Run benchmarks
+        run: hatch test benchmark

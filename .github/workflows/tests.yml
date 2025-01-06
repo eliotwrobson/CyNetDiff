@@ -29,4 +29,4 @@ jobs:
       - name: Install Hatch
         run: pipx install hatch
       - name: Run tests
-        run: hatch run test
+        run: hatch test
