@@ -77,7 +77,10 @@ dependencies = [
 
 [build-system]
 build-backend = "hatchling.build"
-requires = ["hatchling", "hatch-meson"]
+requires = ["numpy", "cython", "ninja", "hatchling", "hatch-meson"]
+
+[tool.hatch.build.hooks.meson]
+[tool.hatch.metadata.hooks.meson]
 
 ### Start of static analyis tools ###
 
