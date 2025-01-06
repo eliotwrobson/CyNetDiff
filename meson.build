@@ -10,4 +10,5 @@ py.extension_module('cynetdiff.models',
                     dependencies: [numpy_dep, dep_py],
                     override_options : ['cython_language=cpp'],
                     install: true,
-                    include_directories: ['src'])
+                    install_dir: py.get_install_dir(),
+                    include_directories: ['src/cynetdiff'])
