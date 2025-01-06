@@ -2,7 +2,7 @@
 name = "cynetdiff"
 version = "0.1.16" # TODO switch to dynamic versioning
 description = "A fast network diffusion library"
-authors = [{ name = "Eliot W. Robson", email = "eliot.robson24@gmail.com>" }]
+authors = [{ name = "Eliot W. Robson", email = "eliot.robson24@gmail.com" }]
 license = "MIT"
 requires-python = ">=3.9"
 readme = "README.md"
@@ -10,10 +10,6 @@ maintainers = [
     { name = "Eliot W. Robson", email = "eliot.robson24@gmail.com" },
     { name = "Abhishek K. Umrawal", email = "aumrawal@illinois.edu" },
 ]
-#dependencies = ["python>=3.9"]
-
-# TODO figure out how to replace this
-# packages = [{ include = "cynetdiff", from = "src" }]
 
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -32,6 +28,16 @@ homepage = "https://github.com/eliotwrobson/CyNetDiff"
 tracker = "https://github.com/eliotwrobson/CyNetDiff/issues"
 documentation = "https://eliotwrobson.github.io/CyNetDiff/"
 
+[tool.hatch.envs.hatch-test]
+extra-dependencies = [
+    "ndlib~=5.1.1",
+    "networkx~=3.2.1",
+    "numpy~=2.0.0",
+    "pytest-benchmark~=5.1.0",
+]
+
+[[tool.hatch.envs.hatch-test.matrix]]
+python = ["3.13", "3.12", "3.11", "3.10", "3.9"]
 
 [tool.hatch.envs.benchmark]
 dependencies = [
@@ -70,15 +76,8 @@ dependencies = [
 ]
 
 [build-system]
-requires = ["hatchling", "scikit-build-core"]
 build-backend = "hatchling.build"
-
-[tool.hatch.build.targets.wheel]
-hooks = ["scikit-build-core"]
-
-[tool.scikit-build]
-minimum-version = "0.10"
-
+requires = ["hatchling", "hatch-meson"]
 
 ### Start of static analyis tools ###
 
