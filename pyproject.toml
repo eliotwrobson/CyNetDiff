@@ -75,6 +75,8 @@ dependencies = [
     "setuptools~=69.0.3",
 ]
 
+### Build system configuration ###
+
 [build-system]
 build-backend = "hatchling.build"
 requires = ["numpy", "cython", "ninja", "hatchling", "hatch-meson"]
