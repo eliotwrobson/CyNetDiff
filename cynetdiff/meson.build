@@ -10,8 +10,9 @@ python.install_sources(
 models = python.extension_module(
     'models',
     sources: ['models.pyx'],
-    dependencies: [numpy_dep, python_dep],
+    dependencies: [npyrandom_lib, python_dep, numpy_dep],
     override_options : ['cython_language=cpp'],
     install: true,
-    subdir: 'cynetdiff'
+    subdir: 'cynetdiff',
+    #include_directories: [],
 )
