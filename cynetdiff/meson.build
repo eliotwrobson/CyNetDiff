@@ -8,7 +8,7 @@ python.install_sources(
 )
 
 models = python.extension_module(
-    'cynetdiff.models',
+    'models',
     sources: ['models.pyx'],
     dependencies: [numpy_dep, python_dep],
     override_options : ['cython_language=cpp'],
