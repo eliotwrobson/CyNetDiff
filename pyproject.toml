@@ -1,9 +1,9 @@
 [project]
 name = "cynetdiff"
-version = "0.1.16"                                                           # TODO switch to dynamic versioning
+version = "0.1.16" # TODO switch to dynamic versioning
 description = "A fast network diffusion library"
 authors = [{ name = "Eliot W. Robson", email = "eliot.robson24@gmail.com" }]
-#license = "MIT"
+license = { file = "LICENSE" }
 requires-python = ">=3.9"
 readme = "README.md"
 maintainers = [
@@ -28,74 +28,91 @@ homepage = "https://github.com/eliotwrobson/CyNetDiff"
 tracker = "https://github.com/eliotwrobson/CyNetDiff/issues"
 documentation = "https://eliotwrobson.github.io/CyNetDiff/"
 
-[tool.hatch.envs.hatch-test]
-extra-dependencies = [
-    "ndlib~=5.1.1",
-    "networkx~=3.2.1",
-    "numpy~=2.0.0",
-    "pytest-benchmark~=5.1.0",
+[tool.pdm.dev-dependencies]
+build = [
+    "setuptools",
+    "meson-python>=0.16.0",
+    "ninja>=1.8.2",
+    "cython",
+    "numpy",
 ]
+test = ["pytest", "networkx"]
 
-[[tool.hatch.envs.hatch-test.matrix]]
-python = ["3.13", "3.12", "3.11", "3.10", "3.9"]
+[tool.pdm.options]
+install = ["--no-isolation"]
 
-[tool.hatch.envs.benchmark]
-dependencies = [
-    "ndlib~=5.1.1",
-    "networkx~=3.2.1",
-    "pandas>=2.0.0",
-    "tqdm~=4.66.2",
-    "pooch~=1.8.1",
-    "notebook~=7.1.2",
-    "coloraide~=3.1.2",
-]
+[build-system]
+build-backend = "mesonpy"
+requires = ["meson-python>=0.16.0", "cython", "numpy"]
 
-[tool.hatch.envs.dev]
-dependencies = [
-    "pytest~=8.3.4",
-    "mypy~=1.7.1",
-    "types-setuptools~=69.0.0.0",
-    "networkx~=3.2.1",
-    "numpy~=2.0.0",
-    "ruff~=0.8.4",
-    "pandas-stubs~=2.2.0.240218",
-    "types-tqdm~=4.66.0.20240106",
-    "cython~=3.0.9",
-    "cython-lint~=0.16.2",
-    "pytest-benchmark~=5.1.0",
-]
+# [tool.hatch.envs.hatch-test]
+# extra-dependencies = [
+#     "ndlib~=5.1.1",
+#     "networkx~=3.2.1",
+#     "numpy~=2.0.0",
+#     "pytest-benchmark~=5.1.0",
+# ]
 
-[tool.hatch.envs.docs]
-dependencies = [
-    "mkdocs~=1.4.2",
-    "mkdocs-material~=9.1.9",
-    "mkdocs-macros-plugin~=0.7.0",
-    "mkdocstrings~=0.23.0",
-    "mkdocstrings-python~=1.7.3",
-    "setuptools~=69.0.3",
-]
+# [[tool.hatch.envs.hatch-test.matrix]]
+# python = ["3.13", "3.12", "3.11", "3.10", "3.9"]
+
+# [tool.hatch.envs.benchmark]
+# dependencies = [
+#     "ndlib~=5.1.1",
+#     "networkx~=3.2.1",
+#     "pandas>=2.0.0",
+#     "tqdm~=4.66.2",
+#     "pooch~=1.8.1",
+#     "notebook~=7.1.2",
+#     "coloraide~=3.1.2",
+# ]
+
+# [tool.hatch.envs.dev]
+# dependencies = [
+#     "pytest~=8.3.4",
+#     "mypy~=1.7.1",
+#     "types-setuptools~=69.0.0.0",
+#     "networkx~=3.2.1",
+#     "numpy~=2.0.0",
+#     "ruff~=0.8.4",
+#     "pandas-stubs~=2.2.0.240218",
+#     "types-tqdm~=4.66.0.20240106",
+#     "cython~=3.0.9",
+#     "cython-lint~=0.16.2",
+#     "pytest-benchmark~=5.1.0",
+# ]
+
+# [tool.hatch.envs.docs]
+# dependencies = [
+#     "mkdocs~=1.4.2",
+#     "mkdocs-material~=9.1.9",
+#     "mkdocs-macros-plugin~=0.7.0",
+#     "mkdocstrings~=0.23.0",
+#     "mkdocstrings-python~=1.7.3",
+#     "setuptools~=69.0.3",
+# ]
 
 ### Build system configuration ###
 
-[build-system]
-build-backend = "hatchling.build"
-requires = ["numpy", "cython", "hatchling", "hatch-cython"]
+# [build-system]
+# build-backend = "hatchling.build"
+# requires = ["numpy", "cython", "hatchling", "hatch-cython"]
 
-[tool.hatch.build.targets.wheel.hooks.cython]
-dependencies = ["hatch-cython"]
+# [tool.hatch.build.targets.wheel.hooks.cython]
+# dependencies = ["hatch-cython"]
 
-[tool.hatch.build.targets.wheel.hooks.cython.options]
-include_numpy = true
-compile_py = false
-define_macros = [["NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION"]]
-include_npyrandom = { pkg = "numpy", include = "get_include", libraries = "get_libraries", library_dirs = "get_library_dirs", required_call = "create_library_symlinks" }
+# [tool.hatch.build.targets.wheel.hooks.cython.options]
+# include_numpy = true
+# compile_py = false
+# define_macros = [["NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION"]]
+# include_npyrandom = { pkg = "numpy", include = "get_include", libraries = "get_libraries", library_dirs = "get_library_dirs", required_call = "create_library_symlinks" }
 
-[tool.hatch.build.hooks.cython.options]
-src = "cynetdiff"
-directives = { language_level = 3 }
+# [tool.hatch.build.hooks.cython.options]
+# src = "cynetdiff"
+# directives = { language_level = 3 }
 
-[tool.hatch.build.targets.wheel]
-packages = ["cynetdiff"]
+# [tool.hatch.build.targets.wheel]
+# packages = ["cynetdiff"]
 
 
 ### Start of static analyis tools ###

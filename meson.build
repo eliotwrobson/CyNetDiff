@@ -1,14 +1,18 @@
-project('cynetdiff', 'cython')
+project('cynetdiff', 'cython',
+  version : '0.1',
+  meson_version : '>= 1.1',
+  default_options : ['warning_level=3']
+)
 
-py = import('python').find_installation()
+pymod = import('python')
+python = pymod.find_installation(pure: false)
 
-dep_py = py.dependency()
+if python.language_version().version_compare('< 3.9')
+  error('Requires Python >= 3.9')
+endif
+
+python_dep = python.dependency()
 numpy_dep = dependency('numpy', required: true)
 
-py.extension_module('cynetdiff.models',
-                    'src/cynetdiff/models.pyx',
-                    dependencies: [numpy_dep, dep_py],
-                    override_options : ['cython_language=cpp'],
-                    install: true,
-                    install_dir: py.get_install_dir(),
-                    include_directories: ['src/cynetdiff'])
+subdir('cynetdiff')
+subdir('tests')
