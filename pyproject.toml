@@ -73,6 +73,7 @@ requires = ["meson-python>=0.16.0", "cython", "numpy~=2.0.0", "ninja>=1.8.2"]
 
 [tool.cibuildwheel]
 build = "cp38-* cp39-* cp310-* cp311-*"
+test-requires = "pytest networkx numpy"
 test-command = "pytest {project}/tests"
 
 # [tool.hatch.envs.hatch-test]
