@@ -77,53 +77,6 @@ build-frontend = "build"
 test-requires = "pytest networkx numpy"
 test-command = "pytest {project}/tests"
 
-# [tool.hatch.envs.hatch-test]
-# extra-dependencies = [
-#     "ndlib~=5.1.1",
-#     "networkx~=3.2.1",
-#     "numpy~=2.0.0",
-#     "pytest-benchmark~=5.1.0",
-# ]
-
-# [[tool.hatch.envs.hatch-test.matrix]]
-# python = ["3.13", "3.12", "3.11", "3.10", "3.9"]
-
-# [tool.hatch.envs.benchmark]
-# dependencies = [
-#     "ndlib~=5.1.1",
-#     "networkx~=3.2.1",
-#     "pandas>=2.0.0",
-#     "tqdm~=4.66.2",
-#     "pooch~=1.8.1",
-#     "notebook~=7.1.2",
-#     "coloraide~=3.1.2",
-# ]
-
-# [tool.hatch.envs.dev]
-# dependencies = [
-#     "pytest~=8.3.4",
-#     "mypy~=1.7.1",
-#     "types-setuptools~=69.0.0.0",
-#     "networkx~=3.2.1",
-#     "numpy~=2.0.0",
-#     "ruff~=0.8.4",
-#     "pandas-stubs~=2.2.0.240218",
-#     "types-tqdm~=4.66.0.20240106",
-#     "cython~=3.0.9",
-#     "cython-lint~=0.16.2",
-#     "pytest-benchmark~=5.1.0",
-# ]
-
-# [tool.hatch.envs.docs]
-# dependencies = [
-#     "mkdocs~=1.4.2",
-#     "mkdocs-material~=9.1.9",
-#     "mkdocs-macros-plugin~=0.7.0",
-#     "mkdocstrings~=0.23.0",
-#     "mkdocstrings-python~=1.7.3",
-#     "setuptools~=69.0.3",
-# ]
-
 ### Start of static analyis tools ###
 
 [tool.mypy]
