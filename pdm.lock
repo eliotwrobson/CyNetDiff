@@ -5,10 +5,24 @@
 groups = ["default", "build", "docs", "lint", "test"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:02579ab8fb5b838e36353e3b545fb51e75b4d8d97ac34b7e86d52831de059faf"
+content_hash = "sha256:7cb566ccf031f842cf8c238c508023cbedd9aafeb5d635bbb88640a8422ddfd4"
 
 [[metadata.targets]]
 requires_python = ">=3.9"
+
+[[package]]
+name = "bashlex"
+version = "0.18"
+requires_python = ">=2.7, !=3.0, !=3.1, !=3.2, !=3.3, !=3.4"
+summary = "Python parser for bash"
+groups = ["build"]
+dependencies = [
+    "enum34; python_version < \"3.4\"",
+]
+files = [
+    {file = "bashlex-0.18-py2.py3-none-any.whl", hash = "sha256:91d73a23a3e51711919c1c899083890cdecffc91d8c088942725ac13e9dcfffa"},
+    {file = "bashlex-0.18.tar.gz", hash = "sha256:5bb03a01c6d5676338c36fd1028009c8ad07e7d61d8a1ce3f513b7fff52796ee"},
+]
 
 [[package]]
 name = "bokeh"
@@ -33,11 +47,22 @@ files = [
 ]
 
 [[package]]
+name = "bracex"
+version = "2.5.post1"
+requires_python = ">=3.8"
+summary = "Bash style brace expander."
+groups = ["build"]
+files = [
+    {file = "bracex-2.5.post1-py3-none-any.whl", hash = "sha256:13e5732fec27828d6af308628285ad358047cec36801598368cb28bc631dbaf6"},
+    {file = "bracex-2.5.post1.tar.gz", hash = "sha256:12c50952415bfa773d2d9ccb8e79651b8cdb1f31a42f6091b804f6ba2b4a66b6"},
+]
+
+[[package]]
 name = "certifi"
 version = "2024.12.14"
 requires_python = ">=3.6"
 summary = "Python package for providing Mozilla's CA Bundle."
-groups = ["docs"]
+groups = ["build", "docs"]
 files = [
     {file = "certifi-2024.12.14-py3-none-any.whl", hash = "sha256:1275f7a45be9464efc1173084eaa30f866fe2e47d389406136d332ed4967ec56"},
     {file = "certifi-2024.12.14.tar.gz", hash = "sha256:b650d30f370c2b724812bee08008be0c4163b163ddaec3f2546c1caf65f191db"},
@@ -117,6 +142,28 @@ files = [
     {file = "charset_normalizer-3.4.1-cp39-cp39-win_amd64.whl", hash = "sha256:49402233c892a461407c512a19435d1ce275543138294f7ef013f0b63d5d3765"},
     {file = "charset_normalizer-3.4.1-py3-none-any.whl", hash = "sha256:d98b1668f06378c6dbefec3b92299716b931cd4e6061f3c875a71ced1780ab85"},
     {file = "charset_normalizer-3.4.1.tar.gz", hash = "sha256:44251f18cd68a75b56585dd00dae26183e102cd5e0f9f1466e6df5da2ed64ea3"},
+]
+
+[[package]]
+name = "cibuildwheel"
+version = "2.22.0"
+requires_python = ">=3.8"
+summary = "Build Python wheels on CI with minimal configuration."
+groups = ["build"]
+dependencies = [
+    "bashlex!=0.13",
+    "bracex",
+    "certifi",
+    "dependency-groups>=1.2",
+    "filelock",
+    "packaging>=20.9",
+    "platformdirs",
+    "tomli; python_version < \"3.11\"",
+    "typing-extensions>=4.1.0; python_version < \"3.11\"",
+]
+files = [
+    {file = "cibuildwheel-2.22.0-py3-none-any.whl", hash = "sha256:c40bb7ac7b57fed8195fca624cc9bd68334375d32b75bea6fa8330ac1cd902c4"},
+    {file = "cibuildwheel-2.22.0.tar.gz", hash = "sha256:6651e775ac26a86a49d67639aa3540f19728caf0dfcd80f156ba4f241aad4940"},
 ]
 
 [[package]]
@@ -313,6 +360,21 @@ files = [
 ]
 
 [[package]]
+name = "dependency-groups"
+version = "1.3.0"
+requires_python = ">=3.8"
+summary = "A tool for resolving PEP 735 Dependency Group data"
+groups = ["build"]
+dependencies = [
+    "packaging",
+    "tomli; python_version < \"3.11\"",
+]
+files = [
+    {file = "dependency_groups-1.3.0-py3-none-any.whl", hash = "sha256:1abf34d712deda5581e80d507512664d52b35d1c2d7caf16c85e58ca508547e0"},
+    {file = "dependency_groups-1.3.0.tar.gz", hash = "sha256:5b9751d5d98fbd6dfd038a560a69c8382e41afcbf7ffdbcc28a2a3f85498830f"},
+]
+
+[[package]]
 name = "dynetx"
 version = "0.3.2"
 summary = "Dynamic Network library"
@@ -339,6 +401,17 @@ marker = "python_version < \"3.11\""
 files = [
     {file = "exceptiongroup-1.2.2-py3-none-any.whl", hash = "sha256:3111b9d131c238bec2f8f516e123e14ba243563fb135d3fe885990585aa7795b"},
     {file = "exceptiongroup-1.2.2.tar.gz", hash = "sha256:47c2edf7c6738fafb49fd34290706d1a1a2f4d1c6df275526b62cbb4aa5393cc"},
+]
+
+[[package]]
+name = "filelock"
+version = "3.16.1"
+requires_python = ">=3.8"
+summary = "A platform independent file lock."
+groups = ["build"]
+files = [
+    {file = "filelock-3.16.1-py3-none-any.whl", hash = "sha256:2082e5703d51fbf98ea75855d9d5527e33d8ff23099bec374a134febee6946b0"},
+    {file = "filelock-3.16.1.tar.gz", hash = "sha256:c249fbfcd5db47e5e2d6d62198e565475ee65e4831e2561c8e313fa7eb961435"},
 ]
 
 [[package]]
@@ -1057,6 +1130,17 @@ files = [
 ]
 
 [[package]]
+name = "platformdirs"
+version = "4.3.6"
+requires_python = ">=3.8"
+summary = "A small Python package for determining appropriate platform-specific dirs, e.g. a `user data dir`."
+groups = ["build"]
+files = [
+    {file = "platformdirs-4.3.6-py3-none-any.whl", hash = "sha256:73e575e1408ab8103900836b97580d5307456908a03e92031bab39e4554cc3fb"},
+    {file = "platformdirs-4.3.6.tar.gz", hash = "sha256:357fb2acbc885b0419afd3ce3ed34564c13c9b95c89360cd9563f73aa5e2b907"},
+]
+
+[[package]]
 name = "pluggy"
 version = "1.5.0"
 requires_python = ">=3.8"
@@ -1597,7 +1681,7 @@ name = "typing-extensions"
 version = "4.12.2"
 requires_python = ">=3.8"
 summary = "Backported and Experimental Type Hints for Python 3.8+"
-groups = ["docs", "lint"]
+groups = ["build", "docs", "lint"]
 files = [
     {file = "typing_extensions-4.12.2-py3-none-any.whl", hash = "sha256:04e5ca0351e0f3f85c6853954072df659d0d13fac324d0072316b67d7794700d"},
     {file = "typing_extensions-4.12.2.tar.gz", hash = "sha256:1a7ead55c7e559dd4dee8856e3a88b41225abfe1ce8df57b7c13915fe121ffb8"},

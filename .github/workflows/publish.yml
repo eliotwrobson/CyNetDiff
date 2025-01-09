@@ -4,12 +4,30 @@ on:
   push:
     tags:
       - "v*.*.*"
+
+  # TODO remove this before the final commit
+  pull_request:
+    branches: ["*"]
+
 jobs:
   publish:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9"] #, "3.10", "3.11", "3.12", "3.13"]
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - name: Build and publish to pypi
-        uses: JRubics/poetry-publish@v1.17
+      - name: Set up PDM
+        uses: pdm-project/setup-pdm@v4
         with:
-          pypi_token: ${{ secrets.PYPI_TOKEN }}
+          python-version: ${{ matrix.python-version }}
+          cache: true
+
+      - name: Install dependencies
+        run: pdm install -G build --no-self
+
+      - name: Run cibuildwheel
+        run: pdm run cibuildwheel --output-dir wheelhouse
+
+      # TODO add stuff to make this publish
