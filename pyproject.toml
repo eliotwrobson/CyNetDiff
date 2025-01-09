@@ -42,6 +42,8 @@ test = [
     "networkx~=3.2.1",
     "numpy~=2.0.0",
     "pytest-benchmark~=5.1.0",
+    "tox-pdm~=0.7.2",
+    "tox~=4.23.2",
 ]
 lint = [
     "mypy~=1.7.1",
@@ -125,6 +127,13 @@ python_version = "3.13"
 [[tool.mypy.overrides]]
 module = ["networkx.*", "Cython.*", "ndlib.*", "pooch.*", "matplotlib.*"]
 ignore_missing_imports = true
+
+[tool.tox]
+envlist = "py3{7,8,9,10,11}"
+
+[tool.testenv]
+groups = ["test"]
+commands = ["pytest"]
 
 [tool.pytest.ini_options]
 testpaths = "tests"

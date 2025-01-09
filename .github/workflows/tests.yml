@@ -19,16 +19,19 @@ jobs:
             3.11
             3.12
             3.13
-      # - name: Set up pip cache
-      #   if: runner.os == 'Linux'
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: ~/.cache/pip
-      #     key: ${{ runner.os }}-pip-${{ hashFiles('pyproject.toml') }}
-      #     restore-keys: ${{ runner.os }}-pip-
-      - name: Install Hatch
-        run: pipx install hatch
-      - name: Build project
-        run: hatch build
+      - name: Setup PDM
+        uses: pdm-project/setup-pdm@v4
+        with:
+          cache: true
+
+      - name: Install tox
+        run: pipx install tox
+
       - name: Run tests
-        run: hatch test
+        run: tox
+
+      #- name: Install dependencies
+      #  run: pdm install -G test
+
+      #- name: Run tests
+      #  run: pdm run pytest
