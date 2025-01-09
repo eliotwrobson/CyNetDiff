@@ -1,4 +1,4 @@
-project('cynetdiff', 'cython',
+project('cynetdiff', 'cython', 'c',
   meson_version : '>= 1.1',
   default_options : ['warning_level=3']
 )
