@@ -7,28 +7,30 @@ on:
     branches: ["*"]
 
 jobs:
+  ci:
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: |
-            3.9
-            3.10
-            3.11
-            3.12
-            3.13
+          python-version: ${{ matrix.python-version }}
       - name: Setup PDM
         uses: pdm-project/setup-pdm@v4
         with:
+          python-version: ${{ matrix.python-version }}
           cache: true
 
-      - name: Install tox
-        run: pipx install tox
+      - name: Install dependencies
+        run: pdm install -G test
 
       - name: Run tests
-        run: tox
+        run: pdm run pytest
 
       #- name: Install dependencies
       #  run: pdm install -G test
