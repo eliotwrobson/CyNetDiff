@@ -51,6 +51,7 @@ lint = [
     "pandas-stubs~=2.2.0.240218",
     "types-tqdm~=4.66.0.20240106",
     "cython-lint~=0.16.2",
+    "pytest",
 ]
 docs = [
     "mkdocs~=1.4.2",
