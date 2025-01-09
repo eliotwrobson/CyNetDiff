@@ -5,7 +5,7 @@
 groups = ["default", "build", "docs", "lint", "test"]
 strategy = []
 lock_version = "4.5.0"
-content_hash = "sha256:ffaf9d9dc1d6df33b86b6d95d15974a14be8817ff35c833caf629a81ab2c45d3"
+content_hash = "sha256:c8cc94fe03a0f6e789c065d3b79d8dcae53a6ea3164e9bb8ff9855ea3502f786"
 
 [[metadata.targets]]
 requires_python = ">=3.9"
@@ -143,6 +143,15 @@ dependencies = [
 files = [
     {file = "click-8.1.8-py3-none-any.whl", hash = "sha256:63c132bbbed01578a06712a2d1f497bb62d9c1c0d329b7903a866228027263b2"},
     {file = "click-8.1.8.tar.gz", hash = "sha256:ed53c9d8990d83c2a27deae68e4ee337473f6330c040a31d4225c9574d16096a"},
+]
+
+[[package]]
+name = "coloraide"
+version = "3.1.2"
+summary = ""
+files = [
+    {file = "coloraide-3.1.2-py3-none-any.whl", hash = "sha256:0e8a54a189ab1f433bceb24755ad5c4f3a6d4e5664cb709a9c9eae9c60e1364a"},
+    {file = "coloraide-3.1.2.tar.gz", hash = "sha256:ae697b585700e2b1114f07eaf3e246a281671623df28884958d1e4da0a5a374a"},
 ]
 
 [[package]]
