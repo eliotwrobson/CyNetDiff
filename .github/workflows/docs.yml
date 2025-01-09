@@ -27,5 +27,5 @@ jobs:
           path: .cache
           restore-keys: |
             mkdocs-material-
-      - run: pdm install -G docs --no-build
+      - run: pdm install -G docs --no-self
       - run: pdm run mkdocs gh-deploy --force
