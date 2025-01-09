@@ -25,7 +25,7 @@ jobs:
           cache: true
 
       - name: Install dependencies
-        run: pdm install -G build --no-self
+        run: pdm install -G test,build --no-self
 
       - name: Run cibuildwheel
         run: pdm run cibuildwheel --output-dir wheelhouse
