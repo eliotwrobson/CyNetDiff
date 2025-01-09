@@ -5,7 +5,7 @@
 groups = ["default", "build", "docs", "lint", "test"]
 strategy = []
 lock_version = "4.5.0"
-content_hash = "sha256:904401f81465d89f138c405175579f00735a9d13adc2b044274f449ccf83853d"
+content_hash = "sha256:02579ab8fb5b838e36353e3b545fb51e75b4d8d97ac34b7e86d52831de059faf"
 
 [[metadata.targets]]
 requires_python = ">=3.9"
@@ -31,30 +31,12 @@ files = [
 ]
 
 [[package]]
-name = "cachetools"
-version = "5.5.0"
-summary = ""
-files = [
-    {file = "cachetools-5.5.0-py3-none-any.whl", hash = "sha256:02134e8439cdc2ffb62023ce1debca2944c3f289d66bb17ead3ab3dede74b292"},
-    {file = "cachetools-5.5.0.tar.gz", hash = "sha256:2cc24fb4cbe39633fb7badd9db9ca6295d766d9c2995f245725a46715d050f2a"},
-]
-
-[[package]]
 name = "certifi"
 version = "2024.12.14"
 summary = ""
 files = [
     {file = "certifi-2024.12.14-py3-none-any.whl", hash = "sha256:1275f7a45be9464efc1173084eaa30f866fe2e47d389406136d332ed4967ec56"},
     {file = "certifi-2024.12.14.tar.gz", hash = "sha256:b650d30f370c2b724812bee08008be0c4163b163ddaec3f2546c1caf65f191db"},
-]
-
-[[package]]
-name = "chardet"
-version = "5.2.0"
-summary = ""
-files = [
-    {file = "chardet-5.2.0-py3-none-any.whl", hash = "sha256:e1cf59446890a00105fe7b7912492ea04b6e6f06d4b742b2c788469e34c82970"},
-    {file = "chardet-5.2.0.tar.gz", hash = "sha256:1b3b6ff479a8c414bc3fa2c0852995695c4a026dcd6d0633b2dd092ca39c1cf7"},
 ]
 
 [[package]]
@@ -310,15 +292,6 @@ files = [
 ]
 
 [[package]]
-name = "distlib"
-version = "0.3.9"
-summary = ""
-files = [
-    {file = "distlib-0.3.9-py2.py3-none-any.whl", hash = "sha256:47f8c22fd27c27e25a65601af709b38e4f0a45ea4fc2e710f65755fa8caaaf87"},
-    {file = "distlib-0.3.9.tar.gz", hash = "sha256:a60f20dea646b8a33f3e7772f74dc0b2d0772d2837ee1342a00645c81edf9403"},
-]
-
-[[package]]
 name = "dynetx"
 version = "0.3.2"
 summary = ""
@@ -341,15 +314,6 @@ summary = ""
 files = [
     {file = "exceptiongroup-1.2.2-py3-none-any.whl", hash = "sha256:3111b9d131c238bec2f8f516e123e14ba243563fb135d3fe885990585aa7795b"},
     {file = "exceptiongroup-1.2.2.tar.gz", hash = "sha256:47c2edf7c6738fafb49fd34290706d1a1a2f4d1c6df275526b62cbb4aa5393cc"},
-]
-
-[[package]]
-name = "filelock"
-version = "3.16.1"
-summary = ""
-files = [
-    {file = "filelock-3.16.1-py3-none-any.whl", hash = "sha256:2082e5703d51fbf98ea75855d9d5527e33d8ff23099bec374a134febee6946b0"},
-    {file = "filelock-3.16.1.tar.gz", hash = "sha256:c249fbfcd5db47e5e2d6d62198e565475ee65e4831e2561c8e313fa7eb961435"},
 ]
 
 [[package]]
@@ -1002,15 +966,6 @@ files = [
 ]
 
 [[package]]
-name = "platformdirs"
-version = "4.3.6"
-summary = ""
-files = [
-    {file = "platformdirs-4.3.6-py3-none-any.whl", hash = "sha256:73e575e1408ab8103900836b97580d5307456908a03e92031bab39e4554cc3fb"},
-    {file = "platformdirs-4.3.6.tar.gz", hash = "sha256:357fb2acbc885b0419afd3ce3ed34564c13c9b95c89360cd9563f73aa5e2b907"},
-]
-
-[[package]]
 name = "pluggy"
 version = "1.5.0"
 summary = ""
@@ -1057,19 +1012,6 @@ dependencies = [
 files = [
     {file = "pymdown_extensions-10.4-py3-none-any.whl", hash = "sha256:cfc28d6a09d19448bcbf8eee3ce098c7d17ff99f7bd3069db4819af181212037"},
     {file = "pymdown_extensions-10.4.tar.gz", hash = "sha256:bc46f11749ecd4d6b71cf62396104b4a200bad3498cb0f5dad1b8502fe461a35"},
-]
-
-[[package]]
-name = "pyproject-api"
-version = "1.8.0"
-summary = ""
-dependencies = [
-    "packaging",
-    "tomli; python_full_version < \"3.11\"",
-]
-files = [
-    {file = "pyproject_api-1.8.0-py3-none-any.whl", hash = "sha256:3d7d347a047afe796fd5d1885b1e391ba29be7169bd2f102fcd378f04273d228"},
-    {file = "pyproject_api-1.8.0.tar.gz", hash = "sha256:77b8049f2feb5d33eefcc21b57f1e279636277a8ac8ad6b5871037b243778496"},
 ]
 
 [[package]]
@@ -1475,41 +1417,6 @@ files = [
 ]
 
 [[package]]
-name = "tox"
-version = "4.23.2"
-summary = ""
-dependencies = [
-    "cachetools",
-    "chardet",
-    "colorama",
-    "filelock",
-    "packaging",
-    "platformdirs",
-    "pluggy",
-    "pyproject-api",
-    "tomli; python_full_version < \"3.11\"",
-    "typing-extensions; python_full_version < \"3.11\"",
-    "virtualenv",
-]
-files = [
-    {file = "tox-4.23.2-py3-none-any.whl", hash = "sha256:452bc32bb031f2282881a2118923176445bac783ab97c874b8770ab4c3b76c38"},
-    {file = "tox-4.23.2.tar.gz", hash = "sha256:86075e00e555df6e82e74cfc333917f91ecb47ffbc868dcafbd2672e332f4a2c"},
-]
-
-[[package]]
-name = "tox-pdm"
-version = "0.7.2"
-summary = ""
-dependencies = [
-    "tomli; python_full_version < \"3.11\"",
-    "tox",
-]
-files = [
-    {file = "tox_pdm-0.7.2-py3-none-any.whl", hash = "sha256:12f6215416b7acd00a80a9e7128f3dc3e3c89308d60707f5d0a24abdf83ac104"},
-    {file = "tox_pdm-0.7.2.tar.gz", hash = "sha256:a841a7e1e942a71805624703b9a6d286663bd6af79bba6130ba756975c315308"},
-]
-
-[[package]]
 name = "tqdm"
 version = "4.67.1"
 summary = ""
@@ -1564,20 +1471,6 @@ summary = ""
 files = [
     {file = "urllib3-2.3.0-py3-none-any.whl", hash = "sha256:1cee9ad369867bfdbbb48b7dd50374c0967a0bb7710050facf0dd6911440e3df"},
     {file = "urllib3-2.3.0.tar.gz", hash = "sha256:f8c5449b3cf0861679ce7e0503c7b44b5ec981bec0d1d3795a07f1ba96f0204d"},
-]
-
-[[package]]
-name = "virtualenv"
-version = "20.28.1"
-summary = ""
-dependencies = [
-    "distlib",
-    "filelock",
-    "platformdirs",
-]
-files = [
-    {file = "virtualenv-20.28.1-py3-none-any.whl", hash = "sha256:412773c85d4dab0409b83ec36f7a6499e72eaf08c80e81e9576bca61831c71cb"},
-    {file = "virtualenv-20.28.1.tar.gz", hash = "sha256:5d34ab240fdb5d21549b76f9e8ff3af28252f5499fb6d6f031adac4e5a8c5329"},
 ]
 
 [[package]]

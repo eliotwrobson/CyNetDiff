@@ -34,7 +34,7 @@ build = [
     "meson-python>=0.16.0",
     "ninja>=1.8.2",
     "cython",
-    "numpy",
+    "numpy~=2.0.0",
 ]
 test = [
     "pytest",
