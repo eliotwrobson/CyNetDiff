@@ -28,7 +28,7 @@ homepage = "https://github.com/eliotwrobson/CyNetDiff"
 tracker = "https://github.com/eliotwrobson/CyNetDiff/issues"
 documentation = "https://eliotwrobson.github.io/CyNetDiff/"
 
-[tool.pdm.dev-dependencies]
+[dependency-groups]
 build = [
     "setuptools",
     "meson-python>=0.16.0",
@@ -36,7 +36,30 @@ build = [
     "cython",
     "numpy",
 ]
-test = ["pytest", "networkx"]
+test = [
+    "pytest",
+    "ndlib~=5.1.1",
+    "networkx~=3.2.1",
+    "numpy~=2.0.0",
+    "pytest-benchmark~=5.1.0",
+]
+lint = [
+    "mypy~=1.7.1",
+    "networkx~=3.2.1",
+    "numpy~=2.0.0",
+    "ruff~=0.8.4",
+    "pandas-stubs~=2.2.0.240218",
+    "types-tqdm~=4.66.0.20240106",
+    "cython-lint~=0.16.2",
+]
+docs = [
+    "mkdocs~=1.4.2",
+    "mkdocs-material~=9.1.9",
+    "mkdocs-macros-plugin~=0.7.0",
+    "mkdocstrings~=0.23.0",
+    "mkdocstrings-python~=1.7.3",
+    "setuptools~=69.0.3",
+]
 
 [tool.pdm.options]
 install = ["--no-isolation"]
@@ -91,29 +114,6 @@ requires = ["meson-python>=0.16.0", "cython", "numpy"]
 #     "mkdocstrings-python~=1.7.3",
 #     "setuptools~=69.0.3",
 # ]
-
-### Build system configuration ###
-
-# [build-system]
-# build-backend = "hatchling.build"
-# requires = ["numpy", "cython", "hatchling", "hatch-cython"]
-
-# [tool.hatch.build.targets.wheel.hooks.cython]
-# dependencies = ["hatch-cython"]
-
-# [tool.hatch.build.targets.wheel.hooks.cython.options]
-# include_numpy = true
-# compile_py = false
-# define_macros = [["NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION"]]
-# include_npyrandom = { pkg = "numpy", include = "get_include", libraries = "get_libraries", library_dirs = "get_library_dirs", required_call = "create_library_symlinks" }
-
-# [tool.hatch.build.hooks.cython.options]
-# src = "cynetdiff"
-# directives = { language_level = 3 }
-
-# [tool.hatch.build.targets.wheel]
-# packages = ["cynetdiff"]
-
 
 ### Start of static analyis tools ###
 

@@ -118,3 +118,4 @@ venv
 speed/
 
 get_graph_hashes.py
+.pdm-python
