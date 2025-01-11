@@ -382,7 +382,7 @@ def edgelist_to_csr_arrays(
     for node, node_adj_list in sorted(adj_list.items()):
         if node + 1 < num_nodes:
             starts[node + 1] = starts[node] + len(node_adj_list)
-        edges.extend(sorted(adj_list[node]))  # Sort neighbors for consistency if needed
+        edges.extend(sorted(node_adj_list))  # Sort neighbors for consistency if needed
 
     return array.array("I", starts), array.array("I", edges), dict(rename_dict)
 
