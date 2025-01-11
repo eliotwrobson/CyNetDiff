@@ -391,6 +391,7 @@ def test_invalid_seed_error() -> None:
 def test_duplicate_arguments() -> None:
     n = 1000
     p = 0.01
+
     test_graph = generate_random_graph_from_seed(n, p, False, False)
 
     for _, _, data in test_graph.edges(data=True):

@@ -50,7 +50,7 @@ plugins:
       default_handler: python
       handlers:
         python:
-          paths: [src]
+          paths: [cynetdiff]
           options:
             show_source: false
             docstring_style: "numpy"
