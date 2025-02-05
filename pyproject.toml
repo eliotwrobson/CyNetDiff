@@ -91,7 +91,7 @@ ignore_missing_imports = true
 [tool.pytest.ini_options]
 testpaths = "tests"
 # Don't need warmup iterations because benchmark is already an average.
-benchmark_warmups = 0
+benchmark_warmup_iterations = 0
 
 [tool.ruff]
 line-length = 120
