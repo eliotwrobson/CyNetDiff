@@ -32,4 +32,4 @@ jobs:
         run: poetry install --with dev,benchmark
 
       - name: Benchmark with pytest-benchmark
-        run: poetry run pytest --benchmark-only benchmarks/test_benchmark.py
+        run: poetry run pytest --benchmark-only --benchmark-warmup-iterations=0 benchmarks/test_benchmark.py

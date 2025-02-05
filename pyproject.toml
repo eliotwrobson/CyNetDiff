@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "cynetdiff"
-version = "0.1.16"
+version = "0.1.17"
 description = "A fast network diffusion library"
 authors = ["Eliot W. Robson <eliot.robson24@gmail.com>"]
 license = "MIT"
@@ -90,8 +90,6 @@ ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = "tests"
-# Don't need warmup iterations because benchmark is already an average.
-benchmark_warmups = 0
 
 [tool.ruff]
 line-length = 120
