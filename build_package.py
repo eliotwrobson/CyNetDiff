@@ -8,6 +8,8 @@ from setuptools import Extension
 from setuptools.command.build_ext import build_ext
 from setuptools.dist import Distribution
 
+MACROS = [("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")]
+
 
 def build_cython_extensions() -> None:
     # Flag to enable Cython code generation during install / build. This is
@@ -16,8 +18,6 @@ def build_cython_extensions() -> None:
     use_cython = find_spec("Cython") is not None
 
     ext = ".pyx" if use_cython else ".cpp"
-
-    MACROS = [("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")]
 
     extensions = [
         Extension(
@@ -29,7 +29,7 @@ def build_cython_extensions() -> None:
             # Not so nice. We need the random/lib library from numpy
             library_dirs=[os.path.join(np.get_include(), "..", "..", "random", "lib")],
             libraries=["npyrandom"],
-            define_macros=MACROS,
+            define_macros=MACROS,  # type: ignore
         ),
     ]
 
