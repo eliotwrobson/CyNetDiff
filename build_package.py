@@ -17,6 +17,8 @@ def build_cython_extensions() -> None:
 
     ext = ".pyx" if use_cython else ".cpp"
 
+    MACROS = [("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")]
+
     extensions = [
         Extension(
             "cynetdiff.models",
@@ -27,6 +29,7 @@ def build_cython_extensions() -> None:
             # Not so nice. We need the random/lib library from numpy
             library_dirs=[os.path.join(np.get_include(), "..", "..", "random", "lib")],
             libraries=["npyrandom"],
+            define_macros=MACROS,
         ),
     ]
 
