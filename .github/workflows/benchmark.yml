@@ -18,7 +18,6 @@ jobs:
         with:
           version: latest
           python-version: 3.12
-          cache: true
 
       - name: Install dependencies
         run: pdm install -G test,build
