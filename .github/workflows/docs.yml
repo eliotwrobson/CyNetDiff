@@ -1,9 +1,10 @@
 name: docs
 # Based on https://squidfunk.github.io/mkdocs-material/publishing-your-site/
 on:
-  push:
-    tags:
-      - "v*.*.*"
+  workflow_dispatch:
+  release:
+    types:
+      - published
 permissions:
   contents: write
 jobs:
