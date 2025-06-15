@@ -3,12 +3,12 @@
 name: publish
 on:
   workflow_dispatch:
-    release:
-      types:
-        - published
-    pull_request:
-      paths:
-        - .github/workflows/publish.yml
+  release:
+    types:
+      - published
+  pull_request:
+    paths:
+      - .github/workflows/publish.yml
 
 jobs:
   make_sdist:
