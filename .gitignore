@@ -112,7 +112,11 @@ venv
 
 # Cython
 *.html
+*.cpp
+*.c
 
 speed/
 
 get_graph_hashes.py
+
+.pdm-python

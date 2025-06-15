@@ -8,28 +8,22 @@ on:
     branches: ["*"]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  benchmark:
     strategy:
-      fail-fast: false
       matrix:
         python-version: ["3.12"]
-        poetry-version: ["1.8.5"]
-
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+      - name: Setup PDM
+        uses: pdm-project/setup-pdm@v4
         with:
           python-version: ${{ matrix.python-version }}
-
-      - uses: abatilo/actions-poetry@v2
-        with:
-          poetry-version: ${{ matrix.poetry-version }}
+          cache: true
 
       - name: Install dependencies
-        run: poetry install --with dev,benchmark
+        run: pdm install -G test,build
 
-      - name: Benchmark with pytest-benchmark
-        run: poetry run pytest --benchmark-only --benchmark-warmup-iterations=0 benchmarks/test_benchmark.py
+      - name: Run benchmarks
+        run: pdm run pytest benchmarks
