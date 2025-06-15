@@ -5,7 +5,7 @@
 groups = ["default", "build", "test"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:cfaa723168272c46c3731e251ae538ebbbd6fba6e5b55e673dcef352dfec9687"
+content_hash = "sha256:dd938dc6016c3ca3a727242ba35ef215cc3e2b2b179e75469d848cb458cef036"
 
 [[metadata.targets]]
 requires_python = ">=3.10"
@@ -29,7 +29,7 @@ name = "beniget"
 version = "0.4.2.post1"
 requires_python = ">=3.6"
 summary = "Extract semantic information about static Python code"
-groups = ["default"]
+groups = ["build"]
 dependencies = [
     "gast>=0.5.0",
 ]
@@ -339,7 +339,7 @@ name = "gast"
 version = "0.6.0"
 requires_python = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,>=2.7"
 summary = "Python AST that abstracts the underlying Python version"
-groups = ["default"]
+groups = ["build"]
 files = [
     {file = "gast-0.6.0-py3-none-any.whl", hash = "sha256:52b182313f7330389f72b069ba00f174cfe2a06411099547288839c6cbafbd54"},
     {file = "gast-0.6.0.tar.gz", hash = "sha256:88fc5300d32c7ac6ca7b515310862f71e6fdf2c029bbec7c66c0f5dd47b6b1fb"},
@@ -587,7 +587,7 @@ name = "numpy"
 version = "2.0.2"
 requires_python = ">=3.9"
 summary = "Fundamental package for array computing in Python"
-groups = ["default", "build", "test"]
+groups = ["build", "test"]
 files = [
     {file = "numpy-2.0.2-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:51129a29dbe56f9ca83438b706e2e69a39892b5eda6cedcb6b0c9fdc9b0d3ece"},
     {file = "numpy-2.0.2-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:f15975dfec0cf2239224d80e32c3170b1d168335eaedee69da84fbe9f1f9cd04"},
@@ -822,7 +822,7 @@ files = [
 name = "ply"
 version = "3.11"
 summary = "Python Lex & Yacc"
-groups = ["default"]
+groups = ["build"]
 files = [
     {file = "ply-3.11-py2.py3-none-any.whl", hash = "sha256:096f9b8350b65ebd2fd1346b12452efe5b9607f7482813ffca50c22722a807ce"},
     {file = "ply-3.11.tar.gz", hash = "sha256:00c7c1aaa88358b9c765b6d3000c6eec0ba42abca5351b095321aef446081da3"},
@@ -836,6 +836,17 @@ groups = ["test"]
 files = [
     {file = "py-cpuinfo-9.0.0.tar.gz", hash = "sha256:3cdbbf3fac90dc6f118bfd64384f309edeadd902d7c8fb17f02ffa1fc3f49690"},
     {file = "py_cpuinfo-9.0.0-py3-none-any.whl", hash = "sha256:859625bc251f64e21f077d099d4162689c762b5d6a4c3c97553d56241c9674d5"},
+]
+
+[[package]]
+name = "pybind11"
+version = "2.13.6"
+requires_python = ">=3.7"
+summary = "Seamless operability between C++11 and Python"
+groups = ["build"]
+files = [
+    {file = "pybind11-2.13.6-py3-none-any.whl", hash = "sha256:237c41e29157b962835d356b370ededd57594a26d5894a795960f0047cb5caf5"},
+    {file = "pybind11-2.13.6.tar.gz", hash = "sha256:ba6af10348c12b24e92fa086b39cfba0eff619b61ac77c406167d813b096d39a"},
 ]
 
 [[package]]
@@ -934,7 +945,7 @@ name = "pythran"
 version = "0.18.0"
 requires_python = ">=3.7"
 summary = "Ahead of Time compiler for numeric kernels"
-groups = ["default"]
+groups = ["build"]
 dependencies = [
     "beniget~=0.4.0",
     "gast~=0.6.0",
@@ -1054,7 +1065,7 @@ name = "setuptools"
 version = "80.9.0"
 requires_python = ">=3.9"
 summary = "Easily download, build, install, upgrade, and uninstall Python packages"
-groups = ["default", "build"]
+groups = ["build"]
 files = [
     {file = "setuptools-80.9.0-py3-none-any.whl", hash = "sha256:062d34222ad13e0cc312a4c02d73f059e86a4acbfbdea8f8f76b28c99f306922"},
     {file = "setuptools-80.9.0.tar.gz", hash = "sha256:f36b47402ecde768dbfafc46e8e4207b4360c654f1f3bb84475f0a28628fb19c"},
