@@ -6,8 +6,8 @@ project('cynetdiff', 'cython', 'c',
 pymod = import('python')
 python = pymod.find_installation(pure: false)
 
-if python.language_version().version_compare('< 3.9')
-  error('Requires Python >= 3.9')
+if python.language_version().version_compare('< 3.10')
+  error('Requires Python >= 3.10')
 endif
 
 python_dep = python.dependency()
