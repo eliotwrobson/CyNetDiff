@@ -300,7 +300,7 @@ def plot_num_nodes_activated(
                 )
                 for i in range(max_length)
             ]
-            lower_quartile, upper_quartile = zip(*iqr_values)
+            lower_quartile, upper_quartile = zip(*iqr_values, strict=True)
 
             for y in mean_infected:
                 plt.axhline(y=y, color=colors[idx], linestyle="--", alpha=0.2)
