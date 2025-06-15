@@ -413,7 +413,7 @@ def check_csr_arrays(starts: array.array, edges: array.array) -> None:
     >>> starts = array.array("I", [0, 2, 4, 5])
     >>> edges = array.array("I", [1, 2, 0, 3, 7])
     >>> check_csr_arrays(starts, edges)
-    ValueError: Value in edges "7" must ben in the range [0,3].
+    ValueError: Value in edges "7" must be in the range [0,3].
     """
 
     # Check typecodes
@@ -429,7 +429,7 @@ def check_csr_arrays(starts: array.array, edges: array.array) -> None:
     # Boundscheck edges
     for edge_link in edges:
         if not (0 <= edge_link < n):
-            raise ValueError(f'Value in edges "{edge_link}" must ben in the range [0,{n-1}].')
+            raise ValueError(f'Value in edges "{edge_link}" must be in the range [0,{n - 1}].')
 
     # Boundscheck nodes
     prev_node_start = 0
