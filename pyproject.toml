@@ -1,21 +1,19 @@
-[tool.poetry]
+[project]
 name = "cynetdiff"
-version = "0.1.17"
+version = "0.1.18" # TODO switch to dynamic versioning
 description = "A fast network diffusion library"
-authors = ["Eliot W. Robson <eliot.robson24@gmail.com>"]
+authors = [{ name = "Eliot W. Robson", email = "eliot.robson24@gmail.com" }]
 license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.10"
 readme = "README.md"
-packages = [{ include = "cynetdiff", from = "src" }]
 maintainers = [
-    "Eliot W. Robson <eliot.robson24@gmail.com>",
-    "Abhishek K. Umrawal <aumrawal@illinois.edu>",
+    { name = "Eliot W. Robson", email = "eliot.robson24@gmail.com" },
+    { name = "Abhishek K. Umrawal", email = "aumrawal@illinois.edu" },
 ]
 
-#TODO version classifiers may not be needed.
 classifiers = [
     "Development Status :: 3 - Alpha",
-    "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -24,62 +22,63 @@ classifiers = [
     "Intended Audience :: Science/Research",
 ]
 
-[tool.poetry.urls]
+[project.urls]
 homepage = "https://github.com/eliotwrobson/CyNetDiff"
 tracker = "https://github.com/eliotwrobson/CyNetDiff/issues"
 documentation = "https://eliotwrobson.github.io/CyNetDiff/"
 
-[tool.poetry.dependencies]
-python = ">=3.9"
+[dependency-groups]
+build = [
+    "setuptools",
+    "meson-python>=0.18.0",
+    "ninja>=1.8.2",
+    "cython",
+    "numpy~=2.0.0",
+    "cibuildwheel>=2.0.0",
+    "pythran",
+    "pybind11",
+]
+test = [
+    "pytest",
+    "ndlib~=5.1.1",
+    "networkx~=3.2.1",
+    "numpy~=2.0.0",
+    "pytest-benchmark~=5.1.0",
+]
+lint = [
+    "mypy~=1.7.1",
+    "networkx~=3.2.1",
+    "numpy~=2.0.0",
+    "ruff~=0.11.13",
+    "pandas-stubs~=2.2.0.240218",
+    "types-tqdm~=4.66.0.20240106",
+    "cython-lint~=0.16.2",
+    "pytest~=8.3.4",
+    "coloraide~=3.1.2",
+]
+docs = [
+    "mkdocs~=1.4.2",
+    "mkdocs-material~=9.1.9",
+    "mkdocs-macros-plugin~=0.7.0",
+    "mkdocstrings~=0.23.0",
+    "mkdocstrings-python~=1.7.3",
+    "setuptools~=69.0.3",
+]
 
-
-[tool.poetry.group.benchmark]
-optional = true
-
-[tool.poetry.group.benchmark.dependencies]
-python = ">=3.10"
-ndlib = "^5.1.1"
-networkx = "^3.2.1"
-pandas = ">=2.0.0"
-tqdm = "^4.66.2"
-pooch = "^1.8.1"
-notebook = "^7.1.2"
-coloraide = "^3.1.2"
-
-[tool.poetry.group.dev.dependencies]
-pytest = "^8.3.4"
-mypy = "^1.7.1"
-types-setuptools = "^69.0.0.0"
-networkx = "^3.2.1"
-numpy = "^2.0.0"
-ruff = "^0.8.4"
-pandas-stubs = "^2.2.0.240218"
-types-tqdm = "^4.66.0.20240106"
-cython = "^3.0.9"
-cython-lint = "^0.16.2"
-pytest-benchmark = "^5.1.0"
-
-
-[tool.poetry.group.docs]
-optional = true
-
-[tool.poetry.group.docs.dependencies]
-mkdocs = "^1.4.2"
-mkdocs-material = "^9.1.9"
-mkdocs-macros-plugin = "^0.7.0"
-mkdocstrings = "^0.23.0"
-mkdocstrings-python = "^1.7.3"
-setuptools = "^69.0.3"
-
+[tool.pdm.options]
+install = ["--no-isolation"]
 
 [build-system]
-requires = ["poetry-core", "setuptools", "cython", "numpy"]
-build-backend = "poetry.core.masonry.api"
+build-backend = "mesonpy"
+requires = ["meson-python>=0.18.0", "cython", "numpy~=2.0.0", "ninja>=1.8.2"]
 
-[tool.poetry.build]
-script = "build_package.py"
-generate-setup-file = false
+[tool.cibuildwheel]
+build = "cp310-* cp311-* cp312-* cp313-*"
+build-frontend = "build[uv]"
+test-requires = "pytest networkx numpy"
+test-command = "pytest {project}/tests"
 
+### Start of static analyis tools ###
 
 [tool.mypy]
 python_version = "3.13"

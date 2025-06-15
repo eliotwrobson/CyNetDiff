@@ -214,7 +214,7 @@ def test_randomized_activation(seed: int) -> None:
 
     activated_nodes = set(model.get_activated_nodes())
 
-    for seed_node, prob in zip(seeds, seed_probs):
+    for seed_node, prob in zip(seeds, seed_probs, strict=True):
         assert (seed_node in activated_nodes) == (prob == 1.0)
 
 
@@ -399,7 +399,7 @@ def test_marginal_gain(directed: bool, nondefault_influence: bool, include_payof
 
     set_so_far: t.List[int] = []
 
-    for seed, result in zip(seeds, results[1:]):
+    for seed, result in zip(seeds, results[1:], strict=False):
         without_new_seed_total = compute_graph_marginal_gain(test_graph, linear_threshold(test_graph, set_so_far))
 
         with_new_seed_total = compute_graph_marginal_gain(test_graph, linear_threshold(test_graph, set_so_far + [seed]))

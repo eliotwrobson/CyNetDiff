@@ -1,9 +1,10 @@
 name: docs
 # Based on https://squidfunk.github.io/mkdocs-material/publishing-your-site/
 on:
-  push:
-    tags:
-      - "v*.*.*"
+  workflow_dispatch:
+  release:
+    types:
+      - published
 permissions:
   contents: write
 jobs:
@@ -16,11 +17,8 @@ jobs:
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
       - uses: actions/setup-python@v5
-        with:
-          python-version: 3.12
-      - uses: abatilo/actions-poetry@v2
-        with:
-          poetry-version: 1.8.2
+      - name: Setup PDM
+        uses: pdm-project/setup-pdm@v4
       - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
       - uses: actions/cache@v3
         with:
@@ -28,5 +26,5 @@ jobs:
           path: .cache
           restore-keys: |
             mkdocs-material-
-      - run: poetry install --with docs
-      - run: poetry run mkdocs gh-deploy --force
+      - run: pdm install -G docs --no-self
+      - run: pdm run mkdocs gh-deploy --force

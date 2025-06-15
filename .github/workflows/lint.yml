@@ -10,35 +10,28 @@ on:
     branches: ["*"]
 
 jobs:
-  ci:
-    strategy:
-      matrix:
-        python-version: ["3.12"]
-        poetry-version: ["1.8.1"]
-        os: [ubuntu-latest]
-    runs-on: ${{ matrix.os }}
+  lint:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
 
-      - uses: abatilo/actions-poetry@v2
+      - name: Setup PDM
+        uses: pdm-project/setup-pdm@v4
         with:
-          poetry-version: ${{ matrix.poetry-version }}
+          python-version: "3.10"
+          cache: true
+
       - name: Install dependencies
-        run: poetry install --with dev,benchmark
+        run: pdm install -G lint --no-self
 
       - name: Run ruff lint check
-        run: poetry run ruff check .
+        run: pdm run ruff check .
 
       - name: Run ruff format check
-        run: poetry run ruff format --check .
+        run: pdm run ruff format --check .
 
       - name: Run Cython lint
-        run: poetry run cython-lint .
+        run: pdm run cython-lint .
 
       - name: Run mypy
-        run: poetry run mypy .
+        run: pdm run mypy .
