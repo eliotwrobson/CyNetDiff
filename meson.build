@@ -3,8 +3,7 @@ project('cynetdiff', 'cython', 'c',
   default_options : ['warning_level=3']
 )
 
-pymod = import('python')
-python = pymod.find_installation(pure: false)
+python = import('python').find_installation('python3', pure: false)
 
 if python.language_version().version_compare('< 3.10')
   error('Requires Python >= 3.10')
