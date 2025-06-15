@@ -39,6 +39,7 @@ python.extension_module(
     override_options : ['cython_language=cpp'],
     install: true,
     subdir: 'cynetdiff',
+    cpp_args: ['-DNPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION', '-Wno-pedantic'],
 )
 
 # Install pure python files
