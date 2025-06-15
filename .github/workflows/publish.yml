@@ -1,33 +1,62 @@
 # Automatically publishes version of the package on tagged release
+# Largely copied from https://learn.scientific-python.org/development/guides/gha-wheels/
 name: publish
 on:
-  push:
-    tags:
-      - "v*.*.*"
-
-  # TODO remove this before the final commit
-  pull_request:
-    branches: ["*"]
+  workflow_dispatch:
+  release:
+    types:
+      - published
+    pull_request:
+      paths:
+        - .github/workflows/publish.yml
 
 jobs:
-  publish:
-    strategy:
-      matrix:
-        python-version: ["3.10"] #, "3.10", "3.11", "3.12", "3.13"]
-        os: [ubuntu-latest]
-    runs-on: ${{ matrix.os }}
+  make_sdist:
+    name: Make SDist
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set up PDM
-        uses: pdm-project/setup-pdm@v4
+
+      - name: Build SDist
+        run: pipx run build --sdist
+
+      - uses: actions/upload-artifact@v4
         with:
-          python-version: ${{ matrix.python-version }}
-          cache: true
+          name: cibw-sdist
+          path: dist/*.tar.gz
 
-      - name: Install dependencies
-        run: pdm install -G test,build --no-self
+  build_wheels:
+    name: Wheel on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-13, macos-14]
 
-      - name: Run cibuildwheel
-        run: pdm run cibuildwheel --output-dir wheelhouse
+    steps:
+      - uses: actions/checkout@v4
 
-      # TODO add stuff to make this publish
+      - uses: astral-sh/setup-uv@v6
+
+      - uses: pypa/cibuildwheel@v2.23
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: cibw-wheels-${{ matrix.os }}
+          path: wheelhouse/*.whl
+
+  upload_all:
+    needs: [build_wheels, make_sdist]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release' && github.event.action == 'published'
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: cibw-*
+          path: dist
+          merge-multiple: true
+
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_TOKEN }}
