@@ -4,8 +4,6 @@ site_url: https://cynetdiff.site.to.be.created.org
 repo_url: https://github.com/eliotwrobson/CyNetDiff
 repo_name: cynetdiff
 edit_uri: blob/main/docs/
-authors:
-  - eliotwrobson: https://github.com/eliotwrobson
 theme:
   name: material
   palette:
@@ -46,7 +44,6 @@ plugins:
       enabled_if_env: ENABLE_PDF_EXPORT
   - mkdocstrings:
       enabled: !ENV [ENABLE_MKDOCSTRINGS, true]
-      custom_templates: templates
       default_handler: python
       handlers:
         python:
@@ -56,8 +53,8 @@ plugins:
             docstring_style: "numpy"
             show_root_heading: true
             filters:
-            - "!^_"
-            - "!^__"
+              - "!^_"
+              - "!^__"
 markdown_extensions:
   - toc:
       permalink: true
