@@ -31,7 +31,7 @@ encouraged to modify the codebase with new fixes and enhancements. Please
 observe the following guidelines when submitting pull requests for new fixes or
 features:
 
-1. All new code must be formatted with [ruff](https://github.com/astral-sh/ruff). The .vscode directory in this repository is configured to autoformat with ruff on save if you are using VSCode.
+1. All new Python code must be formatted with [ruff](https://github.com/astral-sh/ruff). The .vscode directory in this repository is configured to autoformat with ruff on save if you are using VSCode. All Cython code must pass a check from [cython-lint](https://github.com/MarcoGorelli/cython-lint).
 
 2. Whether you are introducing a bug fix or a new feature, you *must* add tests to verify that your code additions function correctly and break nothing else.
 
@@ -40,36 +40,33 @@ features:
 4. If you are adding a new feature or changing behavior, please update the documentation appropriately with the relevant information. To run the documentation site locally, install the documentation dependencies with:
 
 ```sh
-poetry install --with docs
+pdm install -G docs --no-self
 ```
 
 Then, start the local server with the following command:
 
 ```sh
-poetry run mkdocs serve
+pdm run mkdocs gh-deploy --force
 ```
-### Using Poetry
+### Using PDM
 
-This project is developed using [poetry](https://python-poetry.org/). It is strongly recommended for local development.
+This project is developed using [PDM](https://pdm-project.org). It is strongly recommended for local development.
 
 ### Installing project dependencies
 
-To install the local version of the library with development dependencies, run the following:
+To install the local version of the library with all development dependencies, run the following:
 
 ```sh
-poetry install --with dev
+pdm install -G :all --without docs
 ```
 
-### Cython Generation
-
-The Cython code for this project is generated and then committed to the repository. This code generation is not enabled by default. To enable this, add `"cython"` to the build dependencies in `pyproject.toml`.
-Make sure not to commit this change, as it just enables regeneration
-of the C++ files from Cython code.
+This will build the project locally and install dependencies. To rebuild the project after making changes,
+run `pdm install` again.
 
 ### Running unit tests
 
 The unit tests use [pytest](https://docs.pytest.org/en/8.0.x/).
 
 ```sh
-poetry run pytest
+pdm run pytest
 ```
