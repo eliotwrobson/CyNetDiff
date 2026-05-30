@@ -20,7 +20,7 @@ jobs:
           cache: true
 
       - name: Install dependencies
-        run: pdm install -G test,build
+        run: pdm install -G benchmark,build --no-lock
 
       - name: Run benchmarks
         run: pdm run pytest benchmarks

@@ -41,6 +41,12 @@ build = [
 ]
 test = [
     "pytest",
+    "networkx~=3.2.1",
+    "numpy~=2.0.0",
+    "pytest-benchmark~=5.1.0",
+]
+benchmark = [
+    "pytest",
     "ndlib~=5.1.1",
     "networkx~=3.2.1",
     "numpy~=2.0.0",
