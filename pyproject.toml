@@ -18,6 +18,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Scientific/Engineering :: Mathematics",
     "Intended Audience :: Science/Research",
 ]
@@ -73,7 +74,7 @@ build-backend = "mesonpy"
 requires = ["meson-python>=0.18.0", "cython", "numpy~=2.0.0", "ninja>=1.8.2"]
 
 [tool.cibuildwheel]
-build = "cp310-* cp311-* cp312-* cp313-*"
+build = "cp310-* cp311-* cp312-* cp313-* cp314-*"
 build-frontend = "build[uv]"
 test-requires = "pytest networkx numpy"
 test-command = "pytest {project}/tests"
@@ -81,7 +82,7 @@ test-command = "pytest {project}/tests"
 ### Start of static analyis tools ###
 
 [tool.mypy]
-python_version = "3.13"
+python_version = "3.14"
 
 [[tool.mypy.overrides]]
 module = ["networkx.*", "Cython.*", "ndlib.*", "pooch.*", "matplotlib.*"]
